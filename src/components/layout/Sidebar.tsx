@@ -7,10 +7,6 @@ import {
   BookOpen,
   LayoutDashboard,
   Library,
-  Flame,
-  Heart,
-  Bookmark,
-  Tag as TagIcon,
   Settings,
   Plus,
   LogOut,
@@ -48,9 +44,6 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   const bookNavItems = [
     { name: 'Tổng quan', href: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Thư viện sách', href: '/app/library', icon: Library },
-    { name: 'Đang đọc', href: '/app/reading', icon: Flame },
-    { name: 'Muốn đọc', href: '/app/wishlist', icon: Heart },
-    { name: 'Ghi chú & Trích dẫn', href: '/app/notes', icon: Bookmark },
   ];
 
   const homeNavItems = [
