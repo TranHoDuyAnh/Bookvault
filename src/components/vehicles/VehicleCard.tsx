@@ -13,10 +13,12 @@ import {
   Plus,
   Trash2,
   FileCheck,
+  Edit2,
 } from 'lucide-react';
 import type { Vehicle, VehicleType } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeleteVehicle } from '@/hooks/useVehicles';
+import { EditVehicleModal } from './EditVehicleModal';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
 
@@ -37,6 +39,7 @@ export function VehicleCard({
   onOpenServiceModal: (v: Vehicle) => void;
 }) {
   const deleteMutation = useDeleteVehicle();
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const today = new Date();
   const thirtyDaysLater = new Date();
   thirtyDaysLater.setDate(today.getDate() + 30);
@@ -208,15 +211,30 @@ export function VehicleCard({
             </Button>
           </div>
 
-          <button
-            onClick={handleDelete}
-            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-            title="Xoá xe"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="rounded p-1 text-stone-400 hover:text-[#1e3a2f] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+              title="Chỉnh sửa xe"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Xoá xe"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <EditVehicleModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        vehicle={vehicle}
+      />
     </div>
   );
 }

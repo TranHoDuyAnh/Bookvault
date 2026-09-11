@@ -132,6 +132,28 @@ export async function toggleUtilityPaid(
   return data as UtilityBill;
 }
 
+export async function updateUtilityBill(
+  billId: string,
+  updates: Partial<UtilityBill>
+): Promise<UtilityBill> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('utility_bills')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('id', billId)
+    .select('*')
+    .single();
+
+  if (error) {
+    throw new Error(`Cập nhật hoá đơn thất bại: ${error.message}`);
+  }
+
+  return data as UtilityBill;
+}
+
 export async function deleteUtilityBill(billId: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('utility_bills').delete().eq('id', billId);

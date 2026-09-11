@@ -1,14 +1,16 @@
 'use client';
 
-import React from 'react';
-import { Wrench, Calendar, DollarSign, User, Phone, MapPin, Star, Trash2, Tag } from 'lucide-react';
+import React, { useState } from 'react';
+import { Wrench, Calendar, DollarSign, User, Phone, MapPin, Star, Trash2, Tag, Edit2 } from 'lucide-react';
 import type { ServiceRecord } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeleteServiceRecord } from '@/hooks/useServices';
+import { EditServiceModal } from './EditServiceModal';
 import { toast } from 'sonner';
 
 export function ServiceRecordCard({ record }: { record: ServiceRecord }) {
   const deleteMutation = useDeleteServiceRecord();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm(`Bạn có chắc muốn xoá lịch sử dịch vụ "${record.title}"?`)) return;
@@ -87,15 +89,30 @@ export function ServiceRecordCard({ record }: { record: ServiceRecord }) {
             <span className="font-medium text-stone-700 dark:text-stone-300">{formatDateVN(record.service_date)}</span>
           </div>
 
-          <button
-            onClick={handleDelete}
-            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-            title="Xoá lịch sử"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="rounded p-1 text-stone-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+              title="Chỉnh sửa dịch vụ"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Xoá lịch sử"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <EditServiceModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        record={record}
+      />
     </div>
   );
 }

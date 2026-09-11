@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, CheckCircle2, Clock, AlertTriangle, Calendar, Trash2, RotateCw, History } from 'lucide-react';
+import { Sparkles, CheckCircle2, Clock, AlertTriangle, Calendar, Trash2, RotateCw, History, Edit2 } from 'lucide-react';
 import type { CleaningTask } from '@/types/database';
 import { formatDateVN } from '@/lib/utils';
 import { useCompleteCleaningTask, useDeleteCleaningTask } from '@/hooks/useCleaning';
+import { EditCleaningTaskModal } from './EditCleaningTaskModal';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
 
@@ -12,6 +13,7 @@ export function CleaningTaskCard({ task }: { task: CleaningTask }) {
   const completeMutation = useCompleteCleaningTask();
   const deleteMutation = useDeleteCleaningTask();
   const [isCheckInLoading, setIsCheckInLoading] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -161,14 +163,29 @@ export function CleaningTaskCard({ task }: { task: CleaningTask }) {
           {isCheckInLoading ? 'Đang cập nhật...' : 'Đã vệ sinh hôm nay ✨'}
         </Button>
 
-        <button
-          onClick={handleDelete}
-          className="rounded p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-          title="Xoá lịch"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="rounded p-1.5 text-stone-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+            title="Chỉnh sửa lịch"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="rounded p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+            title="Xoá lịch"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+
+      <EditCleaningTaskModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        task={task}
+      />
     </div>
   );
 }

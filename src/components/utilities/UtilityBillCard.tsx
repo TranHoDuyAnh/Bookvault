@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Zap,
   Droplet,
@@ -14,10 +14,12 @@ import {
   Calendar,
   FileText,
   Trash2,
+  Edit2,
 } from 'lucide-react';
 import type { UtilityBill, UtilityType } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useToggleUtilityPaid, useDeleteUtilityBill } from '@/hooks/useUtilities';
+import { EditUtilityModal } from './EditUtilityModal';
 import { toast } from 'sonner';
 
 export const UTILITY_TYPES_CONFIG: Record<
@@ -36,6 +38,7 @@ export const UTILITY_TYPES_CONFIG: Record<
 export function UtilityBillCard({ bill }: { bill: UtilityBill }) {
   const toggleMutation = useToggleUtilityPaid();
   const deleteMutation = useDeleteUtilityBill();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const typeConfig = UTILITY_TYPES_CONFIG[bill.utility_type] || UTILITY_TYPES_CONFIG.ELECTRICITY;
   const TypeIcon = typeConfig.icon;
@@ -166,14 +169,29 @@ export function UtilityBillCard({ bill }: { bill: UtilityBill }) {
           <span>{bill.is_paid ? 'Đã hoàn tất thanh toán' : 'Đánh dấu đã thanh toán'}</span>
         </label>
 
-        <button
-          onClick={handleDelete}
-          className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-          title="Xoá hoá đơn"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="rounded p-1 text-stone-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+            title="Chỉnh sửa hoá đơn"
+          >
+            <Edit2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+            title="Xoá hoá đơn"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
+
+      <EditUtilityModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        bill={bill}
+      />
     </div>
   );
 }

@@ -107,6 +107,25 @@ export async function createServiceRecord({
   return data as ServiceRecord;
 }
 
+export async function updateServiceRecord(
+  recordId: string,
+  updates: Partial<ServiceRecord>
+): Promise<ServiceRecord> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('service_history')
+    .update(updates as any)
+    .eq('id', recordId)
+    .select('*')
+    .single();
+
+  if (error) {
+    throw new Error(`Cập nhật lịch sử dịch vụ thất bại: ${error.message}`);
+  }
+
+  return data as ServiceRecord;
+}
+
 export async function deleteServiceRecord(recordId: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('service_history').delete().eq('id', recordId);

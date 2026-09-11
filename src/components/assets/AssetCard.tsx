@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Package, MapPin, DollarSign, Calendar, Trash2, Tag, TrendingDown, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, MapPin, DollarSign, Calendar, Trash2, Tag, TrendingDown, TrendingUp, Edit2 } from 'lucide-react';
 import type { PersonalAsset, AssetCategory } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeletePersonalAsset } from '@/hooks/useAssets';
+import { EditAssetModal } from './EditAssetModal';
 import { toast } from 'sonner';
 
 export const ASSET_CATEGORIES: Record<AssetCategory, { label: string; bg: string; text: string }> = {
@@ -20,6 +21,7 @@ export const ASSET_CATEGORIES: Record<AssetCategory, { label: string; bg: string
 
 export function AssetCard({ asset }: { asset: PersonalAsset }) {
   const deleteMutation = useDeletePersonalAsset();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const categoryInfo = ASSET_CATEGORIES[asset.category] || ASSET_CATEGORIES.OTHER;
   const pPrice = Number(asset.purchase_price || 0);
@@ -118,15 +120,30 @@ export function AssetCard({ asset }: { asset: PersonalAsset }) {
             {asset.purchase_date ? `Mua: ${formatDateVN(asset.purchase_date)}` : 'Chưa lưu ngày mua'}
           </span>
 
-          <button
-            onClick={handleDelete}
-            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-            title="Xoá tài sản"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="rounded p-1 text-stone-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors cursor-pointer"
+              title="Chỉnh sửa tài sản"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+              title="Xoá tài sản"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <EditAssetModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        asset={asset}
+      />
     </div>
   );
 }

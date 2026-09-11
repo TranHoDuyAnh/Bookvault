@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Home, ShieldCheck, AlertTriangle, ShieldAlert, Wrench, Trash2, Calendar, DollarSign, Store, FileText, ExternalLink } from 'lucide-react';
+import { Home, ShieldCheck, AlertTriangle, ShieldAlert, Wrench, Trash2, Calendar, DollarSign, Store, FileText, ExternalLink, Edit2 } from 'lucide-react';
 import type { HomeItem } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeleteHomeItem } from '@/hooks/useHome';
+import { EditHomeItemModal } from './EditHomeItemModal';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { toast } from 'sonner';
@@ -18,6 +19,7 @@ export function HomeItemCard({
 }) {
   const deleteMutation = useDeleteHomeItem();
   const [isReceiptPreviewOpen, setIsReceiptPreviewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Warranty calculation
   const getWarrantyInfo = () => {
@@ -176,16 +178,31 @@ export function HomeItemCard({
               Ghi bảo trì
             </Button>
 
-            <button
-              onClick={handleDelete}
-              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-              title="Xoá đồ"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setIsEditOpen(true)}
+                className="rounded p-1 text-stone-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors cursor-pointer"
+                title="Chỉnh sửa đồ đạc"
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={handleDelete}
+                className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                title="Xoá đồ"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <EditHomeItemModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        item={item}
+      />
 
       {/* Receipt Photo Modal */}
       {isReceiptPreviewOpen && item.receipt_image_url && (

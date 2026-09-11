@@ -5,10 +5,12 @@ import {
   getCleaningTasks,
   createCleaningTask,
   completeCleaningTask,
+  updateCleaningTask,
   deleteCleaningTask,
   getCleaningStats,
 } from '@/services/cleaning';
 import { useUser } from './useUser';
+import type { CleaningTask } from '@/types/database';
 
 export function useCleaningTasks() {
   const { user } = useUser();
@@ -65,6 +67,27 @@ export function useCompleteCleaningTask() {
       frequencyDays: number;
     }) => {
       return completeCleaningTask(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cleaning-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['cleaning-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+export function useUpdateCleaningTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      taskId,
+      updates,
+    }: {
+      taskId: string;
+      updates: Partial<CleaningTask>;
+    }) => {
+      return updateCleaningTask(taskId, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cleaning-tasks'] });

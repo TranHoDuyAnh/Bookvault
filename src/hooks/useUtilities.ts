@@ -5,12 +5,13 @@ import {
   getUtilityBills,
   createUtilityBill,
   toggleUtilityPaid,
+  updateUtilityBill,
   deleteUtilityBill,
   getUtilityStats,
   type UtilityFilters,
 } from '@/services/utilities';
 import { useUser } from './useUser';
-import type { UtilityType } from '@/types/database';
+import type { UtilityType, UtilityBill } from '@/types/database';
 
 export function useUtilityBills(filters?: UtilityFilters) {
   const { user } = useUser();
@@ -68,6 +69,27 @@ export function useToggleUtilityPaid() {
   return useMutation({
     mutationFn: async ({ billId, isPaid }: { billId: string; isPaid: boolean }) => {
       return toggleUtilityPaid(billId, isPaid);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['utility-bills'] });
+      queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+export function useUpdateUtilityBill() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      billId,
+      updates,
+    }: {
+      billId: string;
+      updates: Partial<UtilityBill>;
+    }) => {
+      return updateUtilityBill(billId, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['utility-bills'] });

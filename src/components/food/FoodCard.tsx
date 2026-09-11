@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Utensils, Star, MapPin, DollarSign, Calendar, Heart, Trash2, Home, Store } from 'lucide-react';
+import React, { useState } from 'react';
+import { Utensils, Star, MapPin, DollarSign, Calendar, Heart, Trash2, Home, Store, Edit2 } from 'lucide-react';
 import type { FoodEntry, MealType } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeleteFoodEntry, useUpdateFoodEntry } from '@/hooks/useFood';
+import { EditFoodModal } from './EditFoodModal';
 import { toast } from 'sonner';
 
 export const MEAL_TYPE_LABELS: Record<MealType, { label: string; bg: string; text: string }> = {
@@ -18,6 +19,7 @@ export const MEAL_TYPE_LABELS: Record<MealType, { label: string; bg: string; tex
 export function FoodCard({ entry }: { entry: FoodEntry }) {
   const deleteMutation = useDeleteFoodEntry();
   const updateMutation = useUpdateFoodEntry();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const mealConfig = MEAL_TYPE_LABELS[entry.meal_type] || MEAL_TYPE_LABELS.DINNER;
 
@@ -141,15 +143,30 @@ export function FoodCard({ entry }: { entry: FoodEntry }) {
             <span className="text-[11px]">{formatDateVN(entry.entry_date)}</span>
           </div>
 
-          <button
-            onClick={handleDelete}
-            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-            title="Xoá nhật ký"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="rounded p-1 text-stone-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+              title="Chỉnh sửa món ăn"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+              title="Xoá nhật ký"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <EditFoodModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        entry={entry}
+      />
     </div>
   );
 }

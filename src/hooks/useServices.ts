@@ -4,10 +4,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getServiceRecords,
   createServiceRecord,
+  updateServiceRecord,
   deleteServiceRecord,
   getServiceStats,
 } from '@/services/services';
 import { useUser } from './useUser';
+import type { ServiceRecord } from '@/types/database';
 
 export function useServiceRecords(category?: string) {
   const { user } = useUser();
@@ -51,6 +53,26 @@ export function useCreateServiceRecord() {
     }) => {
       if (!user) throw new Error('Bạn cần đăng nhập để lưu lịch sử dịch vụ.');
       return createServiceRecord({ ...data, userId: user.id });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['service-records'] });
+      queryClient.invalidateQueries({ queryKey: ['service-stats'] });
+    },
+  });
+}
+
+export function useUpdateServiceRecord() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recordId,
+      updates,
+    }: {
+      recordId: string;
+      updates: Partial<ServiceRecord>;
+    }) => {
+      return updateServiceRecord(recordId, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['service-records'] });

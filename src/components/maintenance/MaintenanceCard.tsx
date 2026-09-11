@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wrench, Calendar, DollarSign, User, Phone, ShieldCheck, Trash2, CheckCircle2, Clock, Image as ImageIcon } from 'lucide-react';
+import { Wrench, Calendar, DollarSign, User, Phone, ShieldCheck, Trash2, CheckCircle2, Clock, Image as ImageIcon, Edit2 } from 'lucide-react';
 import type { HomeMaintenanceRecord } from '@/types/database';
 import { formatVND, formatDateVN } from '@/lib/utils';
 import { useDeleteMaintenanceRecord } from '@/hooks/useMaintenance';
+import { EditMaintenanceModal } from './EditMaintenanceModal';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 export function MaintenanceCard({ record }: { record: HomeMaintenanceRecord }) {
   const deleteMutation = useDeleteMaintenanceRecord();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const today = new Date();
 
   const isWarrantyActive = record.warranty_until && new Date(record.warranty_until) >= today;
@@ -108,18 +110,33 @@ export function MaintenanceCard({ record }: { record: HomeMaintenanceRecord }) {
           </button>
         )}
 
-        {/* Footer Delete */}
+        {/* Footer Actions */}
         <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs text-stone-400">
           <span className="text-[10px]">{record.notes || ''}</span>
-          <button
-            onClick={handleDelete}
-            className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer ml-auto"
-            title="Xoá nhật ký"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center gap-1 ml-auto">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="rounded p-1 text-stone-400 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+              title="Chỉnh sửa bảo trì"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Xoá nhật ký"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <EditMaintenanceModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        record={record}
+      />
 
       {/* Image comparison modal */}
       {isPreviewOpen && (

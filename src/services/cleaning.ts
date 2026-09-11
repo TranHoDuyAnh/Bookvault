@@ -160,6 +160,28 @@ export async function completeCleaningTask({
   }
 }
 
+export async function updateCleaningTask(
+  taskId: string,
+  updates: Partial<CleaningTask>
+): Promise<CleaningTask> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('cleaning_tasks')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('id', taskId)
+    .select('*')
+    .single();
+
+  if (error) {
+    throw new Error(`Cập nhật lịch vệ sinh thất bại: ${error.message}`);
+  }
+
+  return data as CleaningTask;
+}
+
 export async function deleteCleaningTask(taskId: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from('cleaning_tasks').delete().eq('id', taskId);
