@@ -18,6 +18,14 @@ import {
   Wrench,
   Gift,
   Settings,
+  TrendingUp,
+  PiggyBank,
+  CheckSquare,
+  BookMarked,
+  Target,
+  ShoppingCart,
+  Tv,
+  CalendarHeart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +41,14 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   ];
 
   const moreItems = [
+    { name: 'Budget Tracker', href: '/app/budget', icon: TrendingUp, color: 'text-emerald-700' },
+    { name: 'Mục tiêu tiết kiệm', href: '/app/savings', icon: PiggyBank, color: 'text-teal-700' },
+    { name: 'Habit Tracker', href: '/app/habits', icon: CheckSquare, color: 'text-emerald-600' },
+    { name: 'Nhật ký cá nhân', href: '/app/journal', icon: BookMarked, color: 'text-violet-600' },
+    { name: 'Mục tiêu & OKR', href: '/app/goals', icon: Target, color: 'text-amber-600' },
+    { name: 'Danh sách mua sắm', href: '/app/shopping', icon: ShoppingCart, color: 'text-blue-600' },
+    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600' },
+    { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600' },
     { name: 'Lịch vệ sinh (Chu kỳ)', href: '/app/cleaning', icon: Sparkles, color: 'text-emerald-700' },
     { name: 'Hoá đơn định kỳ (Điện/Nước)', href: '/app/utilities', icon: Zap, color: 'text-amber-600' },
     { name: 'Xe & Xăng cộ (Đăng kiểm)', href: '/app/vehicles', icon: Car, color: 'text-blue-700' },

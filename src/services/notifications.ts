@@ -5,6 +5,7 @@ import { getUtilityBills } from './utilities';
 import { getVehicles } from './vehicles';
 import { getHomeItems } from './home';
 import { getTodayQuest } from './mystery';
+import { getUpcomingDates } from './importantDates';
 
 export async function getGlobalNotifications(userId: string): Promise<NotificationReminder[]> {
   const notifications: NotificationReminder[] = [];
@@ -194,6 +195,25 @@ export async function getGlobalNotifications(userId: string): Promise<Notificati
     }
   } catch (err) {
     console.error('Error checking mystery quest notification:', err);
+  }
+
+  // 6. Check Upcoming Important Dates
+  try {
+    const upcomingDates = await getUpcomingDates(userId, 7); // next 7 days
+    upcomingDates.forEach((d) => {
+      notifications.push({
+        id: `date_${d.id}`,
+        type: 'IMPORTANT_DATE',
+        title: `Sắp tới ngày: ${d.title}`,
+        description: d.person_name ? `Ngày đặc biệt của ${d.person_name} (${d.event_date})` : `Sự kiện diễn ra vào ${d.event_date}`,
+        dueDate: d.event_date,
+        severity: 'warning',
+        linkHref: '/app/dates',
+        actionText: 'Xem lịch',
+      });
+    });
+  } catch (err) {
+    console.error('Error checking important dates notification:', err);
   }
 
   // Sort: urgent first, then warning, then info

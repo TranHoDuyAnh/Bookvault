@@ -372,7 +372,15 @@ export interface ServiceRecord {
 }
 
 // ================= NOTIFICATION REMINDER TYPES =================
-export type NotificationType = 'CLEANING_DUE' | 'UTILITY_UNPAID' | 'VEHICLE_EXPIRY' | 'WARRANTY_EXPIRY' | 'MYSTERY_QUEST';
+export type NotificationType =
+  | 'CLEANING_DUE'
+  | 'UTILITY_UNPAID'
+  | 'VEHICLE_EXPIRY'
+  | 'WARRANTY_EXPIRY'
+  | 'MYSTERY_QUEST'
+  | 'IMPORTANT_DATE'
+  | 'HABIT_STREAK'
+  | 'SAVINGS_DEADLINE';
 
 export interface NotificationReminder {
   id: string;
@@ -385,3 +393,202 @@ export interface NotificationReminder {
   actionText: string;
 }
 
+// ================= BUDGET TRACKER =================
+export type PaymentMethod = 'CASH' | 'CARD' | 'TRANSFER' | 'EWALLET' | 'OTHER';
+
+export interface BudgetCategory {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  monthly_budget: number;
+  created_at: string;
+}
+
+export interface ExpenseTransaction {
+  id: string;
+  user_id: string;
+  category_id: string | null;
+  title: string;
+  amount: number;
+  transaction_date: string;
+  payment_method: PaymentMethod;
+  notes: string | null;
+  created_at: string;
+  category?: BudgetCategory | null;
+}
+
+export interface IncomeEntry {
+  id: string;
+  user_id: string;
+  title: string;
+  amount: number;
+  income_date: string;
+  source: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+// ================= SAVINGS GOALS =================
+export interface SavingsGoal {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  target_amount: number;
+  current_amount: number;
+  icon: string;
+  color: string;
+  deadline: string | null;
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+  contributions?: SavingsContribution[];
+}
+
+export interface SavingsContribution {
+  id: string;
+  goal_id: string;
+  amount: number;
+  contribution_date: string;
+  note: string | null;
+  created_at: string;
+}
+
+// ================= HABIT TRACKER =================
+export type HabitFrequency = 'DAILY' | 'WEEKLY';
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  frequency: HabitFrequency;
+  target_per_week: number;
+  is_active: boolean;
+  created_at: string;
+  logs?: HabitLog[];
+}
+
+export interface HabitLog {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  completed_date: string;
+  note: string | null;
+  created_at: string;
+}
+
+// ================= PERSONAL JOURNAL =================
+export type MoodLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface JournalEntry {
+  id: string;
+  user_id: string;
+  title: string | null;
+  content: string;
+  mood: MoodLevel | null;
+  entry_date: string;
+  tags: string[] | null;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= GOALS & OKR =================
+export type GoalStatus = 'ACTIVE' | 'COMPLETED' | 'PAUSED' | 'ABANDONED';
+
+export interface PersonalGoal {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  period: string;
+  status: GoalStatus;
+  icon: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+  key_results?: KeyResult[];
+}
+
+export interface KeyResult {
+  id: string;
+  goal_id: string;
+  title: string;
+  unit: string | null;
+  target_value: number;
+  current_value: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= SHOPPING LIST =================
+export interface ShoppingList {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string;
+  description: string | null;
+  created_at: string;
+  items?: ShoppingItem[];
+}
+
+export interface ShoppingItem {
+  id: string;
+  list_id: string;
+  user_id: string;
+  name: string;
+  quantity: string;
+  unit: string | null;
+  category: string | null;
+  estimated_price: number | null;
+  is_checked: boolean;
+  note: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+// ================= ENTERTAINMENT =================
+export type MediaType = 'MOVIE' | 'SERIES' | 'GAME' | 'PODCAST' | 'ANIME' | 'DOCUMENTARY';
+export type MediaStatus = 'WISHLIST' | 'IN_PROGRESS' | 'COMPLETED' | 'DROPPED';
+
+export interface MediaEntry {
+  id: string;
+  user_id: string;
+  title: string;
+  media_type: MediaType;
+  status: MediaStatus;
+  genre: string | null;
+  platform: string | null;
+  rating: number | null;
+  review: string | null;
+  poster_url: string | null;
+  release_year: number | null;
+  director_creator: string | null;
+  total_episodes: number | null;
+  notes: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= IMPORTANT DATES =================
+export type DateCategory = 'BIRTHDAY' | 'ANNIVERSARY' | 'REMINDER' | 'HOLIDAY' | 'OTHER';
+
+export interface ImportantDate {
+  id: string;
+  user_id: string;
+  title: string;
+  event_date: string;
+  is_recurring: boolean;
+  category: DateCategory;
+  person_name: string | null;
+  notes: string | null;
+  reminder_days_before: number;
+  created_at: string;
+}
