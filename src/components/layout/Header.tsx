@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Plus, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { NotificationBell } from './NotificationBell';
 import { useUser } from '@/hooks/useUser';
 
 interface HeaderProps {
@@ -56,7 +57,10 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
       </div>
 
       {/* Right actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Global Notification & Reminder Bell */}
+        <NotificationBell />
+
         <Button
           onClick={onOpenAddModal}
           size="sm"

@@ -1719,5 +1719,291 @@ using (user_id = auth.uid())
 with check (user_id = auth.uid());
 
 -- ============================================================
+-- 32. PERSONAL ASSET MANAGER
+-- ============================================================
+
+create table if not exists public.personal_assets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  category text not null default 'TECH',
+  purchase_date date,
+  purchase_price numeric(14,0),
+  estimated_current_value numeric(14,0),
+  location text,
+  status text not null default 'ACTIVE',
+  serial_number text,
+  image_url text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.personal_assets enable row level security;
+
+create policy "Users can manage own personal assets"
+on public.personal_assets
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+-- ============================================================
+-- 33. VEHICLE MANAGER
+-- ============================================================
+
+create table if not exists public.vehicles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  type text not null default 'MOTORBIKE',
+  license_plate text,
+  brand text,
+  model_year integer,
+  current_odo integer default 0,
+  insurance_expiry_date date,
+  registration_expiry_date date,
+  image_url text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.vehicles enable row level security;
+
+create policy "Users can manage own vehicles"
+on public.vehicles
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+create table if not exists public.vehicle_fuel_logs (
+  id uuid primary key default gen_random_uuid(),
+  vehicle_id uuid not null references public.vehicles(id) on delete cascade,
+  log_date date not null default current_date,
+  odo_km integer,
+  liters numeric(6,2),
+  price_per_liter numeric(10,0),
+  total_cost numeric(12,0) not null,
+  gas_station text,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.vehicle_fuel_logs enable row level security;
+
+create policy "Users can manage vehicle fuel logs"
+on public.vehicle_fuel_logs
+for all
+to authenticated
+using (
+  exists (
+    select 1 from public.vehicles v
+    where v.id = vehicle_fuel_logs.vehicle_id
+      and v.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.vehicles v
+    where v.id = vehicle_fuel_logs.vehicle_id
+      and v.user_id = auth.uid()
+  )
+);
+
+
+create table if not exists public.vehicle_service_logs (
+  id uuid primary key default gen_random_uuid(),
+  vehicle_id uuid not null references public.vehicles(id) on delete cascade,
+  log_date date not null default current_date,
+  odo_km integer,
+  service_type text not null,
+  cost numeric(12,0) not null default 0,
+  performed_at text,
+  next_service_odo integer,
+  next_service_date date,
+  notes text,
+  receipt_url text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.vehicle_service_logs enable row level security;
+
+create policy "Users can manage vehicle service logs"
+on public.vehicle_service_logs
+for all
+to authenticated
+using (
+  exists (
+    select 1 from public.vehicles v
+    where v.id = vehicle_service_logs.vehicle_id
+      and v.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.vehicles v
+    where v.id = vehicle_service_logs.vehicle_id
+      and v.user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 34. HOME MAINTENANCE HUB
+-- ============================================================
+
+create table if not exists public.home_maintenance_records (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  category text not null default 'OTHER',
+  title text not null,
+  description text,
+  cost numeric(12,0) not null default 0,
+  performed_date date not null default current_date,
+  contractor_name text,
+  contractor_phone text,
+  warranty_until date,
+  status text not null default 'COMPLETED',
+  before_image_url text,
+  after_image_url text,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.home_maintenance_records enable row level security;
+
+create policy "Users can manage home maintenance records"
+on public.home_maintenance_records
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+-- ============================================================
+-- 35. CLEANING PLANNER (RECURRING HYGIENE TASKS)
+-- ============================================================
+
+create table if not exists public.cleaning_tasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  category text not null default 'HOME',
+  frequency_days integer not null default 30,
+  last_completed_at date,
+  next_due_date date not null,
+  notes text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.cleaning_tasks enable row level security;
+
+create policy "Users can manage cleaning tasks"
+on public.cleaning_tasks
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+create table if not exists public.cleaning_logs (
+  id uuid primary key default gen_random_uuid(),
+  task_id uuid not null references public.cleaning_tasks(id) on delete cascade,
+  completed_at timestamptz not null default now(),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.cleaning_logs enable row level security;
+
+create policy "Users can manage cleaning logs"
+on public.cleaning_logs
+for all
+to authenticated
+using (
+  exists (
+    select 1 from public.cleaning_tasks ct
+    where ct.id = cleaning_logs.task_id
+      and ct.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.cleaning_tasks ct
+    where ct.id = cleaning_logs.task_id
+      and ct.user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 36. UTILITY TRACKER (RECURRING BILLS)
+-- ============================================================
+
+create table if not exists public.utility_bills (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  utility_type text not null default 'ELECTRICITY',
+  title text not null,
+  billing_period text not null,
+  due_date date not null,
+  amount numeric(12,0) not null,
+  meter_reading text,
+  is_paid boolean not null default false,
+  paid_at date,
+  receipt_url text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.utility_bills enable row level security;
+
+create policy "Users can manage utility bills"
+on public.utility_bills
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+-- ============================================================
+-- 37. SERVICE HISTORY
+-- ============================================================
+
+create table if not exists public.service_history (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  service_category text not null,
+  title text not null,
+  service_date date not null default current_date,
+  cost numeric(12,0) not null default 0,
+  provider_name text,
+  provider_phone text,
+  provider_address text,
+  rating numeric(2,1) check (rating is null or (rating >= 0 and rating <= 5)),
+  next_service_recommended_date date,
+  receipt_url text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.service_history enable row level security;
+
+create policy "Users can manage service history"
+on public.service_history
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+-- ============================================================
 -- END
 -- ============================================================

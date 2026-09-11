@@ -215,3 +215,173 @@ export interface UserDailyQuest {
   created_at: string;
   quest?: MysteryQuestPool;
 }
+
+// ================= PERSONAL ASSET TYPES =================
+export type AssetCategory = 'TECH' | 'VEHICLE' | 'JEWELRY_WATCH' | 'FURNITURE' | 'APPLIANCE' | 'COLLECTIBLE' | 'REAL_ESTATE' | 'OTHER';
+export type AssetStatus = 'ACTIVE' | 'SOLD' | 'BROKEN' | 'GIFTED';
+
+export interface PersonalAsset {
+  id: string;
+  user_id: string;
+  name: string;
+  category: AssetCategory;
+  purchase_date: string | null;
+  purchase_price: number | null;
+  estimated_current_value: number | null;
+  location: string | null;
+  status: AssetStatus;
+  serial_number: string | null;
+  image_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= VEHICLE MANAGER TYPES =================
+export type VehicleType = 'MOTORBIKE' | 'CAR' | 'ELECTRIC' | 'OTHER';
+
+export interface Vehicle {
+  id: string;
+  user_id: string;
+  name: string;
+  type: VehicleType;
+  license_plate: string | null;
+  brand: string | null;
+  model_year: number | null;
+  current_odo: number;
+  insurance_expiry_date: string | null;
+  registration_expiry_date: string | null;
+  image_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  fuel_logs?: VehicleFuelLog[];
+  service_logs?: VehicleServiceLog[];
+}
+
+export interface VehicleFuelLog {
+  id: string;
+  vehicle_id: string;
+  log_date: string;
+  odo_km: number | null;
+  liters: number | null;
+  price_per_liter: number | null;
+  total_cost: number;
+  gas_station: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface VehicleServiceLog {
+  id: string;
+  vehicle_id: string;
+  log_date: string;
+  odo_km: number | null;
+  service_type: string;
+  cost: number;
+  performed_at: string | null;
+  next_service_odo: number | null;
+  next_service_date: string | null;
+  notes: string | null;
+  receipt_url: string | null;
+  created_at: string;
+}
+
+// ================= HOME MAINTENANCE HUB TYPES =================
+export type MaintenanceStatus = 'COMPLETED' | 'SCHEDULED' | 'IN_PROGRESS';
+
+export interface HomeMaintenanceRecord {
+  id: string;
+  user_id: string;
+  category: string;
+  title: string;
+  description: string | null;
+  cost: number;
+  performed_date: string;
+  contractor_name: string | null;
+  contractor_phone: string | null;
+  warranty_until: string | null;
+  status: MaintenanceStatus;
+  before_image_url: string | null;
+  after_image_url: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+// ================= CLEANING PLANNER TYPES =================
+export interface CleaningTask {
+  id: string;
+  user_id: string;
+  title: string;
+  category: string;
+  frequency_days: number;
+  last_completed_at: string | null;
+  next_due_date: string;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  logs?: CleaningLog[];
+}
+
+export interface CleaningLog {
+  id: string;
+  task_id: string;
+  completed_at: string;
+  notes: string | null;
+  created_at: string;
+}
+
+// ================= UTILITY TRACKER TYPES =================
+export type UtilityType = 'ELECTRICITY' | 'WATER' | 'INTERNET' | 'PHONE' | 'APARTMENT_FEE' | 'TRASH' | 'OTHER';
+
+export interface UtilityBill {
+  id: string;
+  user_id: string;
+  utility_type: UtilityType;
+  title: string;
+  billing_period: string;
+  due_date: string;
+  amount: number;
+  meter_reading: string | null;
+  is_paid: boolean;
+  paid_at: string | null;
+  receipt_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= SERVICE HISTORY TYPES =================
+export interface ServiceRecord {
+  id: string;
+  user_id: string;
+  service_category: string;
+  title: string;
+  service_date: string;
+  cost: number;
+  provider_name: string | null;
+  provider_phone: string | null;
+  provider_address: string | null;
+  rating: number | null;
+  next_service_recommended_date: string | null;
+  receipt_url: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= NOTIFICATION REMINDER TYPES =================
+export type NotificationType = 'CLEANING_DUE' | 'UTILITY_UNPAID' | 'VEHICLE_EXPIRY' | 'WARRANTY_EXPIRY' | 'MYSTERY_QUEST';
+
+export interface NotificationReminder {
+  id: string;
+  type: NotificationType;
+  title: string;
+  description: string;
+  dueDate?: string | null;
+  severity: 'urgent' | 'warning' | 'info';
+  linkHref: string;
+  actionText: string;
+}
+
