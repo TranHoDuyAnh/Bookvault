@@ -15,6 +15,9 @@ import {
   Plus,
   LogOut,
   Sparkles,
+  Utensils,
+  Home,
+  Gift,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/hooks/useUser';
@@ -30,7 +33,7 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   const pathname = usePathname();
   const { user, profile } = useUser();
 
-  const navItems = [
+  const bookNavItems = [
     {
       name: 'Tổng quan',
       href: '/app/dashboard',
@@ -63,9 +66,33 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
     },
   ];
 
+  const lifestyleNavItems = [
+    {
+      name: 'Food Diary',
+      href: '/app/food',
+      icon: Utensils,
+      badge: 'Món ngon',
+      color: 'text-emerald-700 dark:text-emerald-400',
+    },
+    {
+      name: 'Home Manager',
+      href: '/app/home',
+      icon: Home,
+      badge: 'Bảo hành',
+      color: 'text-blue-700 dark:text-blue-400',
+    },
+    {
+      name: 'Mystery Box',
+      href: '/app/mystery',
+      icon: Gift,
+      badge: 'Nhiệm vụ',
+      color: 'text-amber-600 dark:text-amber-400',
+    },
+  ];
+
   return (
     <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-[#e7e2d9] bg-[#faf8f5] dark:border-stone-800 dark:bg-stone-950 p-4 min-h-screen">
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Logo & Tagline */}
         <div className="px-3 pt-2">
           <Link href="/app/dashboard" className="flex items-center gap-2.5 group">
@@ -105,34 +132,74 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
           </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-1 px-2">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/app/dashboard' && pathname.startsWith(item.href));
+        {/* Navigation Section 1: Bookshelf */}
+        <div className="space-y-1 px-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 block mb-1">
+            Tủ Sách Số
+          </span>
+          <nav className="space-y-0.5">
+            {bookNavItems.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/app/dashboard' && pathname.startsWith(item.href));
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150',
-                  isActive
-                    ? 'bg-[#1e3a2f] text-white shadow-xs'
-                    : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150',
+                    isActive
+                      ? 'bg-[#1e3a2f] text-white shadow-xs'
+                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Navigation Section 2: Lifestyle Hub */}
+        <div className="space-y-1 px-2 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 block mb-1 pt-1">
+            Cá Nhân Hoá & Lifestyle
+          </span>
+          <nav className="space-y-0.5">
+            {lifestyleNavItems.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150',
+                    isActive
+                      ? 'bg-[#1e3a2f] text-white shadow-xs'
+                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className={cn('h-4 w-4', !isActive && item.color)} />
+                    <span>{item.name}</span>
+                  </div>
+                  {item.badge && !isActive && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-200/70 text-stone-600 dark:bg-stone-800 dark:text-stone-300">
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
       {/* Footer / User Profile & Settings */}
-      <div className="space-y-2 px-2 pt-4 border-t border-[#e7e2d9] dark:border-stone-800">
+      <div className="space-y-2 px-2 pt-3 border-t border-[#e7e2d9] dark:border-stone-800">
         <Link
           href="/app/settings"
           className={cn(

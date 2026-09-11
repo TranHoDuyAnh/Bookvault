@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Library,
-  Flame,
-  Heart,
-  Settings,
+  Utensils,
+  Home,
+  Gift,
   Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,19 +28,19 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
       icon: Library,
     },
     {
-      name: 'Đang đọc',
-      href: '/app/reading',
-      icon: Flame,
+      name: 'Food',
+      href: '/app/food',
+      icon: Utensils,
     },
     {
-      name: 'Muốn đọc',
-      href: '/app/wishlist',
-      icon: Heart,
+      name: 'Home',
+      href: '/app/home',
+      icon: Home,
     },
     {
-      name: 'Cá nhân',
-      href: '/app/settings',
-      icon: Settings,
+      name: 'Mystery',
+      href: '/app/mystery',
+      icon: Gift,
     },
   ];
 
@@ -70,9 +70,9 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-[10px] font-medium transition-colors',
+                  'flex flex-col items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-medium transition-colors',
                   isActive
-                    ? 'text-[#1e3a2f] dark:text-emerald-400 font-bold'
+                    ? 'text-[#1e3a2f] dark:text-emerald-400 font-bold scale-105'
                     : 'text-stone-500 hover:text-stone-800 dark:text-stone-400'
                 )}
               >

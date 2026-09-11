@@ -2,6 +2,14 @@ export type BookStatus = 'WISHLIST' | 'OWNED' | 'READING' | 'READ' | 'DROPPED';
 
 export type BookImageType = 'COVER' | 'BACK_COVER' | 'SPINE' | 'ISBN' | 'OTHER';
 
+export type MealType = 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK' | 'CAFE_DRINK';
+
+export type HomeItemStatus = 'ACTIVE' | 'REPAIRING' | 'RETIRED';
+
+export type QuestCategory = 'FOOD' | 'MINDFULNESS' | 'HOME' | 'ADVENTURE' | 'READING';
+
+export type QuestDifficulty = 'EASY' | 'MEDIUM' | 'FUN';
+
 export interface Profile {
   id: string;
   display_name: string | null;
@@ -122,54 +130,88 @@ export interface MyLibraryItem {
   tags?: Tag[];
 }
 
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: Profile;
-        Insert: Partial<Profile> & { id: string };
-        Update: Partial<Profile>;
-      };
-      books: {
-        Row: Book;
-        Insert: Partial<Book> & { title: string };
-        Update: Partial<Book>;
-      };
-      book_images: {
-        Row: BookImage;
-        Insert: Partial<BookImage> & { book_id: string; image_url: string };
-        Update: Partial<BookImage>;
-      };
-      user_books: {
-        Row: UserBook;
-        Insert: Partial<UserBook> & { user_id: string; book_id: string };
-        Update: Partial<UserBook>;
-      };
-      reading_sessions: {
-        Row: ReadingSession;
-        Insert: Partial<ReadingSession> & { user_book_id: string; started_at: string };
-        Update: Partial<ReadingSession>;
-      };
-      book_notes: {
-        Row: BookNote;
-        Insert: Partial<BookNote> & { user_book_id: string; content: string };
-        Update: Partial<BookNote>;
-      };
-      tags: {
-        Row: Tag;
-        Insert: Partial<Tag> & { user_id: string; name: string };
-        Update: Partial<Tag>;
-      };
-      book_tags: {
-        Row: BookTag;
-        Insert: BookTag | BookTag[];
-        Update: Partial<BookTag>;
-      };
-    };
-    Views: {
-      my_library: {
-        Row: MyLibraryItem;
-      };
-    };
-  };
-};
+// ================= FOOD DIARY TYPES =================
+export interface FoodEntry {
+  id: string;
+  user_id: string;
+  dish_name: string;
+  meal_type: MealType;
+  restaurant_name: string | null;
+  location_address: string | null;
+  price: number | null;
+  rating: number | null;
+  entry_date: string;
+  review_notes: string | null;
+  is_cooked_at_home: boolean;
+  is_favorite: boolean;
+  image_url: string | null;
+  storage_path: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================= HOME MANAGER TYPES =================
+export interface HomeRoom {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: string | null;
+  created_at: string;
+  item_count?: number;
+}
+
+export interface HomeItem {
+  id: string;
+  user_id: string;
+  room_id: string | null;
+  name: string;
+  category: string | null;
+  purchase_date: string | null;
+  purchase_price: number | null;
+  purchase_store: string | null;
+  warranty_end_date: string | null;
+  serial_number: string | null;
+  status: HomeItemStatus;
+  manual_url: string | null;
+  notes: string | null;
+  image_url: string | null;
+  receipt_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  room?: HomeRoom | null;
+  maintenance_logs?: HomeMaintenanceLog[];
+}
+
+export interface HomeMaintenanceLog {
+  id: string;
+  item_id: string;
+  maintenance_date: string;
+  cost: number;
+  description: string;
+  performed_by: string | null;
+  created_at: string;
+}
+
+// ================= MYSTERY BOX TYPES =================
+export interface MysteryQuestPool {
+  id: string;
+  title: string;
+  description: string;
+  category: QuestCategory;
+  difficulty: QuestDifficulty;
+  points: number;
+  is_active: boolean;
+}
+
+export interface UserDailyQuest {
+  id: string;
+  user_id: string;
+  quest_id: string;
+  assigned_date: string;
+  is_completed: boolean;
+  completed_at: string | null;
+  proof_note: string | null;
+  proof_image_url: string | null;
+  created_at: string;
+  quest?: MysteryQuestPool;
+}

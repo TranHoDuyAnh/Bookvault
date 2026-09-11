@@ -1543,5 +1543,181 @@ execute function public.sync_profile_from_auth();
 
 
 -- ============================================================
+-- 29. FOOD DIARY MODULE
+-- ============================================================
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'meal_type') then
+    create type public.meal_type as enum (
+      'BREAKFAST',
+      'LUNCH',
+      'DINNER',
+      'SNACK',
+      'CAFE_DRINK'
+    );
+  end if;
+end
+$$;
+
+create table if not exists public.food_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  dish_name text not null,
+  meal_type public.meal_type not null default 'DINNER',
+  restaurant_name text,
+  location_address text,
+  price numeric(12,0),
+  rating numeric(2,1) check (rating is null or (rating >= 0 and rating <= 5)),
+  entry_date date not null default current_date,
+  review_notes text,
+  is_cooked_at_home boolean not null default false,
+  is_favorite boolean not null default false,
+  image_url text,
+  storage_path text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.food_entries enable row level security;
+
+create policy "Users can manage own food entries"
+on public.food_entries
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+-- ============================================================
+-- 30. HOME MANAGER MODULE
+-- ============================================================
+
+create table if not exists public.home_rooms (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  icon text default 'Home',
+  created_at timestamptz not null default now()
+);
+
+alter table public.home_rooms enable row level security;
+
+create policy "Users can manage own home rooms"
+on public.home_rooms
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+create table if not exists public.home_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  room_id uuid references public.home_rooms(id) on delete set null,
+  name text not null,
+  category text,
+  purchase_date date,
+  purchase_price numeric(12,0),
+  purchase_store text,
+  warranty_end_date date,
+  serial_number text,
+  status text not null default 'ACTIVE',
+  manual_url text,
+  notes text,
+  image_url text,
+  receipt_image_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.home_items enable row level security;
+
+create policy "Users can manage own home items"
+on public.home_items
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+
+create table if not exists public.home_maintenance_logs (
+  id uuid primary key default gen_random_uuid(),
+  item_id uuid not null references public.home_items(id) on delete cascade,
+  maintenance_date date not null default current_date,
+  cost numeric(12,0) not null default 0,
+  description text not null,
+  performed_by text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.home_maintenance_logs enable row level security;
+
+create policy "Users can manage maintenance logs"
+on public.home_maintenance_logs
+for all
+to authenticated
+using (
+  exists (
+    select 1 from public.home_items hi
+    where hi.id = home_maintenance_logs.item_id
+      and hi.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.home_items hi
+    where hi.id = home_maintenance_logs.item_id
+      and hi.user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 31. MYSTERY BOX MODULE
+-- ============================================================
+
+create table if not exists public.mystery_quest_pool (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text not null,
+  category text not null default 'MINDFULNESS',
+  difficulty text not null default 'EASY',
+  points integer not null default 10,
+  is_active boolean not null default true
+);
+
+alter table public.mystery_quest_pool enable row level security;
+
+create policy "Anyone authenticated can view quest pool"
+on public.mystery_quest_pool
+for select
+to authenticated
+using (true);
+
+
+create table if not exists public.user_daily_quests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  quest_id uuid not null references public.mystery_quest_pool(id) on delete cascade,
+  assigned_date date not null default current_date,
+  is_completed boolean not null default false,
+  completed_at timestamptz,
+  proof_note text,
+  proof_image_url text,
+  created_at timestamptz not null default now(),
+  unique (user_id, assigned_date)
+);
+
+alter table public.user_daily_quests enable row level security;
+
+create policy "Users can manage own daily quests"
+on public.user_daily_quests
+for all
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+-- ============================================================
 -- END
 -- ============================================================
