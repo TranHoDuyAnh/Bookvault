@@ -71,7 +71,7 @@ export async function updateImportantDate(id: string, updates: Partial<Important
   const supabase = createClient();
   const { data, error } = await supabase
     .from('important_dates')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();

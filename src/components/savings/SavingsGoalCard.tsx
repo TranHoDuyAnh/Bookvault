@@ -24,7 +24,7 @@ export function SavingsGoalCard({ item }: { item: any }) {
   };
 
   const percentage = Math.min(100, Math.floor((item.current_amount / item.target_amount) * 100));
-  const isCompleted = item.status === 'COMPLETED' || percentage >= 100;
+  const isCompleted = item.is_completed || percentage >= 100;
 
   let daysLeftText = '';
   if (item.deadline && !isCompleted) {

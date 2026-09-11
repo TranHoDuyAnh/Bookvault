@@ -25,7 +25,7 @@ export async function createSavingsGoal(payload: { userId: string, title: string
       icon: payload.icon || '🎯',
       color: payload.color || '#1e3a2f',
       deadline: payload.deadline || null,
-      status: 'IN_PROGRESS'
+      is_completed: false
     } as any)
     .select('*')
     .single();
@@ -68,9 +68,9 @@ export async function recalculateSavingsGoalAmount(goalId: string): Promise<void
   const total = contributions.reduce((sum, c) => sum + c.amount, 0);
   
   const { data: goal } = await supabase.from('savings_goals').select('target_amount').eq('id', goalId).single();
-  const status = goal && total >= goal.target_amount ? 'COMPLETED' : 'IN_PROGRESS';
+  const is_completed = !!(goal && total >= goal.target_amount);
 
-  const { error } = await supabase.from('savings_goals').update({ current_amount: total, status } as any).eq('id', goalId);
+  const { error } = await supabase.from('savings_goals').update({ current_amount: total, is_completed } as any).eq('id', goalId);
   if (error) throw new Error(error.message);
 }
 

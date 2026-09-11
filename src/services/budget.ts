@@ -33,7 +33,7 @@ export async function updateBudgetCategory(id: string, updates: Partial<BudgetCa
   const supabase = createClient();
   const { data, error } = await supabase
     .from('budget_categories')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();
@@ -85,7 +85,7 @@ export async function updateExpense(id: string, updates: Partial<ExpenseTransact
   const supabase = createClient();
   const { data, error } = await supabase
     .from('expense_transactions')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();

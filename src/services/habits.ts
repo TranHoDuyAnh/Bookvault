@@ -112,7 +112,7 @@ export async function updateHabit(id: string, updates: Partial<Habit>): Promise<
   const supabase = createClient();
   const { data, error } = await supabase
     .from('habits')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();

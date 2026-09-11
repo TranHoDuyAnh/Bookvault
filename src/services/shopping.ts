@@ -28,7 +28,7 @@ export async function updateShoppingList(id: string, updates: Partial<ShoppingLi
   const supabase = createClient();
   const { data, error } = await supabase
     .from('shopping_lists')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();
@@ -68,7 +68,7 @@ export async function updateShoppingItem(id: string, updates: Partial<ShoppingIt
   const supabase = createClient();
   const { data, error } = await supabase
     .from('shopping_items')
-    .update({ ...updates, updated_at: new Date().toISOString() } as any)
+    .update(updates as any)
     .eq('id', id)
     .select('*')
     .single();
