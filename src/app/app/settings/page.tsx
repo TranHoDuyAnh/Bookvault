@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Shield, LogOut, Check, Loader2, Sparkles, BookOpen } from 'lucide-react';
+import { User, Mail, Shield, LogOut, Check, Loader2, Sparkles, BookOpen, Sun, Moon, Laptop } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { useTheme } from '@/contexts/ThemeContext';
 import { updateProfile, signOut } from '@/services/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -10,6 +11,7 @@ import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { user, profile, loading } = useUser();
+  const { theme, setTheme } = useTheme();
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -115,6 +117,60 @@ export default function SettingsPage() {
             </Button>
           </div>
         </form>
+      </div>
+
+      {/* Appearance / Theme Settings */}
+      <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-xs space-y-4">
+        <div>
+          <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#1e3a2f] dark:text-emerald-400" />
+            Giao diện hiển thị
+          </h3>
+          <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
+            Tuỳ chỉnh chế độ giao diện sáng hoặc tối cho phù hợp với mắt của bạn.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => setTheme('light')}
+            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'border-[#1e3a2f] bg-[#f7f5f0] text-[#1e3a2f] ring-2 ring-[#1e3a2f]/20 font-bold'
+                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
+            }`}
+          >
+            <Sun className="h-5 w-5 mb-1.5 text-amber-500" />
+            <span className="text-xs">Sáng</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('dark')}
+            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'border-[#1e3a2f] dark:border-emerald-500 bg-stone-900 dark:bg-stone-800 text-stone-100 ring-2 ring-emerald-500/20 font-bold'
+                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
+            }`}
+          >
+            <Moon className="h-5 w-5 mb-1.5 text-indigo-400" />
+            <span className="text-xs">Tối</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('system')}
+            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
+              theme === 'system'
+                ? 'border-[#1e3a2f] dark:border-emerald-500 bg-[#f7f5f0] dark:bg-stone-800 text-[#1e3a2f] dark:text-stone-100 ring-2 ring-[#1e3a2f]/20 font-bold'
+                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
+            }`}
+          >
+            <Laptop className="h-5 w-5 mb-1.5 text-stone-500 dark:text-stone-400" />
+            <span className="text-xs">Hệ thống</span>
+          </button>
+        </div>
       </div>
 
       {/* App Information Box */}

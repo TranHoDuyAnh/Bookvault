@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Plus, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { NotificationBell } from './NotificationBell';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useUser } from '@/hooks/useUser';
 
 interface HeaderProps {
@@ -57,7 +58,10 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
       </div>
 
       {/* Right actions */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Theme Toggle (Light / Dark Mode) */}
+        <ThemeToggle />
+
         {/* Global Notification & Reminder Bell */}
         <NotificationBell />
 
