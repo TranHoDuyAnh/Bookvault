@@ -1695,6 +1695,12 @@ for select
 to authenticated
 using (true);
 
+create policy "Anyone authenticated can insert into quest pool"
+on public.mystery_quest_pool
+for insert
+to authenticated
+with check (true);
+
 
 create table if not exists public.user_daily_quests (
   id uuid primary key default gen_random_uuid(),

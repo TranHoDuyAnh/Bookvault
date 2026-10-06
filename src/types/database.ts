@@ -308,29 +308,6 @@ export interface HomeMaintenanceRecord {
   created_at: string;
 }
 
-// ================= CLEANING PLANNER TYPES =================
-export interface CleaningTask {
-  id: string;
-  user_id: string;
-  title: string;
-  category: string;
-  frequency_days: number;
-  last_completed_at: string | null;
-  next_due_date: string;
-  notes: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  logs?: CleaningLog[];
-}
-
-export interface CleaningLog {
-  id: string;
-  task_id: string;
-  completed_at: string;
-  notes: string | null;
-  created_at: string;
-}
 
 // ================= UTILITY TRACKER TYPES =================
 export type UtilityType = 'ELECTRICITY' | 'WATER' | 'INTERNET' | 'PHONE' | 'APARTMENT_FEE' | 'TRASH' | 'OTHER';
@@ -373,7 +350,6 @@ export interface ServiceRecord {
 
 // ================= NOTIFICATION REMINDER TYPES =================
 export type NotificationType =
-  | 'CLEANING_DUE'
   | 'UTILITY_UNPAID'
   | 'VEHICLE_EXPIRY'
   | 'WARRANTY_EXPIRY'

@@ -35,10 +35,10 @@ export default function LandingPage() {
           </div>
           <div>
             <span className="font-serif text-xl font-bold tracking-tight text-stone-900 block leading-tight">
-              BookVault
+              HomeBase
             </span>
             <span className="text-[10px] text-stone-500 font-medium tracking-wide">
-              Never buy the same book twice
+              Trung Tâm Cuộc Sống
             </span>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function LandingPage() {
           </Link>
           <Link href="/register">
             <Button className="text-xs font-semibold shadow-sm">
-              Tạo tủ sách miễn phí
+              Bắt đầu miễn phí
             </Button>
           </Link>
         </div>
@@ -61,7 +61,7 @@ export default function LandingPage() {
       <section className="relative px-6 pt-16 pb-20 sm:pt-24 sm:pb-32 max-w-5xl mx-auto text-center space-y-8">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-3.5 py-1 text-xs font-semibold text-emerald-800 shadow-2xs">
           <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Tủ sách số cá nhân chuẩn phong cách Editorial</span>
+          <span>Trung tâm quản lý cuộc sống toàn diện</span>
         </div>
 
         <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-stone-900 leading-[1.15]">
@@ -279,7 +279,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-[#e7e2d9] bg-[#faf8f5] py-8 px-6 text-center text-xs text-stone-500">
-        <p>© {new Date().getFullYear()} BookVault — Never buy the same book twice.</p>
+        <p>© {new Date().getFullYear()} HomeBase — Trung Tâm Cuộc Sống.</p>
       </footer>
     </div>
   );

@@ -5,9 +5,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BookVault — Không bao giờ mua trùng sách hai lần",
-  description: "Tủ sách số cá nhân thông minh. Quản lý sách đã mua, đang đọc, ghi chú và hình ảnh sách vật lý.",
-  keywords: ["book management", "digital bookshelf", "quản lý sách", "bookvault", "reading tracker"],
+  title: "HomeBase — Trung Tâm Cuộc Sống",
+  description: "Ứng dụng quản lý cuộc sống toàn diện: sách, nhà cửa, tài chính, xe cộ, thói quen và nhiều hơn nữa.",
+  keywords: ["life management", "homebase", "quản lý cuộc sống", "personal os", "home manager"],
 };
 
 export const viewport: Viewport = {
@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 const themeScript = `
   (function() {
     try {
-      var saved = localStorage.getItem('bookvault-theme');
+      var saved = localStorage.getItem('homebase-theme');
       var isDark = saved === 'dark' || (saved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       if (isDark) {
         document.documentElement.classList.add('dark');

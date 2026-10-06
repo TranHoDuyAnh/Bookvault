@@ -49,7 +49,6 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
     { name: 'Danh sách mua sắm', href: '/app/shopping', icon: ShoppingCart, color: 'text-blue-600' },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600' },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600' },
-    { name: 'Lịch vệ sinh (Chu kỳ)', href: '/app/cleaning', icon: Sparkles, color: 'text-emerald-700' },
     { name: 'Hoá đơn định kỳ (Điện/Nước)', href: '/app/utilities', icon: Zap, color: 'text-amber-600' },
     { name: 'Xe & Xăng cộ (Đăng kiểm)', href: '/app/vehicles', icon: Car, color: 'text-blue-700' },
     { name: 'Quản lý tài sản', href: '/app/assets', icon: Package, color: 'text-indigo-700' },
@@ -114,7 +113,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
           <div className="w-full bg-white dark:bg-stone-950 rounded-t-3xl p-5 space-y-4 max-h-[80vh] overflow-y-auto border-t border-stone-200 dark:border-stone-800">
             <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
               <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
-                Tất cả các tính năng Life OS
+                Tất cả các tính năng HomeBase
               </h3>
               <button
                 onClick={() => setIsMoreMenuOpen(false)}

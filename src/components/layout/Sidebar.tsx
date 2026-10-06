@@ -48,7 +48,6 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
 
   const homeNavItems = [
     { name: 'Đồ đạc trong nhà', href: '/app/home', icon: Home },
-    { name: 'Lịch vệ sinh', href: '/app/cleaning', icon: Sparkles, badge: 'Chu kỳ' },
     { name: 'Sửa chữa bảo trì', href: '/app/maintenance', icon: Wrench },
     { name: 'Hoá đơn định kỳ', href: '/app/utilities', icon: Zap, badge: 'Điện/Nước' },
   ];
@@ -86,10 +85,10 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
             </div>
             <div>
               <span className="font-serif text-base font-bold tracking-tight text-stone-900 dark:text-stone-100 block leading-tight">
-                BookVault
+                HomeBase
               </span>
               <span className="text-[9px] text-stone-500 font-medium block">
-                Never buy the same book twice
+                Trung Tâm Cuộc Sống
               </span>
             </div>
           </Link>

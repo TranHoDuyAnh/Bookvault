@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
 import type { NotificationReminder } from '@/types/database';
-import { getCleaningTasks } from './cleaning';
 import { getUtilityBills } from './utilities';
 import { getVehicles } from './vehicles';
 import { getHomeItems } from './home';
@@ -12,43 +11,7 @@ export async function getGlobalNotifications(userId: string): Promise<Notificati
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 1. Check Cleaning Tasks
-  try {
-    const cleaningTasks = await getCleaningTasks(userId);
-    cleaningTasks.forEach((task) => {
-      const due = new Date(task.next_due_date);
-      due.setHours(0, 0, 0, 0);
-      const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 0) {
-        notifications.push({
-          id: `cleaning_${task.id}`,
-          type: 'CLEANING_DUE',
-          title: `Đã quá hạn: ${task.title}`,
-          description: `Đã trễ ${Math.abs(diffDays)} ngày so với lịch định kỳ (${task.frequency_days} ngày/lần).`,
-          dueDate: task.next_due_date,
-          severity: 'urgent',
-          linkHref: '/app/cleaning',
-          actionText: 'Dọn dẹp ngay',
-        });
-      } else if (diffDays <= 3) {
-        notifications.push({
-          id: `cleaning_${task.id}`,
-          type: 'CLEANING_DUE',
-          title: `Sắp đến hạn: ${task.title}`,
-          description: diffDays === 0 ? 'Hạn vệ sinh là HÔM NAY!' : `Còn ${diffDays} ngày nữa là đến hạn vệ sinh.`,
-          dueDate: task.next_due_date,
-          severity: 'warning',
-          linkHref: '/app/cleaning',
-          actionText: 'Xem lịch dọn',
-        });
-      }
-    });
-  } catch (err) {
-    console.error('Error checking cleaning notifications:', err);
-  }
-
-  // 2. Check Unpaid Utility Bills
+  // 1. Check Unpaid Utility Bills
   try {
     const bills = await getUtilityBills(userId, { isPaid: false });
     bills.forEach((bill) => {
