@@ -1,9 +1,9 @@
-# 📚 BOOKVAULT & LIFE OS
+# 🏠 HOMEBASE — Trung Tâm Cuộc Sống
 
-> **"Never buy the same book twice."** — *Không bao giờ mua trùng một cuốn sách hai lần.*  
-> *Hệ sinh thái Tủ sách số & Quản trị phong cách sống cá nhân toàn diện (Personal Life OS).*
+> **Personal Life OS** — *Ứng dụng quản lý cuộc sống toàn diện dành cho người Việt.*  
+> *Sách, nhà cửa, tài chính, xe cộ, thói quen, nhật ký, giải trí — tất cả trong một.*
 
-**BookVault** là ứng dụng tủ sách số chuẩn phong cách Editorial kết hợp nền tảng quản trị cuộc sống cá nhân (Life OS). Ứng dụng giúp bạn quản lý toàn bộ bộ sưu tập sách, tài sản cá nhân, phương tiện xe cộ, bảo trì nhà cửa, chu kỳ vệ sinh định kỳ, hoá đơn sinh hoạt, lịch sử dịch vụ và mở khoá nhiệm vụ bí mật mỗi ngày.
+**HomeBase** là ứng dụng quản lý cuộc sống cá nhân toàn diện (Personal Life OS) với phong cách Editorial ấm áp. Ứng dụng giúp bạn tổ chức mọi khía cạnh cuộc sống: bộ sưu tập sách, tài sản cá nhân, phương tiện xe cộ, bảo trì nhà cửa, hoá đơn sinh hoạt, tài chính, thói quen, nhật ký, mục tiêu, giải trí và nhiều hơn nữa.
 
 ---
 
@@ -12,11 +12,11 @@
 ### 🔔 1. Trung Tâm Thông Báo & Nhắc Lịch Toàn Năng (Global Notification Center)
 - Nút chuông thông báo 🔔 tích hợp trên thanh điều hướng Header với **Huy hiệu đếm số sự kiện đến hạn trực tiếp**.
 - Tự động quét và tổng hợp:
-  - 🧹 **Việc vệ sinh quá hạn / đến hạn** (Cleaning Planner).
   - 💡 **Hoá đơn điện, nước, internet chưa thanh toán** (Utility Tracker).
   - 🚗 **Hạn đăng kiểm & bảo hiểm xe sắp tới trong 30 ngày** (Vehicle Manager).
   - 🏠 **Thiết bị trong nhà sắp hết hạn bảo hành** (Home Manager).
   - 🕵️ **Nhiệm vụ Mystery Box hôm nay chưa mở**.
+  - 📅 **Ngày quan trọng sắp đến** (Sinh nhật, kỷ niệm...).
 
 ---
 
@@ -44,44 +44,76 @@
 
 ---
 
-### 🧹 5. Cleaning Planner (`/app/cleaning`)
-- ⏱️ **Lịch vệ sinh theo chu kỳ chuẩn**:
-  - **Máy lạnh & lưới lọc**: 3 tháng (90 ngày)
-  - **Giặt chăn ga gối đệm**: 2 tuần (14 ngày)
-  - **Vệ sinh & khử mùi tủ lạnh**: 1 tháng (30 ngày)
-  - **Vệ sinh lồng giặt**: 3 tháng (90 ngày)
-  - Tự do bổ sung các chu kỳ dọn dẹp nhà cửa khác.
-- ✨ **Check-in 1-Click**: Nút *"Đã vệ sinh hôm nay"* tự động cộng chu kỳ và lên lịch đến hạn tiếp theo.
-
----
-
-### 💡 6. Utility Tracker (`/app/utilities`)
+### 💡 5. Utility Tracker (`/app/utilities`)
 - ⚡ **Hoá đơn sinh hoạt định kỳ**: Tiền điện, tiền nước, internet/wifi, cước 4G, phí dịch vụ chung cư, tiền rác.
 - 📊 **Theo dõi chỉ số tiêu thụ**: Ghi nhận số kWh điện, m³ nước theo từng kỳ thanh toán.
 - 💳 **Trạng thái thanh toán**: Đánh dấu *Đã đóng / Chưa đóng*, thống kê tổng số tiền cần thanh toán trong tháng.
 
 ---
 
-### 🔧 7. Home Maintenance (`/app/maintenance`)
+### 🔧 6. Home Maintenance (`/app/maintenance`)
 - 🔨 **Nhật ký sửa chữa nhà cửa**: Điện, nước, chống thấm, điều hoà, khoá cửa, sơn sửa tường...
 - 👷 **Lưu thông tin thợ & nhà thầu**: Tên thợ, số điện thoại, chi phí thực hiện.
 - 🛡️ **Bảo hành sửa chữa & Ảnh Before/After**: Theo dõi thời hạn bảo hành thi công và ảnh chụp so sánh.
 
 ---
 
-### 🛠️ 8. Service History (`/app/services`)
+### 🛠️ 7. Service History (`/app/services`)
 - 💈 **Nhật ký sử dụng dịch vụ**: Bảo dưỡng xe, cắt tóc & spa, vệ sinh máy lạnh, sửa điện thoại, dọn dẹp nhà...
 - ⭐ **Đánh giá chất lượng**: Đánh giá 1-5 sao ⭐, lưu địa chỉ tiệm quen uy tín để dễ dàng đặt lịch lần sau.
 
 ---
 
-### 🍜 9. Food Diary & Khám Phá Món Ngon (`/app/food`)
+### 💰 8. Budget Tracker (`/app/budget`)
+- 💳 **Theo dõi chi tiêu**: Ghi nhận chi tiêu hàng ngày theo danh mục & phương thức thanh toán.
+- 📊 **Ngân sách theo tháng**: Đặt hạn mức chi tiêu cho từng loại và xem báo cáo so sánh.
+- 💵 **Thu nhập**: Ghi nhận các nguồn thu nhập để có cái nhìn tổng thể tài chính.
+
+---
+
+### 🎯 9. Mục tiêu & OKR (`/app/goals`)
+- 📋 **Mục tiêu theo kỳ**: Đặt mục tiêu cá nhân theo quý, năm với trạng thái theo dõi.
+- 📈 **Key Results**: Chia nhỏ thành các kết quả đo lường được với thanh tiến độ %.
+
+---
+
+### ✅ 10. Habit Tracker (`/app/habits`)
+- 🔥 **Thói quen hàng ngày/tuần**: Tạo thói quen với mục tiêu cụ thể.
+- 🏆 **Chuỗi Streak**: Duy trì chuỗi ngày liên tiếp để xây dựng thói quen bền vững.
+
+---
+
+### 📝 11. Nhật Ký Cá Nhân (`/app/journal`)
+- 💭 **Ghi chép hàng ngày**: Viết nhật ký với tâm trạng, tags và hình ảnh.
+- 😊 **Mood Tracker**: Theo dõi cảm xúc mỗi ngày qua 5 mức độ.
+
+---
+
+### 🍜 12. Food Diary (`/app/food`)
 - 🍲 **Nhật ký bữa ăn**: Bữa sáng, Bữa trưa, Bữa tối, Ăn vặt, Cà phê.
 - 🏬 **Tự nấu vs Ăn ngoài**: Ghi nhận tên quán ăn, địa chỉ, giá tiền (₫) và món yêu thích ❤️.
 
 ---
 
-### 🕵️ 10. Mystery Box (`/app/mystery`)
+### 🛒 13. Danh Sách Mua Sắm (`/app/shopping`)
+- 📋 **Tạo nhiều list**: Chia theo siêu thị, chợ, online...
+- ✅ **Tick từng món**: Đánh dấu đã mua, ước lượng chi phí.
+
+---
+
+### 📺 14. Giải Trí & Văn Hoá (`/app/entertainment`)
+- 🎬 **Phim, Anime, Game, Podcast**: Theo dõi trạng thái xem/chơi.
+- ⭐ **Đánh giá & Review**: Ghi nhận cảm nhận cá nhân.
+
+---
+
+### 📅 15. Ngày Quan Trọng (`/app/dates`)
+- 🎂 **Sinh nhật & Kỷ niệm**: Nhắc tự động trước N ngày.
+- 📌 **Sự kiện đặc biệt**: Lịch riêng tư không bỏ sót.
+
+---
+
+### 🕵️ 16. Mystery Box (`/app/mystery`)
 - 🎁 **Hộp quà bí mật mỗi ngày**: Hiệu ứng unbox mở ra thử thách ngẫu nhiên giúp cuộc sống thú vị và phá vỡ lối mòn.
 - 🔥 **Check-in & Chuỗi Streak**: Tải ảnh minh chứng, viết cảm nhận và tích luỹ điểm XP cùng chuỗi ngày liên tiếp.
 
@@ -131,41 +163,47 @@ npm run build
 ## 📁 Cấu Trúc Thư Mục Dự Án (Project Structure)
 
 ```
-bookvault/
+homebase/
 ├── src/
 │   ├── app/                         # Next.js App Router Pages
 │   │   ├── page.tsx                 # Landing page
 │   │   ├── login/page.tsx           # Đăng nhập
 │   │   ├── register/page.tsx        # Đăng ký
 │   │   └── app/                     # Authenticated Life OS Hub
-│   │       ├── dashboard/page.tsx   # Tổng quan Life OS & Sách
+│   │       ├── dashboard/page.tsx   # Tổng quan HomeBase
 │   │       ├── library/page.tsx     # Tủ sách của tôi
-│   │       ├── library/[id]/page.tsx# Chi tiết sách & Thông tin sở hữu cá nhân
+│   │       ├── library/[id]/page.tsx# Chi tiết sách
 │   │       ├── reading/page.tsx     # Sách đang đọc
 │   │       ├── wishlist/page.tsx    # Sách muốn mua
 │   │       ├── notes/page.tsx       # Tổng hợp ghi chú
 │   │       ├── tags/page.tsx        # Quản lý thẻ
 │   │       ├── assets/page.tsx      # 📦 Quản lý tài sản cá nhân
-│   │       ├── vehicles/page.tsx    # 🚗 Quản lý phương tiện, xăng & đăng kiểm
-│   │       ├── maintenance/page.tsx # 🔧 Sửa chữa & bảo trì nhà cửa
-│   │       ├── cleaning/page.tsx    # 🧹 Lịch vệ sinh theo chu kỳ
-│   │       ├── utilities/page.tsx   # 💡 Hoá đơn điện, nước định kỳ
-│   │       ├── services/page.tsx    # 🛠️ Lịch sử sử dụng dịch vụ
-│   │       ├── food/page.tsx        # 🍜 Food Diary & Món ngon
-│   │       ├── home/page.tsx        # 🏠 Đồ đạc trong nhà & Bảo hành
-│   │       ├── mystery/page.tsx     # 🕵️ Mystery Box & Nhiệm vụ ngày
-│   │       └── settings/page.tsx    # Cài đặt tài khoản & Profile
+│   │       ├── vehicles/page.tsx    # 🚗 Xe & Xăng cộ
+│   │       ├── maintenance/page.tsx # 🔧 Sửa chữa & bảo trì
+│   │       ├── utilities/page.tsx   # 💡 Hoá đơn định kỳ
+│   │       ├── services/page.tsx    # 🛠️ Lịch sử dịch vụ
+│   │       ├── budget/page.tsx      # 💰 Budget Tracker
+│   │       ├── savings/page.tsx     # 🐷 Mục tiêu tiết kiệm
+│   │       ├── habits/page.tsx      # ✅ Habit Tracker
+│   │       ├── journal/page.tsx     # 📝 Nhật ký cá nhân
+│   │       ├── goals/page.tsx       # 🎯 Mục tiêu & OKR
+│   │       ├── shopping/page.tsx    # 🛒 Danh sách mua sắm
+│   │       ├── entertainment/page.tsx # 📺 Giải trí & Văn hoá
+│   │       ├── dates/page.tsx       # 📅 Ngày quan trọng
+│   │       ├── food/page.tsx        # 🍜 Food Diary
+│   │       ├── home/page.tsx        # 🏠 Đồ đạc trong nhà
+│   │       ├── mystery/page.tsx     # 🕵️ Mystery Box
+│   │       └── settings/page.tsx    # Cài đặt tài khoản
 │   ├── components/
 │   │   ├── assets/                  # AssetCard, AddAssetModal...
 │   │   ├── vehicles/                # VehicleCard, AddVehicleModal, AddFuelModal...
 │   │   ├── maintenance/             # MaintenanceCard, AddMaintenanceModal...
-│   │   ├── cleaning/                # CleaningTaskCard, AddCleaningTaskModal...
 │   │   ├── utilities/               # UtilityBillCard, AddUtilityModal...
 │   │   ├── services/                # ServiceRecordCard, AddServiceModal...
 │   │   ├── layout/                  # Sidebar, Header, NotificationBell, MobileNav...
 │   │   └── ui/                      # Button, Input, Modal, Skeleton...
-│   ├── hooks/                       # useAssets, useVehicles, useMaintenance, useCleaning...
-│   ├── services/                    # assets, vehicles, maintenance, cleaning, utilities...
+│   ├── hooks/                       # useAssets, useVehicles, useMaintenance...
+│   ├── services/                    # assets, vehicles, maintenance, utilities...
 │   ├── types/                       # database.ts
 │   └── proxy.ts                     # Next.js 16 Session Middleware
 ├── db.md                            # Complete SQL schema source of truth

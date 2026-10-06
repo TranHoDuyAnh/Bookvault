@@ -278,7 +278,7 @@ export function BookSearchModal({
               💡 Mẹo tra cứu tại nhà sách:
             </p>
             <p>
-              Bạn chỉ cần nhập tên sách hoặc số ISBN trên bìa sau để BookVault lập tức báo nếu bạn đã từng mua hoặc đọc cuốn này!
+              Bạn chỉ cần nhập tên sách hoặc số ISBN trên bìa sau để HomeBase lập tức báo nếu bạn đã từng mua hoặc đọc cuốn này!
             </p>
           </div>
         )}

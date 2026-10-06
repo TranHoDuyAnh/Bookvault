@@ -138,7 +138,7 @@ export default function RegisterPage() {
                 </>
               ) : (
                 <>
-                  Tạo tài khoản BookVault
+                  Tạo tài khoản HomeBase
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

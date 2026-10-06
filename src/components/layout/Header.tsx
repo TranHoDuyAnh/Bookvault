@@ -36,7 +36,7 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
           <BookOpen className="h-4 w-4" />
         </div>
         <span className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-          BookVault
+          HomeBase
         </span>
       </div>
 

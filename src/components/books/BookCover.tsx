@@ -85,7 +85,7 @@ export function BookCover({
           {/* Top header accent */}
           <div className="flex items-center justify-between border-b border-white/20 pb-1.5 opacity-80">
             <span className="text-[9px] uppercase tracking-widest font-sans font-medium line-clamp-1">
-              {author || 'BookVault'}
+              {author || 'HomeBase'}
             </span>
             <BookOpen className="h-3 w-3 opacity-70 flex-shrink-0" />
           </div>

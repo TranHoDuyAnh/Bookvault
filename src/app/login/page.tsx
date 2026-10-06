@@ -58,7 +58,7 @@ export default function LoginPage() {
             Chào mừng trở lại
           </h1>
           <p className="text-sm text-stone-600 dark:text-stone-400">
-            Đăng nhập để truy cập tủ sách cá nhân BookVault của bạn
+            Đăng nhập để truy cập HomeBase của bạn
           </p>
         </div>
 

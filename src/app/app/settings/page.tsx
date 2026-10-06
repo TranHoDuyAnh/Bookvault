@@ -62,7 +62,7 @@ export default function SettingsPage() {
           Cài đặt & Tài khoản
         </h1>
         <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-          Quản lý thông tin cá nhân và tài khoản độc giả BookVault của bạn.
+          Quản lý thông tin cá nhân và tài khoản HomeBase của bạn.
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-              {displayName || 'Độc giả BookVault'}
+              {displayName || 'Người dùng HomeBase'}
             </h3>
             <p className="text-xs text-stone-500">{user?.email}</p>
           </div>
@@ -177,10 +177,10 @@ export default function SettingsPage() {
       <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-xs space-y-3">
         <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-[#1e3a2f]" />
-          Về ứng dụng BookVault
+          Về ứng dụng HomeBase
         </h3>
         <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-          BookVault là ứng dụng tủ sách số cá nhân được thiết kế nhằm giúp bạn bảo vệ tủ sách, theo dõi tiến độ đọc và giải quyết dứt điểm nỗi lo mua trùng sách tại các nhà sách.
+          HomeBase là ứng dụng quản lý cuộc sống toàn diện giúp bạn tổ chức mọi thứ — từ sách vở, nhà cửa, tài chính, xe cộ cho đến thói quen và giải trí — tất cả trong một nơi duy nhất.
         </p>
         <div className="pt-2 text-[11px] text-stone-400">
           Phiên bản: 1.0.0 (Production Quality) • Supabase Auth & Storage Connected

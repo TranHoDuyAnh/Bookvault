@@ -84,7 +84,7 @@ export const DEFAULT_QUESTS: Omit<MysteryQuestPool, 'id'>[] = [
   },
   {
     title: 'Đọc lại một trích dẫn hay & áp dụng ngay',
-    description: 'Mở mục Ghi chú trong BookVault, chọn 1 câu trích dẫn bạn tâm đắc nhất và thực hành nó trong ngày hôm nay.',
+    description: 'Mở mục Ghi chú trong HomeBase, chọn 1 câu trích dẫn bạn tâm đắc nhất và thực hành nó trong ngày hôm nay.',
     category: 'READING',
     difficulty: 'EASY',
     points: 15,
