@@ -8,11 +8,8 @@ import {
   Filter,
   Plus,
   ArrowUpDown,
-  Tag as TagIcon,
-  X,
 } from 'lucide-react';
 import { useLibrary } from '@/hooks/useLibrary';
-import { useTags } from '@/hooks/useTags';
 import { BookGrid } from '@/components/books/BookGrid';
 import { BookList } from '@/components/books/BookList';
 import { Input } from '@/components/ui/Input';
@@ -23,15 +20,12 @@ import type { BookStatus } from '@/types/database';
 export default function LibraryPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookStatus | 'ALL'>('ALL');
-  const [selectedTagId, setSelectedTagId] = useState<string | undefined>(undefined);
   const [sortBy, setSortBy] = useState<'recently_added' | 'title' | 'author' | 'rating' | 'progress'>('recently_added');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const { data: allTags = [] } = useTags();
   const { data: books = [], isLoading } = useLibrary({
     search: search.trim() || undefined,
     status: statusFilter,
-    tagId: selectedTagId,
     sortBy: sortBy,
   });
 
@@ -135,32 +129,6 @@ export default function LibraryPage() {
             );
           })}
         </div>
-
-        {/* Tags Filter Row */}
-        {allTags.length > 0 && (
-          <div className="flex items-center gap-2 pt-2 border-t border-stone-100 dark:border-stone-800 overflow-x-auto">
-            <span className="text-[11px] text-stone-400 font-semibold flex items-center gap-1 flex-shrink-0">
-              <TagIcon className="h-3 w-3" /> Thẻ:
-            </span>
-            {allTags.map((tag) => {
-              const isSelected = selectedTagId === tag.id;
-              return (
-                <button
-                  key={tag.id}
-                  onClick={() => setSelectedTagId(isSelected ? undefined : tag.id)}
-                  className={`rounded-md px-2 py-0.5 text-[11px] font-medium transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#1e3a2f] text-white'
-                      : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200'
-                  }`}
-                >
-                  <span>#{tag.name}</span>
-                  {isSelected && <X className="h-3 w-3" />}
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* Books Display */}

@@ -1,10 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
-import type { MyLibraryItem, BookStatus, UserBook, BookImage, Tag } from '@/types/database';
+import type { MyLibraryItem, BookStatus, UserBook, BookImage } from '@/types/database';
 import { getSignedUrlsForImages } from './storage';
 
 export interface LibraryFilters {
   status?: BookStatus | 'ALL';
-  tagId?: string;
   search?: string;
   sortBy?: 'recently_added' | 'title' | 'author' | 'rating' | 'progress';
 }
@@ -84,32 +83,10 @@ export async function getUserLibrary(
     imagesByBookId[img.book_id].push(img);
   }
 
-  // 2. Fetch tags
-  const { data: tagsData } = await supabase
-    .from('book_tags')
-    .select('user_book_id, tags(*)')
-    .in('user_book_id', userBookIds);
-
-  const tagsByUserBookId: Record<string, Tag[]> = {};
-  if (tagsData) {
-    for (const row of tagsData as any[]) {
-      if (row.tags) {
-        if (!tagsByUserBookId[row.user_book_id]) tagsByUserBookId[row.user_book_id] = [];
-        tagsByUserBookId[row.user_book_id].push(row.tags as Tag);
-      }
-    }
-  }
-
-  // Tag filter if specified
-  let result: MyLibraryItem[] = libraryItems.map((item) => ({
+  const result: MyLibraryItem[] = libraryItems.map((item) => ({
     ...item,
     images: imagesByBookId[item.book_id] || [],
-    tags: tagsByUserBookId[item.id] || [],
   }));
-
-  if (filters.tagId) {
-    result = result.filter((item) => item.tags?.some((t: Tag) => t.id === filters.tagId));
-  }
 
   return result;
 }
@@ -140,17 +117,9 @@ export async function getUserBookById(userBookId: string): Promise<MyLibraryItem
 
   const refreshedImages = imagesData ? await getSignedUrlsForImages(imagesData as BookImage[]) : [];
 
-  const { data: tagsData } = await supabase
-    .from('book_tags')
-    .select('tag_id, tags(*)')
-    .eq('user_book_id', item.id);
-
-  const tags = (tagsData || []).map((t: any) => t.tags).filter(Boolean) as Tag[];
-
   return {
     ...item,
     images: refreshedImages,
-    tags,
   };
 }
 

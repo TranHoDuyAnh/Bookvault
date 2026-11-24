@@ -10,7 +10,6 @@ import {
   DollarSign,
   MapPin,
   Star,
-  Tag as TagIcon,
   Camera,
   Trash2,
   Edit3,
@@ -312,27 +311,6 @@ export default function BookDetailPage() {
             {book.notes && (
               <div className="pt-2 border-t border-stone-100 dark:border-stone-800 text-xs text-stone-600 dark:text-stone-400">
                 <span className="font-medium text-stone-500">Ghi chú riêng:</span> {book.notes}
-              </div>
-            )}
-
-            {/* Tags preview */}
-            {book.tags && book.tags.length > 0 && (
-              <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs text-stone-500 font-medium flex items-center gap-1">
-                  <TagIcon className="h-3 w-3" /> Thẻ:
-                </span>
-                {book.tags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold"
-                    style={{
-                      backgroundColor: `${tag.color || '#1e3a2f'}18`,
-                      color: tag.color || '#1e3a2f',
-                    }}
-                  >
-                    #{tag.name}
-                  </span>
-                ))}
               </div>
             )}
           </div>

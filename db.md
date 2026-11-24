@@ -1,6 +1,6 @@
 -- ============================================================
--- BOOKVAULT / SHELFOS
--- Supabase Database Migration v2
+-- HOMEBASE
+-- Supabase Database Schema
 --
 -- Features:
 -- - Supabase Auth integration
@@ -8,9 +8,6 @@
 -- - Books
 -- - Personal library
 -- - Book images
--- - Reading sessions
--- - Notes
--- - Tags
 -- - RLS
 -- - Private Storage
 -- ============================================================
@@ -319,59 +316,6 @@ create table if not exists public.user_books (
 
 
 -- ============================================================
--- 11. TAGS
--- ============================================================
-
-create table if not exists public.tags (
-
-  id uuid primary key
-    default gen_random_uuid(),
-
-  user_id uuid not null
-    references public.profiles(id)
-    on delete cascade,
-
-  name text not null,
-
-  color text,
-
-  created_at timestamptz
-    not null
-    default now(),
-
-  constraint tags_unique_user_name
-    unique (user_id, name)
-
-);
-
-
--- ============================================================
--- 12. BOOK TAGS
--- ============================================================
-
-create table if not exists public.book_tags (
-
-  user_book_id uuid not null
-    references public.user_books(id)
-    on delete cascade,
-
-  tag_id uuid not null
-    references public.tags(id)
-    on delete cascade,
-
-  created_at timestamptz
-    not null
-    default now(),
-
-  primary key (
-    user_book_id,
-    tag_id
-  )
-
-);
-
-
--- ============================================================
 -- 13. INDEXES
 -- ============================================================
 
@@ -412,10 +356,6 @@ on public.user_books(
 
 create index if not exists idx_book_images_book_id
 on public.book_images(book_id);
-
-
-create index if not exists idx_tags_user_id
-on public.tags(user_id);
 
 
 -- ============================================================
@@ -534,12 +474,6 @@ alter table public.book_images
 enable row level security;
 
 alter table public.user_books
-enable row level security;
-
-alter table public.tags
-enable row level security;
-
-alter table public.book_tags
 enable row level security;
 
 
@@ -763,168 +697,6 @@ to authenticated
 
 using (
   user_id = auth.uid()
-);
-
-
--- ============================================================
--- 23. TAGS RLS
--- ============================================================
-
-drop policy if exists "Users can view own tags"
-on public.tags;
-
-create policy "Users can view own tags"
-
-on public.tags
-
-for select
-
-to authenticated
-
-using (
-  user_id = auth.uid()
-);
-
-
-drop policy if exists "Users can create own tags"
-on public.tags;
-
-create policy "Users can create own tags"
-
-on public.tags
-
-for insert
-
-to authenticated
-
-with check (
-  user_id = auth.uid()
-);
-
-
-drop policy if exists "Users can update own tags"
-on public.tags;
-
-create policy "Users can update own tags"
-
-on public.tags
-
-for update
-
-to authenticated
-
-using (
-  user_id = auth.uid()
-)
-
-with check (
-  user_id = auth.uid()
-);
-
-
-drop policy if exists "Users can delete own tags"
-on public.tags;
-
-create policy "Users can delete own tags"
-
-on public.tags
-
-for delete
-
-to authenticated
-
-using (
-  user_id = auth.uid()
-);
-
-
--- ============================================================
--- 24. BOOK TAGS RLS
--- ============================================================
-
-drop policy if exists "Users can view own book tags"
-on public.book_tags;
-
-create policy "Users can view own book tags"
-
-on public.book_tags
-
-for select
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_tags.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can create own book tags"
-on public.book_tags;
-
-create policy "Users can create own book tags"
-
-on public.book_tags
-
-for insert
-
-to authenticated
-
-with check (
-
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_tags.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-
-  and
-
-  exists (
-    select 1
-
-    from public.tags t
-
-    where t.id = book_tags.tag_id
-
-      and t.user_id = auth.uid()
-  )
-
-);
-
-
-drop policy if exists "Users can delete own book tags"
-on public.book_tags;
-
-create policy "Users can delete own book tags"
-
-on public.book_tags
-
-for delete
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_tags.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
 );
 
 

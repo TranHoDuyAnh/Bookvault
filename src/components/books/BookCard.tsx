@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Star, BookOpen, Clock, Tag as TagIcon } from 'lucide-react';
+import { Star, BookOpen, Clock } from 'lucide-react';
 import type { MyLibraryItem } from '@/types/database';
 import { BookCover } from './BookCover';
 import { BookStatusBadge } from './BookStatusBadge';
@@ -80,27 +80,6 @@ export function BookCard({ book }: { book: MyLibraryItem }) {
               </div>
             ) : (
               <span className="text-[11px] text-stone-400">Chưa đánh giá</span>
-            )}
-
-            {/* Tags preview */}
-            {book.tags && book.tags.length > 0 && (
-              <div className="flex items-center gap-1 overflow-hidden">
-                <span
-                  className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-                  style={{
-                    backgroundColor: `${book.tags[0].color || '#1e3a2f'}18`,
-                    color: book.tags[0].color || '#1e3a2f',
-                  }}
-                >
-                  <TagIcon className="h-2.5 w-2.5" />
-                  <span className="truncate max-w-[60px]">{book.tags[0].name}</span>
-                </span>
-                {book.tags.length > 1 && (
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    +{book.tags.length - 1}
-                  </span>
-                )}
-              </div>
             )}
           </div>
         </div>

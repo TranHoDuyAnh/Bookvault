@@ -56,20 +56,6 @@ export interface UserBook {
   updated_at: string;
 }
 
-export interface Tag {
-  id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-  created_at: string;
-}
-
-export interface BookTag {
-  user_book_id: string;
-  tag_id: string;
-  created_at: string;
-}
-
 export interface MyLibraryItem {
   id: string;
   user_id: string;
@@ -98,7 +84,6 @@ export interface MyLibraryItem {
   created_at: string;
   updated_at: string;
   images?: BookImage[];
-  tags?: Tag[];
 }
 
 // ================= NOTIFICATION REMINDER TYPES =================

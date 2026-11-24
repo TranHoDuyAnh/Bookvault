@@ -1,16 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Edit3, Star, DollarSign, MapPin, Calendar, Bookmark, Tag as TagIcon, Loader2, Check } from 'lucide-react';
+import { Edit3, Star, DollarSign, MapPin, Calendar, Bookmark, Loader2, Check } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { STATUS_CONFIG } from '@/lib/utils';
-import { useTags } from '@/hooks/useTags';
 import { useUpdateUserBook } from '@/hooks/useLibrary';
-import { setBookTags } from '@/services/tags';
-import type { MyLibraryItem, BookStatus, Tag } from '@/types/database';
+import type { MyLibraryItem, BookStatus } from '@/types/database';
 import { toast } from 'sonner';
 
 export interface EditPersonalInfoModalProps {
@@ -26,7 +24,6 @@ export function EditPersonalInfoModal({
   book,
   onSaved,
 }: EditPersonalInfoModalProps) {
-  const { data: allTags = [] } = useTags();
   const updateUserBookMutation = useUpdateUserBook();
 
   const [status, setStatus] = useState<BookStatus>(book.status || 'OWNED');
@@ -39,9 +36,6 @@ export function EditPersonalInfoModal({
   const [startedReadingAt, setStartedReadingAt] = useState<string>(book.started_reading_at || '');
   const [finishedReadingAt, setFinishedReadingAt] = useState<string>(book.finished_reading_at || '');
   const [notes, setNotes] = useState<string>(book.notes || '');
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
-    book.tags?.map((t) => t.id) || []
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -56,7 +50,6 @@ export function EditPersonalInfoModal({
       setStartedReadingAt(book.started_reading_at || '');
       setFinishedReadingAt(book.finished_reading_at || '');
       setNotes(book.notes || '');
-      setSelectedTagIds(book.tags?.map((t) => t.id) || []);
     }
   }, [isOpen, book]);
 
@@ -79,9 +72,6 @@ export function EditPersonalInfoModal({
           notes: notes.trim() || null,
         },
       });
-
-      // 2. Update book_tags
-      await setBookTags(book.id, selectedTagIds);
 
       toast.success('Đã cập nhật thông tin sở hữu cá nhân thành công!');
       onSaved?.();
@@ -201,39 +191,6 @@ export function EditPersonalInfoModal({
             ))}
           </div>
         </div>
-
-        {/* Tags Selection */}
-        {allTags.length > 0 && (
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
-              Gắn thẻ phân loại
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {allTags.map((tag: Tag) => {
-                const isTagged = selectedTagIds.includes(tag.id);
-                return (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => {
-                      const next = isTagged
-                        ? selectedTagIds.filter((id) => id !== tag.id)
-                        : [...selectedTagIds, tag.id];
-                      setSelectedTagIds(next);
-                    }}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-medium border transition-colors cursor-pointer ${
-                      isTagged
-                        ? 'bg-[#1e3a2f] text-white border-[#1e3a2f]'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
-                    }`}
-                  >
-                    #{tag.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Personal Notes */}
         <Textarea

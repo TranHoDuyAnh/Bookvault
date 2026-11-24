@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Star, BookOpen, ChevronRight, Tag as TagIcon } from 'lucide-react';
+import { Star, BookOpen, ChevronRight } from 'lucide-react';
 import type { MyLibraryItem } from '@/types/database';
 import { BookCover } from './BookCover';
 import { BookStatusBadge } from './BookStatusBadge';

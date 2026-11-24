@@ -23,11 +23,9 @@ import { BookCover } from './BookCover';
 import { BookUploader } from './BookUploader';
 import { STATUS_CONFIG } from '@/lib/utils';
 import { useUser } from '@/hooks/useUser';
-import { useTags } from '@/hooks/useTags';
 import { searchGlobalBooks, findBookByISBN, createOrFindBook } from '@/services/books';
 import { addBookToLibrary, checkBookInUserLibrary } from '@/services/library';
-import { setBookTags } from '@/services/tags';
-import type { Book, BookStatus, UserBook, Tag } from '@/types/database';
+import type { Book, BookStatus, UserBook } from '@/types/database';
 import { toast } from 'sonner';
 
 export interface AddBookModalProps {
@@ -39,7 +37,6 @@ export interface AddBookModalProps {
 export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps) {
   const router = useRouter();
   const { user } = useUser();
-  const { data: allTags = [] } = useTags();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,7 +71,6 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
     purchase_store: '',
     current_page: '0',
     notes: '',
-    selectedTagIds: [] as string[],
   });
 
   // Step 4 State: Created Records
@@ -127,7 +123,6 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
       purchase_store: '',
       current_page: '0',
       notes: '',
-      selectedTagIds: [],
     });
     setCreatedUserBook(null);
     setActiveBookId(null);
@@ -242,11 +237,6 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
       });
 
       setCreatedUserBook(userBook);
-
-      // 3. Assign tags
-      if (personalInfo.selectedTagIds.length > 0) {
-        await setBookTags(userBook.id, personalInfo.selectedTagIds);
-      }
 
       toast.success('Đã thêm sách vào tủ sách thành công!');
       // Move to Step 4 for optional photo uploading
@@ -544,39 +534,6 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
                 ))}
               </div>
             </div>
-
-            {/* Tags Selection */}
-            {allTags.length > 0 && (
-              <div className="sm:col-span-2 space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
-                  Gắn thẻ phân loại
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {allTags.map((tag: Tag) => {
-                    const isTagged = personalInfo.selectedTagIds.includes(tag.id);
-                    return (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => {
-                          const next = isTagged
-                            ? personalInfo.selectedTagIds.filter((id) => id !== tag.id)
-                            : [...personalInfo.selectedTagIds, tag.id];
-                          setPersonalInfo({ ...personalInfo, selectedTagIds: next });
-                        }}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-medium border transition-colors cursor-pointer ${
-                          isTagged
-                            ? 'bg-[#1e3a2f] text-white border-[#1e3a2f]'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
-                        }`}
-                      >
-                        #{tag.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Notes */}
             <div className="sm:col-span-2">
