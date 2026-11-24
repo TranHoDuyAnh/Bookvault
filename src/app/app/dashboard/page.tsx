@@ -4,50 +4,22 @@ import React from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
-  Flame,
+  BookMarked,
   CheckCircle2,
-  Heart,
-  Plus,
-  ArrowRight,
-  Sparkles,
-  TrendingUp,
-  Bookmark,
-  Utensils,
-  Home,
-  Gift,
-  ShieldCheck,
-  AlertTriangle,
+  Flame,
+  CalendarHeart,
+  Tv,
 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { useLibrary, useLibraryStats } from '@/hooks/useLibrary';
-import { useTodayQuest } from '@/hooks/useMystery';
-import { useFoodEntries } from '@/hooks/useFood';
-import { useHomeItems } from '@/hooks/useHome';
-import { BookCover } from '@/components/books/BookCover';
 import { BookCard } from '@/components/books/BookCard';
-import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/common/EmptyState';
-import { formatVND } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const { user, profile, loading: userLoading } = useUser();
+  const { user, profile } = useUser();
   const { data: stats, isLoading: statsLoading } = useLibraryStats();
   const { data: allBooks = [], isLoading: booksLoading } = useLibrary();
-
-  // Lifestyle hooks
-  const { data: todayQuest } = useTodayQuest();
-  const { data: foodEntries = [] } = useFoodEntries({ sortBy: 'newest' });
-  const { data: homeItems = [] } = useHomeItems();
-
-  // Expiring warranties
-  const expiringHomeItems = homeItems.filter((it) => {
-    if (!it.warranty_end_date) return false;
-    const today = new Date();
-    const endDate = new Date(it.warranty_end_date);
-    const diffDays = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 && diffDays <= 30;
-  });
 
   // Greeting by hour of the day
   const getGreeting = () => {
@@ -64,9 +36,7 @@ export default function DashboardPage() {
   const recentlyAdded = [...allBooks]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5);
-  const recentlyRead = allBooks
-    .filter((b) => b.status === 'READ')
-    .slice(0, 5);
+  const readCount = allBooks.filter((b) => b.status === 'READ').length;
 
   return (
     <div className="space-y-10">
@@ -80,39 +50,10 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Daily Mystery Box Banner Preview */}
-      <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-900/10 via-[#FAF8F5] to-amber-500/10 dark:from-emerald-950/40 dark:via-stone-900 dark:to-stone-900 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[#1e3a2f] text-amber-300 shadow-md">
-            <Gift className="h-6 w-6" />
-          </div>
-          <div className="space-y-0.5">
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
-              <Sparkles className="h-3 w-3" /> Nhiệm vụ Mystery Box hôm nay
-            </span>
-            <h3 className="font-serif text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-              {todayQuest?.is_completed
-                ? `Đã hoàn thành: "${todayQuest.quest?.title}" ✨`
-                : todayQuest?.quest?.title || 'Khám phá thử thách bất ngờ của ngày hôm nay!'}
-            </h3>
-            <p className="text-xs text-stone-600 dark:text-stone-400 line-clamp-1">
-              {todayQuest?.quest?.description || 'Mở hộp quà để nhận nhiệm vụ trải nghiệm phong cách sống và nâng cao chuỗi streak.'}
-            </p>
-          </div>
-        </div>
-
-        <Link href="/app/mystery" className="flex-shrink-0 w-full sm:w-auto">
-          <Button size="sm" className="w-full sm:w-auto gap-1.5 font-bold shadow-xs">
-            {todayQuest?.is_completed ? 'Xem lại nhiệm vụ' : 'Mở hộp quà ngay 🎁'}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
-        </Link>
-      </div>
-
       {/* Statistics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {/* Stat 1: Total Books */}
-        <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1">
+        <Link href="/app/library" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-[#1e3a2f]/40 transition-colors">
           <div className="flex items-center justify-between text-stone-500">
             <span className="text-xs font-semibold uppercase tracking-wider">Tổng số sách</span>
             <BookOpen className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
@@ -120,106 +61,61 @@ export default function DashboardPage() {
           <p className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
             {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.totalBooks || 0}
           </p>
-          <span className="text-[11px] text-stone-400 font-medium">cuốn trong tủ</span>
-        </div>
-
-
-
-        {/* Stat 3: Food Diary count */}
-        <Link href="/app/food" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-emerald-600/40 transition-colors">
-          <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Food Diary</span>
-            <Utensils className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <p className="font-serif text-2xl sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-            {foodEntries.length}
-          </p>
-          <span className="text-[11px] text-stone-400 font-medium">món ăn & quán ngon &rarr;</span>
+          <span className="text-[11px] text-stone-400 font-medium">cuốn trong tủ &rarr;</span>
         </Link>
 
-        {/* Stat 4: Home Items count */}
-        <Link href="/app/home" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-blue-600/40 transition-colors">
+        {/* Stat 2: Currently Reading */}
+        <Link href="/app/library" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-blue-600/40 transition-colors">
           <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Home Manager</span>
-            <Home className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Đang đọc</span>
+            <Flame className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
           <p className="font-serif text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-400">
-            {homeItems.length}
+            {booksLoading ? <Skeleton className="h-8 w-16" /> : currentlyReading.length}
           </p>
-          <span className="text-[11px] text-stone-400 font-medium">thiết bị trong nhà &rarr;</span>
+          <span className="text-[11px] text-stone-400 font-medium">cuốn đang theo dõi &rarr;</span>
+        </Link>
+
+        {/* Stat 3: Read Books */}
+        <Link href="/app/library" className="col-span-2 sm:col-span-1 rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-emerald-600/40 transition-colors">
+          <div className="flex items-center justify-between text-stone-500">
+            <span className="text-xs font-semibold uppercase tracking-wider">Đã đọc xong</span>
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <p className="font-serif text-2xl sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+            {booksLoading ? <Skeleton className="h-8 w-16" /> : readCount}
+          </p>
+          <span className="text-[11px] text-stone-400 font-medium">cuốn đã hoàn thành &rarr;</span>
         </Link>
       </div>
 
-
-
-      {/* Lifestyle Preview Split: Food Favorites & Home Warranty Alert */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Food Diary Snippet */}
-        <div className="rounded-3xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Utensils className="h-4 w-4 text-emerald-700" />
-              Món ngon gần đây
-            </h3>
-            <Link href="/app/food" className="text-xs font-semibold text-emerald-700 hover:underline">
-              Vào Food Diary &rarr;
-            </Link>
+      {/* Quick Links to Remaining Hubs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Link href="/app/entertainment" className="flex items-center justify-between rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-2xs hover:border-rose-500/40 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+              <Tv className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">Giải trí & Văn hoá</h3>
+              <p className="text-xs text-stone-500">Phim, Anime, Game, Podcast đang theo dõi</p>
+            </div>
           </div>
+          <BookMarked className="h-4 w-4 text-stone-400" />
+        </Link>
 
-          {foodEntries.length === 0 ? (
-            <div className="py-6 text-center text-xs text-stone-400">
-              Chưa có món ăn nào được lưu. Hãy thử ghi lại bữa ăn hôm nay! 🍜
+        <Link href="/app/dates" className="flex items-center justify-between rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-2xs hover:border-pink-500/40 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400">
+              <CalendarHeart className="h-5 w-5" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              {foodEntries.slice(0, 3).map((f) => (
-                <div key={f.id} className="flex items-center justify-between p-3 rounded-xl bg-stone-50/70 dark:bg-stone-800/40 border border-stone-100 dark:border-stone-800">
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-xs text-stone-900 dark:text-stone-100">{f.dish_name}</p>
-                    <p className="text-[11px] text-stone-500">{f.is_cooked_at_home ? '🏡 Tự nấu' : `🏬 ${f.restaurant_name || 'Quán ăn'}`}</p>
-                  </div>
-                  {f.price && (
-                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-400">
-                      {formatVND(f.price)}
-                    </span>
-                  )}
-                </div>
-              ))}
+            <div>
+              <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">Ngày quan trọng</h3>
+              <p className="text-xs text-stone-500">Sinh nhật, kỷ niệm & sự kiện nhắc lịch</p>
             </div>
-          )}
-        </div>
-
-        {/* Home Manager Snippet */}
-        <div className="rounded-3xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Home className="h-4 w-4 text-blue-700" />
-              Thiết bị & Cảnh báo bảo hành
-            </h3>
-            <Link href="/app/home" className="text-xs font-semibold text-blue-700 hover:underline">
-              Vào Home Manager &rarr;
-            </Link>
           </div>
-
-          {expiringHomeItems.length > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                <span>Có {expiringHomeItems.length} thiết bị sắp hết hạn bảo hành trong 30 ngày!</span>
-              </div>
-              {expiringHomeItems.slice(0, 2).map((it) => (
-                <div key={it.id} className="flex items-center justify-between p-3 rounded-xl bg-stone-50/70 dark:bg-stone-800/40 border border-stone-100">
-                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">{it.name}</span>
-                  <span className="text-xs font-bold text-amber-700">Hết hạn: {it.warranty_end_date}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-6 text-center text-xs text-stone-400">
-              Tất cả thiết bị đều trong trạng thái tốt và không có hạn bảo hành gấp. 🛡️
-            </div>
-          )}
-        </div>
+          <BookMarked className="h-4 w-4 text-stone-400" />
+        </Link>
       </div>
 
       {/* Section: "Recently Added Books" */}

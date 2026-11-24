@@ -94,7 +94,7 @@ export function NotificationBell() {
                   Không có lịch nhắc nào cần xử lý!
                 </p>
                 <p className="text-[11px] text-stone-400">
-                  Tất cả việc vệ sinh, hoá đơn và hạn bảo hành đều trong tầm kiểm soát.
+                  Không có ngày quan trọng hay sự kiện nào sắp tới trong 7 ngày tới.
                 </p>
               </div>
             ) : (

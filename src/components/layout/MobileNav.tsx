@@ -6,24 +6,10 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Library,
-  Utensils,
-  Home,
   Plus,
   Menu,
   X,
-  Sparkles,
-  Zap,
-  Car,
-  Package,
-  Wrench,
-  Gift,
   Settings,
-  TrendingUp,
-  PiggyBank,
-  CheckSquare,
-  BookMarked,
-  Target,
-  ShoppingCart,
   Tv,
   CalendarHeart,
 } from 'lucide-react';
@@ -36,25 +22,13 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   const mainItems = [
     { name: 'Trang chủ', href: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Tủ sách', href: '/app/library', icon: Library },
-    { name: 'Food', href: '/app/food', icon: Utensils },
-    { name: 'Home', href: '/app/home', icon: Home },
+    { name: 'Giải trí', href: '/app/entertainment', icon: Tv },
+    { name: 'Ngày lễ', href: '/app/dates', icon: CalendarHeart },
   ];
 
   const moreItems = [
-    { name: 'Budget Tracker', href: '/app/budget', icon: TrendingUp, color: 'text-emerald-700' },
-    { name: 'Mục tiêu tiết kiệm', href: '/app/savings', icon: PiggyBank, color: 'text-teal-700' },
-    { name: 'Habit Tracker', href: '/app/habits', icon: CheckSquare, color: 'text-emerald-600' },
-    { name: 'Nhật ký cá nhân', href: '/app/journal', icon: BookMarked, color: 'text-violet-600' },
-    { name: 'Mục tiêu & OKR', href: '/app/goals', icon: Target, color: 'text-amber-600' },
-    { name: 'Danh sách mua sắm', href: '/app/shopping', icon: ShoppingCart, color: 'text-blue-600' },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600' },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600' },
-    { name: 'Hoá đơn định kỳ (Điện/Nước)', href: '/app/utilities', icon: Zap, color: 'text-amber-600' },
-    { name: 'Xe & Xăng cộ (Đăng kiểm)', href: '/app/vehicles', icon: Car, color: 'text-blue-700' },
-    { name: 'Quản lý tài sản', href: '/app/assets', icon: Package, color: 'text-indigo-700' },
-    { name: 'Sửa chữa & Bảo trì nhà', href: '/app/maintenance', icon: Wrench, color: 'text-stone-700' },
-    { name: 'Lịch sử dịch vụ', href: '/app/services', icon: Wrench, color: 'text-stone-700' },
-    { name: 'Mystery Box (Nhiệm vụ)', href: '/app/mystery', icon: Gift, color: 'text-purple-700' },
     { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings, color: 'text-stone-500' },
   ];
 

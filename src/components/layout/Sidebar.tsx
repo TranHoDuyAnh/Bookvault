@@ -11,19 +11,6 @@ import {
   Plus,
   LogOut,
   Sparkles,
-  Utensils,
-  Home,
-  Gift,
-  Package,
-  Car,
-  Wrench,
-  Zap,
-  TrendingUp,
-  PiggyBank,
-  CheckSquare,
-  BookMarked,
-  Target,
-  ShoppingCart,
   Tv,
   CalendarHeart,
 } from 'lucide-react';
@@ -46,32 +33,9 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
     { name: 'Thư viện sách', href: '/app/library', icon: Library },
   ];
 
-  const homeNavItems = [
-    { name: 'Đồ đạc trong nhà', href: '/app/home', icon: Home },
-    { name: 'Sửa chữa bảo trì', href: '/app/maintenance', icon: Wrench },
-    { name: 'Hoá đơn định kỳ', href: '/app/utilities', icon: Zap, badge: 'Điện/Nước' },
-  ];
-
-  const vehicleAndAssetNavItems = [
-    { name: 'Quản lý tài sản', href: '/app/assets', icon: Package },
-    { name: 'Xe & Xăng cộ', href: '/app/vehicles', icon: Car, badge: 'Đăng kiểm' },
-    { name: 'Lịch sử dịch vụ', href: '/app/services', icon: Wrench },
-  ];
-
-  const financeNavItems = [
-    { name: 'Budget Tracker', href: '/app/budget', icon: TrendingUp },
-    { name: 'Mục tiêu tiết kiệm', href: '/app/savings', icon: PiggyBank },
-  ];
-
   const lifestyleNavItems = [
-    { name: 'Habit Tracker', href: '/app/habits', icon: CheckSquare, color: 'text-emerald-700 dark:text-emerald-400' },
-    { name: 'Nhật ký cá nhân', href: '/app/journal', icon: BookMarked, color: 'text-violet-600 dark:text-violet-400' },
-    { name: 'Mục tiêu & OKR', href: '/app/goals', icon: Target, color: 'text-amber-600 dark:text-amber-400' },
-    { name: 'Danh sách mua sắm', href: '/app/shopping', icon: ShoppingCart, color: 'text-blue-600 dark:text-blue-400' },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600 dark:text-rose-400' },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600 dark:text-pink-400' },
-    { name: 'Food Diary', href: '/app/food', icon: Utensils, color: 'text-emerald-700 dark:text-emerald-400' },
-    { name: 'Mystery Box', href: '/app/mystery', icon: Gift, color: 'text-amber-600 dark:text-amber-400', badge: 'Mỗi ngày' },
   ];
 
   return (
@@ -146,102 +110,7 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
           </nav>
         </div>
 
-        {/* Section 2: Home & Living */}
-        <div className="space-y-0.5 px-1 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5 pt-0.5">
-            Nhà Cửa & Sinh Hoạt
-          </span>
-          <nav className="space-y-0.5">
-            {homeNavItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
-                    isActive
-                      ? 'bg-[#1e3a2f] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <item.icon className="h-3.5 w-3.5" />
-                    <span>{item.name}</span>
-                  </div>
-                  {item.badge && !isActive && (
-                    <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-stone-200/80 text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Section 3: Vehicles & Assets */}
-        <div className="space-y-0.5 px-1 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5 pt-0.5">
-            Tài Sản & Phương Tiện
-          </span>
-          <nav className="space-y-0.5">
-            {vehicleAndAssetNavItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
-                    isActive
-                      ? 'bg-[#1e3a2f] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <item.icon className="h-3.5 w-3.5" />
-                    <span>{item.name}</span>
-                  </div>
-                  {item.badge && !isActive && (
-                    <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Section 4: Finance */}
-        <div className="space-y-0.5 px-1 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5 pt-0.5">
-            Tài Chính
-          </span>
-          <nav className="space-y-0.5">
-            {financeNavItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
-                    isActive
-                      ? 'bg-[#1e3a2f] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
-                  )}
-                >
-                  <item.icon className="h-3.5 w-3.5" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Section 5: Lifestyle */}
+        {/* Section 2: Lifestyle */}
         <div className="space-y-0.5 px-1 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
           <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5 pt-0.5">
             Phong Cách Sống
@@ -254,21 +123,14 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
+                    'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
                     isActive
                       ? 'bg-[#1e3a2f] text-white shadow-xs'
                       : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
                   )}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <item.icon className={cn('h-3.5 w-3.5', !isActive && item.color)} />
-                    <span>{item.name}</span>
-                  </div>
-                  {item.badge && !isActive && (
-                    <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950">
-                      {item.badge}
-                    </span>
-                  )}
+                  <item.icon className={cn('h-3.5 w-3.5', !isActive && item.color)} />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
