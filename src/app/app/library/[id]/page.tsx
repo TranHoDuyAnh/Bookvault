@@ -10,7 +10,6 @@ import {
   DollarSign,
   MapPin,
   Star,
-  Clock,
   Tag as TagIcon,
   Camera,
   Trash2,
@@ -20,15 +19,12 @@ import {
   Share2,
 } from 'lucide-react';
 import { useBookDetail, useDeleteUserBook, useUpdateUserBook } from '@/hooks/useLibrary';
-import { useReadingSessions } from '@/hooks/useReading';
 import { BookCover } from '@/components/books/BookCover';
 import { BookStatusBadge } from '@/components/books/BookStatusBadge';
 import { BookImageGallery } from '@/components/books/BookImageGallery';
 import { BookUploader } from '@/components/books/BookUploader';
 import { EditPersonalInfoModal } from '@/components/books/EditPersonalInfoModal';
 import { ReadingProgressCard } from '@/components/reading/ReadingProgressCard';
-import { ReadingSessionModal } from '@/components/reading/ReadingSessionModal';
-import { ReadingHistory } from '@/components/reading/ReadingHistory';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -42,14 +38,12 @@ export default function BookDetailPage() {
   const userBookId = params.id as string;
 
   const { data: book, isLoading, refetch } = useBookDetail(userBookId);
-  const { data: sessions = [], refetch: refetchSessions } = useReadingSessions(userBookId);
 
   const deleteBookMutation = useDeleteUserBook();
   const updateBookMutation = useUpdateUserBook();
 
   // Modals state
   const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
-  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
 
@@ -243,7 +237,6 @@ export default function BookDetailPage() {
           <ReadingProgressCard
             book={book}
             onUpdated={() => refetch()}
-            onOpenSessionModal={() => setIsSessionModalOpen(true)}
           />
 
           {/* Personal Purchase & Ownership Information Box */}
@@ -385,28 +378,6 @@ export default function BookDetailPage() {
               </div>
             )}
           </div>
-
-          {/* Section: Reading Sessions History */}
-          <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-[#1e3a2f]" />
-                Nhật ký các phiên đọc ({sessions.length})
-              </h3>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsSessionModalOpen(true)}
-                className="text-xs gap-1 h-8"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Ghi phiên đọc
-              </Button>
-            </div>
-
-            <ReadingHistory sessions={sessions} />
-          </div>
         </div>
       </div>
 
@@ -416,17 +387,6 @@ export default function BookDetailPage() {
         onClose={() => setIsEditPersonalModalOpen(false)}
         book={book}
         onSaved={() => refetch()}
-      />
-
-      {/* Log Reading Session Modal */}
-      <ReadingSessionModal
-        isOpen={isSessionModalOpen}
-        onClose={() => setIsSessionModalOpen(false)}
-        book={book}
-        onSessionLogged={() => {
-          refetch();
-          refetchSessions();
-        }}
       />
 
       {/* Delete Book Confirmation Dialog */}

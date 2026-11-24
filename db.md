@@ -319,49 +319,6 @@ create table if not exists public.user_books (
 
 
 -- ============================================================
--- 9. READING SESSIONS
--- ============================================================
-
-create table if not exists public.reading_sessions (
-
-  id uuid primary key
-    default gen_random_uuid(),
-
-  user_book_id uuid not null
-    references public.user_books(id)
-    on delete cascade,
-
-  started_at timestamptz not null,
-
-  ended_at timestamptz,
-
-  start_page integer,
-
-  end_page integer,
-
-  duration_minutes integer,
-
-  created_at timestamptz
-    not null
-    default now(),
-
-  constraint reading_sessions_page_check
-    check (
-      (start_page is null or start_page >= 0)
-      and
-      (end_page is null or end_page >= 0)
-    ),
-
-  constraint reading_sessions_duration_check
-    check (
-      duration_minutes is null
-      or duration_minutes >= 0
-    )
-
-);
-
-
--- ============================================================
 -- 11. TAGS
 -- ============================================================
 
@@ -455,13 +412,6 @@ on public.user_books(
 
 create index if not exists idx_book_images_book_id
 on public.book_images(book_id);
-
-
-create index if not exists idx_reading_sessions_user_book
-on public.reading_sessions(user_book_id);
-
-create index if not exists idx_reading_sessions_started_at
-on public.reading_sessions(started_at desc);
 
 
 create index if not exists idx_tags_user_id
@@ -584,9 +534,6 @@ alter table public.book_images
 enable row level security;
 
 alter table public.user_books
-enable row level security;
-
-alter table public.reading_sessions
 enable row level security;
 
 alter table public.tags
@@ -816,118 +763,6 @@ to authenticated
 
 using (
   user_id = auth.uid()
-);
-
-
--- ============================================================
--- 21. READING SESSIONS RLS
--- ============================================================
-
-drop policy if exists "Users can view own reading sessions"
-on public.reading_sessions;
-
-create policy "Users can view own reading sessions"
-
-on public.reading_sessions
-
-for select
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can create own reading sessions"
-on public.reading_sessions;
-
-create policy "Users can create own reading sessions"
-
-on public.reading_sessions
-
-for insert
-
-to authenticated
-
-with check (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can update own reading sessions"
-on public.reading_sessions;
-
-create policy "Users can update own reading sessions"
-
-on public.reading_sessions
-
-for update
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-)
-
-with check (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can delete own reading sessions"
-on public.reading_sessions;
-
-create policy "Users can delete own reading sessions"
-
-on public.reading_sessions
-
-for delete
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
 );
 
 

@@ -56,17 +56,6 @@ export interface UserBook {
   updated_at: string;
 }
 
-export interface ReadingSession {
-  id: string;
-  user_book_id: string;
-  started_at: string;
-  ended_at: string | null;
-  start_page: number | null;
-  end_page: number | null;
-  duration_minutes: number | null;
-  created_at: string;
-}
-
 export interface Tag {
   id: string;
   user_id: string;
