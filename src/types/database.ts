@@ -67,16 +67,6 @@ export interface ReadingSession {
   created_at: string;
 }
 
-export interface BookNote {
-  id: string;
-  user_book_id: string;
-  title: string | null;
-  content: string;
-  page_number: number | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface Tag {
   id: string;
   user_id: string;

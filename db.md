@@ -362,42 +362,6 @@ create table if not exists public.reading_sessions (
 
 
 -- ============================================================
--- 10. BOOK NOTES
--- ============================================================
-
-create table if not exists public.book_notes (
-
-  id uuid primary key
-    default gen_random_uuid(),
-
-  user_book_id uuid not null
-    references public.user_books(id)
-    on delete cascade,
-
-  title text,
-
-  content text not null,
-
-  page_number integer,
-
-  created_at timestamptz
-    not null
-    default now(),
-
-  updated_at timestamptz
-    not null
-    default now(),
-
-  constraint book_notes_page_number_check
-    check (
-      page_number is null
-      or page_number > 0
-    )
-
-);
-
-
--- ============================================================
 -- 11. TAGS
 -- ============================================================
 
@@ -500,16 +464,6 @@ create index if not exists idx_reading_sessions_started_at
 on public.reading_sessions(started_at desc);
 
 
-create index if not exists idx_book_notes_user_book
-on public.book_notes(user_book_id);
-
-create index if not exists idx_book_notes_page
-on public.book_notes(
-  user_book_id,
-  page_number
-);
-
-
 create index if not exists idx_tags_user_id
 on public.tags(user_id);
 
@@ -551,19 +505,6 @@ create trigger user_books_updated_at
 
 before update
 on public.user_books
-
-for each row
-
-execute function public.handle_updated_at();
-
-
-drop trigger if exists book_notes_updated_at
-on public.book_notes;
-
-create trigger book_notes_updated_at
-
-before update
-on public.book_notes
 
 for each row
 
@@ -646,9 +587,6 @@ alter table public.user_books
 enable row level security;
 
 alter table public.reading_sessions
-enable row level security;
-
-alter table public.book_notes
 enable row level security;
 
 alter table public.tags
@@ -987,118 +925,6 @@ using (
     from public.user_books ub
 
     where ub.id = reading_sessions.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
--- ============================================================
--- 22. BOOK NOTES RLS
--- ============================================================
-
-drop policy if exists "Users can view own notes"
-on public.book_notes;
-
-create policy "Users can view own notes"
-
-on public.book_notes
-
-for select
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_notes.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can create own notes"
-on public.book_notes;
-
-create policy "Users can create own notes"
-
-on public.book_notes
-
-for insert
-
-to authenticated
-
-with check (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_notes.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can update own notes"
-on public.book_notes;
-
-create policy "Users can update own notes"
-
-on public.book_notes
-
-for update
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_notes.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-)
-
-with check (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_notes.user_book_id
-
-      and ub.user_id = auth.uid()
-  )
-);
-
-
-drop policy if exists "Users can delete own notes"
-on public.book_notes;
-
-create policy "Users can delete own notes"
-
-on public.book_notes
-
-for delete
-
-to authenticated
-
-using (
-  exists (
-    select 1
-
-    from public.user_books ub
-
-    where ub.id = book_notes.user_book_id
 
       and ub.user_id = auth.uid()
   )

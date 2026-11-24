@@ -11,7 +11,6 @@ import {
   MapPin,
   Star,
   Clock,
-  Bookmark,
   Tag as TagIcon,
   Camera,
   Trash2,
@@ -21,7 +20,6 @@ import {
   Share2,
 } from 'lucide-react';
 import { useBookDetail, useDeleteUserBook, useUpdateUserBook } from '@/hooks/useLibrary';
-import { useBookNotes, useDeleteBookNote } from '@/hooks/useNotes';
 import { useReadingSessions } from '@/hooks/useReading';
 import { BookCover } from '@/components/books/BookCover';
 import { BookStatusBadge } from '@/components/books/BookStatusBadge';
@@ -31,13 +29,11 @@ import { EditPersonalInfoModal } from '@/components/books/EditPersonalInfoModal'
 import { ReadingProgressCard } from '@/components/reading/ReadingProgressCard';
 import { ReadingSessionModal } from '@/components/reading/ReadingSessionModal';
 import { ReadingHistory } from '@/components/reading/ReadingHistory';
-import { NoteCard } from '@/components/notes/NoteCard';
-import { NoteFormModal } from '@/components/notes/NoteFormModal';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatVND, formatDateVN, STATUS_CONFIG } from '@/lib/utils';
-import type { BookStatus, BookNote } from '@/types/database';
+import type { BookStatus } from '@/types/database';
 import { toast } from 'sonner';
 
 export default function BookDetailPage() {
@@ -46,18 +42,14 @@ export default function BookDetailPage() {
   const userBookId = params.id as string;
 
   const { data: book, isLoading, refetch } = useBookDetail(userBookId);
-  const { data: notes = [], refetch: refetchNotes } = useBookNotes(userBookId);
   const { data: sessions = [], refetch: refetchSessions } = useReadingSessions(userBookId);
 
   const deleteBookMutation = useDeleteUserBook();
   const updateBookMutation = useUpdateUserBook();
-  const deleteNoteMutation = useDeleteBookNote();
 
   // Modals state
   const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState<BookNote | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
 
@@ -415,54 +407,6 @@ export default function BookDetailPage() {
 
             <ReadingHistory sessions={sessions} />
           </div>
-
-          {/* Section: Book Notes */}
-          <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Bookmark className="h-4 w-4 text-[#1e3a2f]" />
-                Ghi chú & Trích dẫn ({notes.length})
-              </h3>
-
-              <Button
-                size="sm"
-                onClick={() => {
-                  setEditingNote(null);
-                  setIsNoteModalOpen(true);
-                }}
-                className="text-xs gap-1 h-8"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Thêm ghi chú
-              </Button>
-            </div>
-
-            {notes.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-stone-200 bg-stone-50/50 p-6 text-center text-xs text-stone-500">
-                <p className="font-medium text-stone-700">Chưa có ghi chú nào cho cuốn sách này</p>
-                <p className="mt-0.5">Nhấn &quot;Thêm ghi chú&quot; để lưu lại những câu trích dẫn và suy ngẫm hay.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {notes.map((note) => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onEdit={(n) => {
-                      setEditingNote(n);
-                      setIsNoteModalOpen(true);
-                    }}
-                    onDelete={async (noteId) => {
-                      if (confirm('Bạn có chắc muốn xoá ghi chú này?')) {
-                        await deleteNoteMutation.mutateAsync({ noteId, userBookId: book.id });
-                        toast.success('Đã xoá ghi chú.');
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -483,18 +427,6 @@ export default function BookDetailPage() {
           refetch();
           refetchSessions();
         }}
-      />
-
-      {/* Note Form Modal */}
-      <NoteFormModal
-        isOpen={isNoteModalOpen}
-        onClose={() => {
-          setIsNoteModalOpen(false);
-          setEditingNote(null);
-        }}
-        userBookId={book.id}
-        initialNote={editingNote}
-        onSaved={() => refetchNotes()}
       />
 
       {/* Delete Book Confirmation Dialog */}
