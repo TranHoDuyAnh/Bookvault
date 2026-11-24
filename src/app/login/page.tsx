@@ -75,25 +75,15 @@ export default function LoginPage() {
               required
             />
 
-            <div className="space-y-1">
-              <Input
-                label="Mật khẩu"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="h-4 w-4" />}
-                required
-              />
-              <div className="flex justify-end pt-1">
-                <Link
-                  href="/forgot-password"
-                  className="text-xs font-semibold text-[#1e3a2f] dark:text-emerald-400 hover:underline"
-                >
-                  Quên mật khẩu?
-                </Link>
-              </div>
-            </div>
+            <Input
+              label="Mật khẩu"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              leftIcon={<Lock className="h-4 w-4" />}
+              required
+            />
 
             <Button
               type="submit"
@@ -113,16 +103,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-xs text-stone-600 dark:text-stone-400">
-            Chưa có tài khoản?{' '}
-            <Link
-              href="/register"
-              className="font-bold text-[#1e3a2f] dark:text-emerald-400 hover:underline"
-            >
-              Tạo tài khoản ngay
-            </Link>
-          </div>
         </div>
       </div>
     </div>
