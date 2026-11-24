@@ -47,8 +47,10 @@ export function NotificationBell() {
 
         {totalCount > 0 && (
           <span
-            className={`absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full text-[10px] font-semibold text-white tabular-nums ${
-              urgentCount > 0 ? 'bg-destructive' : 'bg-primary text-primary-foreground'
+            className={`absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums ${
+              urgentCount > 0
+                ? 'bg-destructive text-white dark:text-zinc-950'
+                : 'bg-primary text-primary-foreground'
             }`}
           >
             {totalCount > 9 ? '9+' : totalCount}
