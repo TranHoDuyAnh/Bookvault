@@ -30,23 +30,25 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="sm">
-      <div className="flex flex-col items-center text-center p-2">
+      <div className="flex flex-col items-center text-center pt-1">
         <div
-          className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full ${
-            isDestructive ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+          className={`mb-4 flex h-11 w-11 items-center justify-center rounded-full ${
+            isDestructive
+              ? 'bg-destructive-subtle text-destructive'
+              : 'bg-warning-subtle text-warning'
           }`}
         >
-          <AlertTriangle className="h-6 w-6" />
+          <AlertTriangle className="h-5 w-5" />
         </div>
 
-        <h3 className="font-serif text-lg font-semibold text-stone-900 dark:text-stone-100">
+        <h3 className="text-base font-semibold text-foreground">
           {title}
         </h3>
-        <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+        <p className="mt-1.5 text-sm text-text-muted">
           {description}
         </p>
 
-        <div className="mt-6 flex w-full gap-3 justify-end">
+        <div className="mt-6 flex w-full gap-2.5">
           <Button
             type="button"
             variant="outline"

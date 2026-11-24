@@ -20,19 +20,19 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#dcd6ca] bg-white/50 dark:bg-stone-900/30 p-12 text-center my-6">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f3eee7] dark:bg-stone-800 text-[#1e3a2f] dark:text-emerald-400 mb-4 shadow-inner">
-        {icon || <BookOpen className="h-8 w-8 stroke-[1.5]" />}
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/60 px-6 py-12 text-center my-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary text-text-muted mb-4">
+        {icon || <BookOpen className="h-6 w-6 stroke-[1.5]" />}
       </div>
-      <h3 className="font-serif text-lg font-semibold text-stone-900 dark:text-stone-100">
+      <h3 className="text-base font-semibold text-foreground">
         {title}
       </h3>
-      <p className="mt-1 max-w-sm text-sm text-stone-600 dark:text-stone-400">
+      <p className="mt-1 max-w-sm text-sm text-text-muted">
         {description}
       </p>
       {actionLabel && onAction && (
-        <div className="mt-6">
-          <Button onClick={onAction} className="gap-2">
+        <div className="mt-5">
+          <Button onClick={onAction} size="sm">
             <Plus className="h-4 w-4" />
             {actionLabel}
           </Button>

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Edit3, Star, DollarSign, MapPin, Calendar, Bookmark, Loader2, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit3, DollarSign, MapPin, Calendar, Loader2, Check, Star } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -38,27 +38,11 @@ export function EditPersonalInfoModal({
   const [notes, setNotes] = useState<string>(book.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && book) {
-      setStatus(book.status || 'OWNED');
-      setRating(book.rating || 0);
-      setPurchaseStore(book.purchase_store || '');
-      setPurchasePrice(
-        book.purchase_price !== null && book.purchase_price !== undefined ? String(book.purchase_price) : ''
-      );
-      setPurchaseDate(book.purchase_date || '');
-      setStartedReadingAt(book.started_reading_at || '');
-      setFinishedReadingAt(book.finished_reading_at || '');
-      setNotes(book.notes || '');
-    }
-  }, [isOpen, book]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // 1. Update user_books record
       await updateUserBookMutation.mutateAsync({
         userBookId: book.id,
         updates: {
@@ -76,8 +60,9 @@ export function EditPersonalInfoModal({
       toast.success('Đã cập nhật thông tin sở hữu cá nhân thành công!');
       onSaved?.();
       onClose();
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi cập nhật thông tin.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi cập nhật thông tin.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,16 +75,15 @@ export function EditPersonalInfoModal({
       maxWidth="2xl"
       title={
         <div className="flex items-center gap-2">
-          <Edit3 className="h-5 w-5 text-[#1e3a2f]" />
-          <span>Chỉnh sửa thông tin sở hữu cá nhân</span>
+          <Edit3 className="h-4 w-4 text-text-secondary" />
+          <span>Chỉnh sửa thông tin sở hữu</span>
         </div>
       }
-      description={`Cập nhật thông tin mua, đánh giá và ghi chú riêng cho cuốn "${book.title}"`}
+      description={`Cập nhật thông tin mua, đánh giá và ghi chú riêng cho "${book.title}"`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Status Selector */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
+          <label className="block text-[13px] font-medium text-text-secondary">
             Trạng thái sách *
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -111,10 +95,10 @@ export function EditPersonalInfoModal({
                   key={st}
                   type="button"
                   onClick={() => setStatus(st)}
-                  className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                  className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
                     isSelected
-                      ? 'border-[#1e3a2f] bg-emerald-50 text-[#1e3a2f] ring-2 ring-[#1e3a2f]/20 shadow-2xs'
-                      : 'border-stone-200 bg-white hover:border-stone-300 text-stone-600'
+                      ? 'border-primary bg-secondary text-foreground font-semibold'
+                      : 'border-border bg-card hover:bg-accent text-text-secondary'
                   }`}
                 >
                   <span className={`h-2 w-2 rounded-full mb-1 ${conf.dot}`} />
@@ -125,7 +109,6 @@ export function EditPersonalInfoModal({
           </div>
         </div>
 
-        {/* Purchase Info Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Input
             label="Nơi mua sách"
@@ -154,7 +137,6 @@ export function EditPersonalInfoModal({
           />
         </div>
 
-        {/* Dates Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Ngày bắt đầu đọc"
@@ -173,26 +155,28 @@ export function EditPersonalInfoModal({
           />
         </div>
 
-        {/* Rating Row */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
-            Đánh giá cá nhân: {rating > 0 ? `${rating} / 5 ⭐` : 'Chưa đánh giá'}
+          <label className="block text-[13px] font-medium text-text-secondary">
+            Đánh giá cá nhân: {rating > 0 ? `${rating} / 5` : 'Chưa đánh giá'}
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 type="button"
                 onClick={() => setRating(rating === star ? 0 : star)}
-                className="text-2xl hover:scale-110 transition-transform cursor-pointer"
+                className="p-1 cursor-pointer"
               >
-                {star <= rating ? '★' : '☆'}
+                <Star
+                  className={`h-5 w-5 ${
+                    star <= rating ? 'text-warning fill-warning' : 'text-text-disabled'
+                  }`}
+                />
               </button>
             ))}
           </div>
         </div>
 
-        {/* Personal Notes */}
         <Textarea
           label="Ghi chú riêng về cuốn sách"
           placeholder="Ví dụ: Bạn tặng sinh nhật, sách ấn bản giới hạn..."
@@ -201,11 +185,11 @@ export function EditPersonalInfoModal({
           rows={3}
         />
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-stone-200 dark:border-stone-800">
+        <div className="flex justify-end gap-2 pt-3 border-t border-border">
           <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Huỷ
           </Button>
-          <Button type="submit" size="sm" disabled={isSubmitting} className="gap-1.5 font-semibold">
+          <Button type="submit" size="sm" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "HomeBase — Trung Tâm Cuộc Sống",
-  description: "Ứng dụng quản lý cuộc sống toàn diện: sách, nhà cửa, tài chính, xe cộ, thói quen và nhiều hơn nữa.",
+  description: "Ứng dụng quản lý cuộc sống toàn diện: sách, giải trí, ngày quan trọng và nhiều hơn nữa.",
   keywords: ["life management", "homebase", "quản lý cuộc sống", "personal os", "home manager"],
 };
 
@@ -14,7 +14,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#FAF8F5",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 const themeScript = `
@@ -43,22 +46,25 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)] selection:bg-[#1e3a2f]/20">
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <QueryProvider>
           <ThemeProvider>
             {children}
             <Toaster
               position="top-right"
-              richColors
               closeButton
               toastOptions={{
                 style: {
-                  borderRadius: '10px',
-                  fontFamily: "'Be Vietnam Pro', sans-serif",
+                  borderRadius: '8px',
+                  background: 'var(--popover)',
+                  color: 'var(--popover-foreground)',
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '13px',
                 },
               }}
             />

@@ -37,36 +37,35 @@ export default function LoginPage() {
       toast.success('Đăng nhập thành công!');
       router.push('/app/dashboard');
       router.refresh();
-    } catch (err: any) {
-      toast.error(err.message || 'Email hoặc mật khẩu không chính xác.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Email hoặc mật khẩu không chính xác.';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-[#faf8f5] dark:bg-stone-950 px-4 py-12">
-      <div className="w-full max-w-md space-y-8">
-        {/* Brand Header */}
+    <div className="min-h-screen flex flex-col justify-center items-center bg-background px-4 py-12">
+      <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1e3a2f] text-white shadow-sm group-hover:scale-105 transition-transform">
-              <BookOpen className="h-6 w-6" />
+          <Link href="/" className="inline-flex items-center justify-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <BookOpen className="h-5 w-5" />
             </div>
           </Link>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-            Chào mừng trở lại
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Đăng nhập HomeBase
           </h1>
-          <p className="text-sm text-stone-600 dark:text-stone-400">
-            Đăng nhập để truy cập HomeBase của bạn
+          <p className="text-[13px] text-text-muted">
+            Truy cập không gian quản lý cá nhân của bạn
           </p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-[#e7e2d9] bg-white dark:border-stone-800 dark:bg-stone-900 p-8 shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
-              label="Địa chỉ Email"
+              label="Email"
               type="email"
               placeholder="tenban@email.com"
               value={email}
@@ -88,7 +87,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 text-sm font-semibold gap-2 mt-2"
+              className="w-full mt-2"
             >
               {isLoading ? (
                 <>

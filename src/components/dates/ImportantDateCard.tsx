@@ -1,30 +1,40 @@
 'use client';
+
 import React, { useState } from 'react';
 import { Trash2, Edit2, Calendar } from 'lucide-react';
 import { useDeleteImportantDate } from '@/hooks/useImportantDates';
 import { EditDateModal } from './EditDateModal';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { Badge } from '@/components/ui/Badge';
 import type { ImportantDate } from '@/types/database';
 import { toast } from 'sonner';
 
 const CATEGORY_EMOJIS: Record<string, string> = {
-  BIRTHDAY: '🎂', ANNIVERSARY: '💑', REMINDER: '⏰', HOLIDAY: '🎉', OTHER: '📅'
+  BIRTHDAY: '🎂',
+  ANNIVERSARY: '💑',
+  REMINDER: '⏰',
+  HOLIDAY: '🎉',
+  OTHER: '📅',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  BIRTHDAY: 'Sinh nhật', ANNIVERSARY: 'Kỷ niệm', REMINDER: 'Nhắc nhở', HOLIDAY: 'Lễ kỷ niệm', OTHER: 'Khác'
-};
-
-export function ImportantDateCard({ item, showCountdown = false }: { item: ImportantDate, showCountdown?: boolean }) {
+export function ImportantDateCard({
+  item,
+  showCountdown = false,
+}: {
+  item: ImportantDate;
+  showCountdown?: boolean;
+}) {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const deleteMutation = useDeleteImportantDate();
 
   const handleDelete = async () => {
-    if (!confirm('Bạn có chắc muốn xoá?')) return;
     try {
       await deleteMutation.mutateAsync(item.id);
       toast.success('Đã xoá!');
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi xoá.';
+      toast.error(message);
     }
   };
 
@@ -32,10 +42,9 @@ export function ImportantDateCard({ item, showCountdown = false }: { item: Impor
     const now = new Date();
     const currentYear = now.getFullYear();
     const eventDate = new Date(item.event_date);
-    
+
     if (item.is_recurring) {
-      let thisYearEvent = new Date(currentYear, eventDate.getMonth(), eventDate.getDate());
-      // If it passed, next occurrence is next year
+      const thisYearEvent = new Date(currentYear, eventDate.getMonth(), eventDate.getDate());
       if (thisYearEvent < new Date(currentYear, now.getMonth(), now.getDate())) {
         return new Date(currentYear + 1, eventDate.getMonth(), eventDate.getDate());
       }
@@ -49,76 +58,106 @@ export function ImportantDateCard({ item, showCountdown = false }: { item: Impor
   now.setHours(0, 0, 0, 0);
   const diffTime = nextDate.getTime() - now.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   let countdownText = '';
-  let countdownColor = '';
-  
+  let countdownVariant: 'success' | 'destructive' | 'warning' | 'secondary' | 'info' = 'info';
+
   if (diffDays === 0) {
-    countdownText = '🎉 Hôm nay!';
-    countdownColor = 'text-green-600 bg-green-50 border-green-200';
+    countdownText = 'Hôm nay';
+    countdownVariant = 'success';
   } else if (diffDays > 0 && diffDays <= (item.reminder_days_before || 7)) {
-    countdownText = `Còn ${diffDays} ngày!`;
-    countdownColor = diffDays <= 3 ? 'text-red-600 bg-red-50 border-red-200' : 'text-amber-600 bg-amber-50 border-amber-200';
+    countdownText = `Còn ${diffDays} ngày`;
+    countdownVariant = diffDays <= 3 ? 'destructive' : 'warning';
   } else if (diffDays < 0) {
-    countdownText = `Đã qua`;
-    countdownColor = 'text-stone-500 bg-stone-50 border-stone-200';
+    countdownText = 'Đã qua';
+    countdownVariant = 'secondary';
   } else {
     countdownText = `Còn ${diffDays} ngày`;
-    countdownColor = 'text-blue-600 bg-blue-50 border-blue-200';
+    countdownVariant = 'info';
   }
 
   const formattedDate = new Date(item.event_date).toLocaleDateString('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 
   const nextFormattedDate = nextDate.toLocaleDateString('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 
   return (
-    <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 shadow-2xs space-y-3 flex flex-col h-full">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-3">
-          <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-2xl shrink-0">
+    <div className="rounded-lg border border-border bg-card p-4 shadow-2xs space-y-3 flex flex-col h-full">
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center text-lg shrink-0">
             {CATEGORY_EMOJIS[item.category] || '📅'}
           </div>
-          <div>
-            <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100 leading-tight">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-base text-foreground leading-snug truncate">
               {item.title}
             </h3>
             {item.person_name && (
-              <p className="text-sm italic text-stone-600 dark:text-stone-400 mt-0.5">{item.person_name}</p>
+              <p className="text-xs text-text-muted mt-0.5 truncate">{item.person_name}</p>
             )}
-            <div className="flex items-center gap-1.5 mt-1">
-              <Calendar className="h-3.5 w-3.5 text-stone-400" />
-              <span className="text-xs text-stone-500">{formattedDate}</span>
+            <div className="flex items-center gap-1.5 mt-1 tabular-nums">
+              <Calendar className="h-3.5 w-3.5 text-text-muted shrink-0" />
+              <span className="text-xs text-text-muted">{formattedDate}</span>
               {item.is_recurring && (
-                <span className="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded ml-1">Hàng năm</span>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                  Hàng năm
+                </Badge>
               )}
             </div>
           </div>
         </div>
         {showCountdown && (
-          <span className={`text-xs px-2 py-1 rounded-full border font-medium whitespace-nowrap ${countdownColor}`}>
+          <Badge variant={countdownVariant} className="whitespace-nowrap tabular-nums shrink-0">
             {countdownText}
-          </span>
+          </Badge>
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-800 mt-auto">
-        <div className="text-xs text-stone-500">
-          Tiếp theo: <span className="font-medium text-stone-700 dark:text-stone-300">{nextFormattedDate}</span>
+      <div className="flex items-center justify-between pt-3 border-t border-border mt-auto">
+        <div className="text-xs text-text-muted tabular-nums">
+          Tiếp theo: <span className="font-medium text-foreground">{nextFormattedDate}</span>
         </div>
         <div className="flex items-center justify-end gap-1">
-          <button onClick={() => setIsEditOpen(true)} className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setIsEditOpen(true)}
+            className="p-1.5 rounded-md text-text-muted hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
+            aria-label="Chỉnh sửa"
+          >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
-          <button onClick={handleDelete} className="p-1.5 rounded-lg text-stone-400 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setIsDeleteOpen(true)}
+            className="p-1.5 rounded-md text-text-muted hover:bg-destructive-subtle hover:text-destructive transition-colors cursor-pointer"
+            aria-label="Xoá"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
-      {isEditOpen && <EditDateModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} item={item} />}
+
+      {isEditOpen && (
+        <EditDateModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} item={item} />
+      )}
+
+      <ConfirmDialog
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDelete}
+        title="Xoá sự kiện?"
+        description={`Bạn có chắc muốn xoá "${item.title}"?`}
+        confirmText="Xoá"
+        isDestructive
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

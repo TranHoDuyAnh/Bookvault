@@ -55,7 +55,7 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -65,37 +65,35 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         className={cn(
-          'relative z-50 w-full rounded-2xl bg-[#faf8f5] dark:bg-stone-900 border border-[#e7e2d9] dark:border-stone-800 p-6 shadow-2xl transition-all duration-200 animate-in zoom-in-95 my-8 max-h-[90vh] overflow-y-auto flex flex-col',
+          'relative z-50 w-full rounded-xl bg-card text-card-foreground border border-border p-6 shadow-lg my-8 max-h-[90vh] overflow-y-auto flex flex-col',
           maxWidthClasses[maxWidth],
           className
         )}
       >
-        {/* Header */}
         {(title || description) && (
           <div className="mb-5 pr-8">
             {title && (
-              <h3 className="font-serif text-xl font-semibold text-stone-900 dark:text-stone-100">
+              <h3 className="text-lg font-semibold leading-snug text-foreground">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
+              <p className="mt-1 text-[13px] text-text-muted">
                 {description}
               </p>
             )}
           </div>
         )}
 
-        {/* Close button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-2 text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-200 transition-colors cursor-pointer"
+          className="absolute right-4 top-4 rounded-md p-1.5 text-text-muted hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
           aria-label="Đóng"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
-        {/* Content */}
         <div className="flex-1">{children}</div>
       </div>
     </div>

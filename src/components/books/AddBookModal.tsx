@@ -260,28 +260,28 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
       maxWidth="3xl"
       title={
         <div className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-[#1e3a2f]" />
+          <BookOpen className="h-4 w-4 text-text-secondary" />
           <span>Thêm sách vào tủ sách</span>
         </div>
       }
-      description="Quản lý sách vật lý và ấn bản điện tử trong tủ sách số cá nhân của bạn."
+      description="Quản lý sách vật lý và ấn bản điện tử trong tủ sách số cá nhân."
     >
       {/* Steps indicator */}
-      <div className="mb-6 flex items-center justify-between border-b border-stone-200 pb-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
-        <span className={step >= 1 ? 'text-[#1e3a2f] font-bold' : ''}>1. Tra cứu</span>
+      <div className="mb-5 flex items-center justify-between border-b border-border pb-3 text-xs font-medium text-text-muted">
+        <span className={step >= 1 ? 'text-foreground font-semibold' : ''}>1. Tra cứu</span>
         <span>&rarr;</span>
-        <span className={step >= 2 ? 'text-[#1e3a2f] font-bold' : ''}>2. Thông tin sách</span>
+        <span className={step >= 2 ? 'text-foreground font-semibold' : ''}>2. Thông tin sách</span>
         <span>&rarr;</span>
-        <span className={step >= 3 ? 'text-[#1e3a2f] font-bold' : ''}>3. Thông tin cá nhân</span>
+        <span className={step >= 3 ? 'text-foreground font-semibold' : ''}>3. Sở hữu</span>
         <span>&rarr;</span>
-        <span className={step === 4 ? 'text-[#1e3a2f] font-bold' : ''}>4. Ảnh sách thật</span>
+        <span className={step === 4 ? 'text-foreground font-semibold' : ''}>4. Ảnh thật</span>
       </div>
 
       {/* ================= STEP 1: SEARCH / CHECK ================= */}
       {step === 1 && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
+            <label className="block text-[13px] font-medium text-text-secondary">
               Tìm sách đã có trong kho dữ liệu hoặc nhập ISBN
             </label>
             <div className="flex gap-2">
@@ -292,57 +292,54 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 leftIcon={<Search className="h-4 w-4" />}
               />
-              <Button onClick={handleSearch} disabled={isSearching} className="flex-shrink-0">
+              <Button onClick={handleSearch} disabled={isSearching} className="shrink-0">
                 {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Tìm kiếm'}
               </Button>
             </div>
           </div>
 
-          {/* Search results */}
           {searchResults.length > 0 && (
-            <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-              <p className="text-xs font-semibold text-stone-500">Kết quả tìm thấy ({searchResults.length}):</p>
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <p className="text-xs font-medium text-text-muted">Kết quả tìm thấy ({searchResults.length}):</p>
               {searchResults.map((book) => (
                 <div
                   key={book.id}
                   onClick={() => handleSelectBook(book)}
-                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-3 hover:border-[#1e3a2f] hover:bg-[#faf8f5] cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 hover:border-ring/60 hover:bg-accent/50 cursor-pointer transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <BookCover title={book.title} author={book.author} size="sm" className="w-10 h-14" />
-                    <div>
-                      <h5 className="font-serif text-sm font-semibold text-stone-900">{book.title}</h5>
-                      <p className="text-xs text-stone-500">
+                    <div className="min-w-0">
+                      <h5 className="text-sm font-semibold text-foreground truncate">{book.title}</h5>
+                      <p className="text-xs text-text-muted truncate">
                         {book.author || 'Chưa rõ tác giả'} {book.release_year ? `• ${book.release_year}` : ''}
                       </p>
                     </div>
                   </div>
-                  <Button size="sm" variant="secondary" className="text-xs">
-                    Chọn sách này
+                  <Button size="sm" variant="secondary">
+                    Chọn
                   </Button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Already owned alert */}
           {alreadyOwned && (
-            <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 text-amber-600" />
+            <div className="flex items-center gap-2 rounded-lg bg-warning-subtle border border-warning/30 p-3 text-xs text-warning">
+              <AlertCircle className="h-4 w-4 shrink-0" />
               <span>Cuốn sách này đã có sẵn trong tủ sách của bạn rồi!</span>
             </div>
           )}
 
-          {/* Manual Create Option */}
-          <div className="rounded-xl border border-dashed border-stone-300 p-4 text-center bg-stone-50/50">
-            <p className="text-xs text-stone-600">
+          <div className="rounded-lg border border-dashed border-border p-4 text-center bg-secondary/40">
+            <p className="text-xs text-text-muted">
               Không tìm thấy sách bạn cần hoặc muốn tạo thủ công?
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={handleStartCustomBook}
-              className="mt-2 text-xs gap-1.5"
+              className="mt-2.5"
             >
               <Plus className="h-3.5 w-3.5" />
               Nhập thông tin sách mới
@@ -449,7 +446,7 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Status Selector */}
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
+              <label className="block text-[13px] font-medium text-text-secondary">
                 Trạng thái sách trong tủ *
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -461,10 +458,10 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
                       key={st}
                       type="button"
                       onClick={() => setPersonalInfo({ ...personalInfo, status: st })}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
                         isSelected
-                          ? 'border-[#1e3a2f] bg-emerald-50/70 text-[#1e3a2f] ring-2 ring-[#1e3a2f]/20 shadow-xs'
-                          : 'border-stone-200 bg-white hover:border-stone-300 text-stone-600'
+                          ? 'border-primary bg-secondary text-foreground font-semibold'
+                          : 'border-border bg-card hover:bg-accent text-text-secondary'
                       }`}
                     >
                       <span className={`h-2 w-2 rounded-full mb-1.5 ${conf.dot}`} />
@@ -513,8 +510,8 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
 
             {/* Rating */}
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
-                Đánh giá cá nhân: {personalInfo.rating > 0 ? `${personalInfo.rating} / 5 ⭐` : 'Chưa đánh giá'}
+              <label className="block text-[13px] font-medium text-text-secondary">
+                Đánh giá cá nhân: {personalInfo.rating > 0 ? `${personalInfo.rating} / 5` : 'Chưa đánh giá'}
               </label>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -527,7 +524,9 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
                         rating: personalInfo.rating === star ? 0 : star,
                       })
                     }
-                    className="text-2xl hover:scale-110 transition-transform cursor-pointer"
+                    className={`text-xl hover:scale-110 transition-transform cursor-pointer ${
+                      star <= personalInfo.rating ? 'text-warning' : 'text-text-disabled'
+                    }`}
                   >
                     {star <= personalInfo.rating ? '★' : '☆'}
                   </button>
@@ -580,12 +579,12 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
 
       {/* ================= STEP 4: PHOTO UPLOAD (OPTIONAL) ================= */}
       {step === 4 && activeBookId && (
-        <div className="space-y-5">
-          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-emerald-900 flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+        <div className="space-y-4">
+          <div className="rounded-lg bg-success-subtle/60 border border-success/30 p-4 text-foreground flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-sm">Đã thêm &quot;{bookMeta.title}&quot; vào tủ sách thành công!</p>
-              <p className="text-xs text-emerald-700 mt-0.5">
+              <p className="text-xs text-text-secondary mt-0.5">
                 Bạn có muốn tải ảnh chụp bìa sách thật lên để lưu lại kỷ niệm không?
               </p>
             </div>

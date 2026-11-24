@@ -12,18 +12,22 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, error, label, leftIcon, rightIcon, id, ...props }, ref) => {
-    const inputId = id || React.useId();
+    const generatedId = React.useId();
+    const inputId = id ?? generatedId;
 
     return (
       <div className="w-full space-y-1.5">
         {label && (
-          <label htmlFor={inputId} className="block text-xs font-semibold uppercase tracking-wider text-stone-600">
+          <label
+            htmlFor={inputId}
+            className="block text-[13px] font-medium text-text-secondary"
+          >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3 text-stone-400 pointer-events-none flex items-center">
+            <div className="absolute left-3 text-text-muted pointer-events-none flex items-center">
               {leftIcon}
             </div>
           )}
@@ -31,22 +35,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             type={type}
             className={cn(
-              'flex h-10 w-full rounded-lg border border-[#dcd6ca] bg-white px-3 py-2 text-sm placeholder:text-stone-400 transition-colors focus:border-[#1e3a2f] focus:outline-none focus:ring-2 focus:ring-[#1e3a2f]/20 disabled:cursor-not-allowed disabled:opacity-50',
+              'flex h-9 w-full rounded-md border border-input bg-card px-3 py-1.5 text-sm text-foreground placeholder:text-text-muted transition-colors duration-150 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50',
               leftIcon && 'pl-9',
               rightIcon && 'pr-9',
-              error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20',
+              error && 'border-destructive focus:border-destructive focus:ring-destructive/20',
               className
             )}
             ref={ref}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 text-stone-400 flex items-center">
+            <div className="absolute right-3 text-text-muted flex items-center">
               {rightIcon}
             </div>
           )}
         </div>
-        {error && <p className="text-xs text-rose-600 font-medium">{error}</p>}
+        {error && <p className="text-xs text-destructive font-medium">{error}</p>}
       </div>
     );
   }

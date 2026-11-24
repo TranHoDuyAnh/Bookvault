@@ -5,29 +5,29 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a2f] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] cursor-pointer',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer',
   {
     variants: {
       variant: {
         default:
-          'bg-[#1e3a2f] text-[#fcfbf9] hover:bg-[#284f40] shadow-sm hover:shadow',
+          'bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs',
         secondary:
-          'bg-[#f3eee7] text-[#38342f] hover:bg-[#eae3d8] border border-[#e7e2d9]',
+          'bg-secondary text-secondary-foreground hover:bg-accent border border-border',
         outline:
-          'border border-[#dcd6ca] bg-transparent hover:bg-[#f5efeb] text-[#21201c]',
+          'border border-border bg-card text-foreground hover:bg-accent',
         ghost:
-          'hover:bg-[#f3eee7] text-[#38342f]',
+          'text-text-secondary hover:bg-accent hover:text-foreground',
         destructive:
-          'bg-rose-700 text-white hover:bg-rose-800 shadow-sm',
+          'bg-destructive text-white hover:opacity-90 shadow-2xs',
         accent:
-          'bg-[#2d5a47] text-white hover:bg-[#234738] shadow-sm',
-        link: 'text-[#1e3a2f] underline-offset-4 hover:underline p-0 h-auto',
+          'bg-primary text-primary-foreground hover:bg-primary-hover shadow-2xs',
+        link: 'text-foreground underline-offset-4 hover:underline p-0 h-auto',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-11 rounded-lg px-6 text-base font-semibold',
-        icon: 'h-9 w-9 rounded-lg',
+        default: 'h-9 px-4 py-2',
+        sm: 'h-8 px-3 text-[13px]',
+        lg: 'h-10 px-5 text-sm',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: {

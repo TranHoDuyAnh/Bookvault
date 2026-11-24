@@ -27,9 +27,9 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   ];
 
   const moreItems = [
-    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600' },
-    { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600' },
-    { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings, color: 'text-stone-500' },
+    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
+    { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
+    { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings },
   ];
 
   return (
@@ -37,16 +37,17 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
       {/* Mobile Floating Action Button (+) */}
       <div className="fixed bottom-20 right-4 z-40 lg:hidden">
         <button
+          type="button"
           onClick={onOpenAddModal}
-          className="flex h-13 w-13 items-center justify-center rounded-full bg-[#1e3a2f] text-white shadow-xl hover:bg-[#284f40] active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-stone-900"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary-hover active:scale-95 transition-all cursor-pointer border border-border"
           aria-label="Thêm sách"
         >
-          <Plus className="h-6 w-6 stroke-[2.5]" />
+          <Plus className="h-5 w-5" />
         </button>
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-[#e7e2d9] bg-[#faf8f5]/95 backdrop-blur-md dark:border-stone-800 dark:bg-stone-950/95 px-2 py-1.5 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-sidebar/95 backdrop-blur-md px-2 py-1.5">
         <div className="flex items-center justify-around">
           {mainItems.map((item) => {
             const isActive =
@@ -58,22 +59,22 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex flex-col items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-medium transition-colors',
+                  'flex flex-col items-center gap-1 rounded-md px-2.5 py-1 text-[11px] transition-colors',
                   isActive
-                    ? 'text-[#1e3a2f] dark:text-emerald-400 font-bold scale-105'
-                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-400'
+                    ? 'text-foreground font-semibold'
+                    : 'text-text-muted hover:text-foreground font-medium'
                 )}
               >
-                <item.icon className={cn('h-5 w-5', isActive && 'stroke-[2.5]')} />
+                <item.icon className={cn('h-5 w-5', isActive && 'stroke-[2.25]')} />
                 <span>{item.name}</span>
               </Link>
             );
           })}
 
-          {/* More menu trigger */}
           <button
+            type="button"
             onClick={() => setIsMoreMenuOpen(true)}
-            className="flex flex-col items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-medium text-stone-500 hover:text-stone-800 dark:text-stone-400 cursor-pointer"
+            className="flex flex-col items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-medium text-text-muted hover:text-foreground cursor-pointer"
           >
             <Menu className="h-5 w-5" />
             <span>Thêm</span>
@@ -83,29 +84,31 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
 
       {/* More Hubs Drawer Modal */}
       {isMoreMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden bg-black/60 backdrop-blur-xs flex items-end">
-          <div className="w-full bg-white dark:bg-stone-950 rounded-t-3xl p-5 space-y-4 max-h-[80vh] overflow-y-auto border-t border-stone-200 dark:border-stone-800">
-            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
-              <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
-                Tất cả các tính năng HomeBase
+        <div className="fixed inset-0 z-50 lg:hidden bg-black/50 backdrop-blur-[2px] flex items-end">
+          <div className="w-full bg-card text-card-foreground rounded-t-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto border-t border-border shadow-lg">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h3 className="font-semibold text-base text-foreground">
+                Menu HomeBase
               </h3>
               <button
+                type="button"
                 onClick={() => setIsMoreMenuOpen(false)}
-                className="p-1 rounded-full text-stone-400 hover:bg-stone-100"
+                className="p-1.5 rounded-md text-text-muted hover:bg-accent hover:text-foreground"
+                aria-label="Đóng"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 gap-2">
               {moreItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMoreMenuOpen(false)}
-                  className="flex items-center gap-2.5 p-3 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:border-[#1e3a2f] transition-all text-xs font-semibold text-stone-800 dark:text-stone-200"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border bg-secondary/40 hover:bg-accent transition-colors text-sm font-medium text-foreground"
                 >
-                  <item.icon className={cn('h-4 w-4 flex-shrink-0', item.color)} />
+                  <item.icon className="h-4 w-4 text-text-secondary shrink-0" />
                   <span className="truncate">{item.name}</span>
                 </Link>
               ))}

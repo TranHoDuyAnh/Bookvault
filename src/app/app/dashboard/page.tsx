@@ -4,24 +4,25 @@ import React from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
-  BookMarked,
   CheckCircle2,
   Flame,
   CalendarHeart,
   Tv,
+  ArrowRight,
 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { useLibrary, useLibraryStats } from '@/hooks/useLibrary';
 import { BookCard } from '@/components/books/BookCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatCard } from '@/components/ui/StatCard';
 
 export default function DashboardPage() {
   const { user, profile } = useUser();
   const { data: stats, isLoading: statsLoading } = useLibraryStats();
   const { data: allBooks = [], isLoading: booksLoading } = useLibrary();
 
-  // Greeting by hour of the day
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Chào buổi sáng';
@@ -31,7 +32,6 @@ export default function DashboardPage() {
 
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'bạn';
 
-  // Slices
   const currentlyReading = allBooks.filter((b) => b.status === 'READING');
   const recentlyAdded = [...allBooks]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -39,103 +39,104 @@ export default function DashboardPage() {
   const readCount = allBooks.filter((b) => b.status === 'READ').length;
 
   return (
-    <div className="space-y-10">
-      {/* Editorial Header */}
-      <div className="space-y-1">
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-          {getGreeting()}, {displayName}
-        </h1>
-        <p className="text-sm text-stone-600 dark:text-stone-400">
-          Chào mừng trở lại tủ sách số & không gian quản trị cuộc sống cá nhân của bạn.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title={`${getGreeting()}, ${displayName}`}
+        description="Tổng quan tủ sách và không gian quản lý cá nhân của bạn."
+      />
 
       {/* Statistics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        {/* Stat 1: Total Books */}
-        <Link href="/app/library" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-[#1e3a2f]/40 transition-colors">
-          <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Tổng số sách</span>
-            <BookOpen className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+        <StatCard
+          label="Tổng số sách"
+          value={stats?.totalBooks || 0}
+          hint="cuốn trong tủ"
+          icon={<BookOpen className="h-4 w-4" />}
+          href="/app/library"
+          isLoading={statsLoading}
+        />
+
+        <StatCard
+          label="Đang đọc"
+          value={currentlyReading.length}
+          hint="cuốn đang theo dõi"
+          icon={<Flame className="h-4 w-4" />}
+          href="/app/library"
+          isLoading={booksLoading}
+        />
+
+        <StatCard
+          label="Đã đọc xong"
+          value={readCount}
+          hint="cuốn đã hoàn thành"
+          icon={<CheckCircle2 className="h-4 w-4" />}
+          href="/app/library"
+          isLoading={booksLoading}
+          className="col-span-2 sm:col-span-1"
+        />
+      </div>
+
+      {/* Quick Links to Lifestyle Hubs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <Link
+          href="/app/entertainment"
+          className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 sm:p-5 shadow-2xs hover:border-ring/50 transition-colors"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground border border-border">
+              <Tv className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-foreground truncate">
+                Giải trí & Văn hoá
+              </h3>
+              <p className="text-xs text-text-muted truncate">
+                Phim, Anime, Game, Podcast đang theo dõi
+              </p>
+            </div>
           </div>
-          <p className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100">
-            {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.totalBooks || 0}
-          </p>
-          <span className="text-[11px] text-stone-400 font-medium">cuốn trong tủ &rarr;</span>
+          <ArrowRight className="h-4 w-4 text-text-muted group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
         </Link>
 
-        {/* Stat 2: Currently Reading */}
-        <Link href="/app/library" className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-blue-600/40 transition-colors">
-          <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Đang đọc</span>
-            <Flame className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <Link
+          href="/app/dates"
+          className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 sm:p-5 shadow-2xs hover:border-ring/50 transition-colors"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground border border-border">
+              <CalendarHeart className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-foreground truncate">
+                Ngày quan trọng
+              </h3>
+              <p className="text-xs text-text-muted truncate">
+                Sinh nhật, kỷ niệm & sự kiện nhắc lịch
+              </p>
+            </div>
           </div>
-          <p className="font-serif text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-400">
-            {booksLoading ? <Skeleton className="h-8 w-16" /> : currentlyReading.length}
-          </p>
-          <span className="text-[11px] text-stone-400 font-medium">cuốn đang theo dõi &rarr;</span>
-        </Link>
-
-        {/* Stat 3: Read Books */}
-        <Link href="/app/library" className="col-span-2 sm:col-span-1 rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-5 shadow-2xs space-y-1 hover:border-emerald-600/40 transition-colors">
-          <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Đã đọc xong</span>
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <p className="font-serif text-2xl sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-            {booksLoading ? <Skeleton className="h-8 w-16" /> : readCount}
-          </p>
-          <span className="text-[11px] text-stone-400 font-medium">cuốn đã hoàn thành &rarr;</span>
+          <ArrowRight className="h-4 w-4 text-text-muted group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
         </Link>
       </div>
 
-      {/* Quick Links to Remaining Hubs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Link href="/app/entertainment" className="flex items-center justify-between rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-2xs hover:border-rose-500/40 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
-              <Tv className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">Giải trí & Văn hoá</h3>
-              <p className="text-xs text-stone-500">Phim, Anime, Game, Podcast đang theo dõi</p>
-            </div>
-          </div>
-          <BookMarked className="h-4 w-4 text-stone-400" />
-        </Link>
-
-        <Link href="/app/dates" className="flex items-center justify-between rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-2xs hover:border-pink-500/40 transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400">
-              <CalendarHeart className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">Ngày quan trọng</h3>
-              <p className="text-xs text-stone-500">Sinh nhật, kỷ niệm & sự kiện nhắc lịch</p>
-            </div>
-          </div>
-          <BookMarked className="h-4 w-4 text-stone-400" />
-        </Link>
-      </div>
-
-      {/* Section: "Recently Added Books" */}
+      {/* Section: Recently Added Books */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+          <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
             Mới thêm vào tủ sách
           </h2>
           <Link
             href="/app/library"
-            className="text-xs font-semibold text-[#1e3a2f] dark:text-emerald-400 hover:underline"
+            className="text-[13px] font-medium text-text-secondary hover:text-foreground transition-colors"
           >
-            Xem toàn bộ tủ sách &rarr;
+            Xem toàn bộ &rarr;
           </Link>
         </div>
 
         {booksLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
+              <Skeleton key={i} className="aspect-[3/4] w-full rounded-lg" />
             ))}
           </div>
         ) : recentlyAdded.length === 0 ? (
@@ -149,7 +150,7 @@ export default function DashboardPage() {
             }}
           />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {recentlyAdded.map((book) => (
               <BookCard key={book.id} book={book} />
             ))}

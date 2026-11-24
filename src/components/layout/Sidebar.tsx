@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -10,9 +10,11 @@ import {
   Settings,
   Plus,
   LogOut,
-  Sparkles,
+  Search,
   Tv,
   CalendarHeart,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/hooks/useUser';
@@ -27,6 +29,7 @@ interface SidebarProps {
 export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   const pathname = usePathname();
   const { user, profile } = useUser();
+  const [collapsed, setCollapsed] = useState(false);
 
   const bookNavItems = [
     { name: 'Tổng quan', href: '/app/dashboard', icon: LayoutDashboard },
@@ -34,57 +37,103 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   ];
 
   const lifestyleNavItems = [
-    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv, color: 'text-rose-600 dark:text-rose-400' },
-    { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart, color: 'text-pink-600 dark:text-pink-400' },
+    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
+    { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
   ];
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-[#e7e2d9] bg-[#faf8f5] dark:border-stone-800 dark:bg-stone-950 p-3 min-h-screen">
-      <div className="space-y-4 max-h-[calc(100vh-100px)] overflow-y-auto pr-1">
-        {/* Logo & Tagline */}
-        <div className="px-2 pt-1">
-          <Link href="/app/dashboard" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e3a2f] text-white shadow-xs group-hover:scale-105 transition-transform">
+    <aside
+      className={cn(
+        'hidden lg:flex flex-col justify-between border-r border-border bg-sidebar text-sidebar-foreground min-h-screen shrink-0 transition-[width] duration-150',
+        collapsed ? 'w-16 p-2' : 'w-60 p-3'
+      )}
+    >
+      <div className="space-y-5 max-h-[calc(100vh-110px)] overflow-y-auto">
+        {/* Brand Header & Collapse Toggle */}
+        <div className={cn('flex items-center pt-1', collapsed ? 'justify-center' : 'justify-between px-1.5')}>
+          <Link href="/app/dashboard" className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <BookOpen className="h-4 w-4" />
             </div>
-            <div>
-              <span className="font-serif text-base font-bold tracking-tight text-stone-900 dark:text-stone-100 block leading-tight">
-                HomeBase
-              </span>
-              <span className="text-[9px] text-stone-500 font-medium block">
-                Trung Tâm Cuộc Sống
-              </span>
-            </div>
+            {!collapsed && (
+              <div className="min-w-0">
+                <span className="text-sm font-semibold tracking-tight text-foreground block leading-tight truncate">
+                  HomeBase
+                </span>
+                <span className="text-[11px] text-text-muted block truncate">
+                  Personal OS
+                </span>
+              </div>
+            )}
           </Link>
+
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => setCollapsed(true)}
+              className="rounded-md p-1.5 text-text-muted hover:bg-accent hover:text-foreground transition-colors"
+              title="Thu gọn thanh bên"
+              aria-label="Thu gọn thanh bên"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
-        {/* Quick Add CTA */}
-        <div className="px-1 space-y-1.5">
+        {collapsed && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setCollapsed(false)}
+              className="rounded-md p-1.5 text-text-muted hover:bg-accent hover:text-foreground transition-colors"
+              title="Mở rộng thanh bên"
+              aria-label="Mở rộng thanh bên"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="space-y-1.5">
           <Button
             onClick={onOpenAddModal}
-            className="w-full gap-2 font-semibold shadow-xs text-xs h-9"
+            size={collapsed ? 'icon' : 'sm'}
+            className={cn('w-full', collapsed && 'mx-auto')}
+            title="Thêm sách mới"
           >
-            <Plus className="h-3.5 w-3.5" />
-            Thêm sách mới
+            <Plus className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Thêm sách mới</span>}
           </Button>
 
           <button
+            type="button"
             onClick={onOpenSearchModal}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] rounded-lg border border-[#dcd6ca] bg-white hover:bg-stone-50 text-stone-600 transition-colors shadow-2xs cursor-pointer"
+            title="Tra cứu tại nhà sách (⌘K)"
+            className={cn(
+              'w-full flex items-center rounded-md border border-border bg-card hover:bg-accent text-text-muted hover:text-foreground transition-colors cursor-pointer h-8',
+              collapsed ? 'justify-center px-0' : 'justify-between px-2.5 text-xs'
+            )}
           >
-            <span className="flex items-center gap-1 font-medium">
-              <Sparkles className="h-3 w-3 text-emerald-700" />
-              Tra cứu tại nhà sách
+            <span className="flex items-center gap-2 truncate">
+              <Search className="h-3.5 w-3.5 shrink-0" />
+              {!collapsed && <span className="truncate">Tra cứu nhanh</span>}
             </span>
-            <kbd className="text-[9px] font-mono bg-stone-100 px-1 rounded text-stone-400">⌘K</kbd>
+            {!collapsed && (
+              <kbd className="text-[10px] font-mono bg-secondary border border-border px-1.5 py-0.5 rounded text-text-muted">
+                ⌘K
+              </kbd>
+            )}
           </button>
         </div>
 
         {/* Section 1: Books */}
-        <div className="space-y-0.5 px-1">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5">
-            Tủ Sách Số
-          </span>
+        <div className="space-y-1">
+          {!collapsed && (
+            <span className="text-[11px] font-medium text-text-muted px-2.5 block">
+              Tủ sách số
+            </span>
+          )}
           <nav className="space-y-0.5">
             {bookNavItems.map((item) => {
               const isActive =
@@ -95,15 +144,18 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={collapsed ? item.name : undefined}
+                  data-active={isActive}
                   className={cn(
-                    'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
+                    'flex items-center gap-2.5 rounded-md min-h-9 px-2.5 py-1.5 text-[13px] transition-colors duration-150',
+                    collapsed && 'justify-center px-0',
                     isActive
-                      ? 'bg-[#1e3a2f] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
+                      ? 'bg-secondary text-foreground font-medium'
+                      : 'text-text-secondary hover:bg-accent hover:text-foreground'
                   )}
                 >
-                  <item.icon className="h-3.5 w-3.5" />
-                  <span>{item.name}</span>
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  {!collapsed && <span className="truncate">{item.name}</span>}
                 </Link>
               );
             })}
@@ -111,10 +163,12 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
         </div>
 
         {/* Section 2: Lifestyle */}
-        <div className="space-y-0.5 px-1 pt-1 border-t border-[#e7e2d9] dark:border-stone-800">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 px-2 block mb-0.5 pt-0.5">
-            Phong Cách Sống
-          </span>
+        <div className="space-y-1 pt-2 border-t border-border">
+          {!collapsed && (
+            <span className="text-[11px] font-medium text-text-muted px-2.5 block">
+              Phong cách sống
+            </span>
+          )}
           <nav className="space-y-0.5">
             {lifestyleNavItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
@@ -122,15 +176,18 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={collapsed ? item.name : undefined}
+                  data-active={isActive}
                   className={cn(
-                    'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-150',
+                    'flex items-center gap-2.5 rounded-md min-h-9 px-2.5 py-1.5 text-[13px] transition-colors duration-150',
+                    collapsed && 'justify-center px-0',
                     isActive
-                      ? 'bg-[#1e3a2f] text-white shadow-xs'
-                      : 'text-stone-700 hover:bg-[#f3eee7] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-900'
+                      ? 'bg-secondary text-foreground font-medium'
+                      : 'text-text-secondary hover:bg-accent hover:text-foreground'
                   )}
                 >
-                  <item.icon className={cn('h-3.5 w-3.5', !isActive && item.color)} />
-                  <span>{item.name}</span>
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  {!collapsed && <span className="truncate">{item.name}</span>}
                 </Link>
               );
             })}
@@ -139,39 +196,51 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
       </div>
 
       {/* Footer / User Profile & Settings */}
-      <div className="space-y-1.5 px-1 pt-2 border-t border-[#e7e2d9] dark:border-stone-800">
+      <div className="space-y-1.5 pt-3 border-t border-border">
         <Link
           href="/app/settings"
+          title={collapsed ? 'Cài đặt tài khoản' : undefined}
+          data-active={pathname === '/app/settings'}
           className={cn(
-            'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors',
+            'flex items-center gap-2.5 rounded-md min-h-9 px-2.5 py-1.5 text-[13px] transition-colors duration-150',
+            collapsed && 'justify-center px-0',
             pathname === '/app/settings'
-              ? 'bg-[#1e3a2f] text-white'
-              : 'text-stone-700 hover:bg-[#f3eee7] dark:text-stone-300'
+              ? 'bg-secondary text-foreground font-medium'
+              : 'text-text-secondary hover:bg-accent hover:text-foreground'
           )}
         >
-          <Settings className="h-3.5 w-3.5" />
-          <span>Cài đặt tài khoản</span>
+          <Settings className="h-4 w-4 shrink-0" />
+          {!collapsed && <span className="truncate">Cài đặt</span>}
         </Link>
 
-        <div className="flex items-center justify-between rounded-xl bg-white dark:bg-stone-900 p-2 border border-[#e7e2d9] dark:border-stone-800 shadow-2xs">
+        <div
+          className={cn(
+            'flex items-center rounded-md bg-card p-2 border border-border',
+            collapsed ? 'justify-center' : 'justify-between gap-2'
+          )}
+        >
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1e3a2f]/15 text-[#1e3a2f] font-serif font-bold text-xs flex-shrink-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground font-semibold text-xs shrink-0 border border-border">
               {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className="overflow-hidden">
-              <p className="text-[11px] font-bold text-stone-900 dark:text-stone-100 truncate">
+            {!collapsed && (
+              <p className="text-xs font-medium text-foreground truncate">
                 {profile?.display_name || user?.email?.split('@')[0] || 'Độc giả'}
               </p>
-            </div>
+            )}
           </div>
 
-          <button
-            onClick={() => signOut()}
-            title="Đăng xuất"
-            className="rounded-lg p-1 text-stone-400 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              title="Đăng xuất"
+              aria-label="Đăng xuất"
+              className="rounded-md p-1 text-text-muted hover:bg-destructive-subtle hover:text-destructive transition-colors cursor-pointer"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </aside>

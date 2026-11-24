@@ -19,7 +19,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#faf8f5] dark:bg-stone-950">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
       <Sidebar
         onOpenAddModal={() => {
@@ -30,7 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-x-hidden min-w-0 pb-24 lg:pb-8">
+      <div className="flex flex-1 flex-col overflow-x-hidden min-w-0 pb-20 lg:pb-8">
         <Header
           onOpenSearchModal={() => setIsSearchOpen(true)}
           onOpenAddModal={() => {
@@ -39,7 +39,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           }}
         />
 
-        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

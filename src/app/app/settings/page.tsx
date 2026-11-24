@@ -1,27 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { User, Mail, Shield, LogOut, Check, Loader2, Sparkles, BookOpen, Sun, Moon, Laptop } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Mail, LogOut, Check, Loader2, BookOpen, Sun, Moon, Laptop } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { useTheme } from '@/contexts/ThemeContext';
 import { updateProfile, signOut } from '@/services/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { user, profile, loading } = useUser();
   const { theme, setTheme } = useTheme();
-  const [displayName, setDisplayName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [displayNameOverride, setDisplayNameOverride] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      setDisplayName(profile.display_name || '');
-      setAvatarUrl(profile.avatar_url || '');
-    }
-  }, [profile]);
+  const displayName = displayNameOverride ?? profile?.display_name ?? '';
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +26,12 @@ export default function SettingsPage() {
     try {
       await updateProfile(user.id, {
         display_name: displayName.trim(),
-        avatar_url: avatarUrl.trim() || undefined,
+        avatar_url: profile?.avatar_url || undefined,
       });
       toast.success('Đã cập nhật thông tin hồ sơ thành công!');
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi cập nhật hồ sơ.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi cập nhật hồ sơ.';
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -46,37 +42,38 @@ export default function SettingsPage() {
       await signOut();
       toast.success('Đã đăng xuất.');
       window.location.href = '/login';
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi đăng xuất.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi đăng xuất.';
+      toast.error(message);
     }
   };
 
   if (loading) {
-    return <div className="py-12 text-center text-sm text-stone-500">Đang tải cài đặt...</div>;
+    return (
+      <div className="py-12 text-center text-sm text-text-muted">
+        Đang tải cài đặt...
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8 max-w-3xl mx-auto">
-      <div>
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-          Cài đặt & Tài khoản
-        </h1>
-        <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-          Quản lý thông tin cá nhân và tài khoản HomeBase của bạn.
-        </p>
-      </div>
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <PageHeader
+        title="Cài đặt & Tài khoản"
+        description="Quản lý thông tin cá nhân, giao diện và tài khoản HomeBase."
+      />
 
       {/* Profile Form */}
-      <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-xs space-y-6">
-        <div className="flex items-center gap-4 border-b border-stone-100 dark:border-stone-800 pb-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1e3a2f]/10 text-[#1e3a2f] dark:bg-emerald-950 dark:text-emerald-400 font-serif font-bold text-2xl border border-[#1e3a2f]/20">
+      <div className="rounded-lg border border-border bg-card p-5 sm:p-6 shadow-2xs space-y-5">
+        <div className="flex items-center gap-4 border-b border-border pb-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-foreground font-semibold text-xl border border-border shrink-0">
             {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
           </div>
-          <div>
-            <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold text-foreground truncate">
               {displayName || 'Người dùng HomeBase'}
             </h3>
-            <p className="text-xs text-stone-500">{user?.email}</p>
+            <p className="text-xs text-text-muted truncate">{user?.email}</p>
           </div>
         </div>
 
@@ -85,24 +82,20 @@ export default function SettingsPage() {
             label="Tên hiển thị"
             placeholder="Ví dụ: Nguyễn Văn A"
             value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            onChange={(e) => setDisplayNameOverride(e.target.value)}
             leftIcon={<User className="h-4 w-4" />}
             required
           />
 
           <Input
-            label="Địa chỉ Email (Được quản lý bởi Supabase Auth)"
+            label="Địa chỉ Email (Supabase Auth)"
             value={user?.email || ''}
             disabled
             leftIcon={<Mail className="h-4 w-4" />}
           />
 
-          <div className="flex justify-end pt-2">
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="gap-1.5 text-xs font-semibold"
-            >
+          <div className="flex justify-end pt-1">
+            <Button type="submit" disabled={isSaving} size="sm">
               {isSaving ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -120,89 +113,68 @@ export default function SettingsPage() {
       </div>
 
       {/* Appearance / Theme Settings */}
-      <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-xs space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 sm:p-6 shadow-2xs space-y-4">
         <div>
-          <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#1e3a2f] dark:text-emerald-400" />
+          <h3 className="text-base font-semibold text-foreground">
             Giao diện hiển thị
           </h3>
-          <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
-            Tuỳ chỉnh chế độ giao diện sáng hoặc tối cho phù hợp với mắt của bạn.
+          <p className="text-[13px] text-text-muted mt-0.5">
+            Chọn chế độ sáng, tối hoặc tự động đồng bộ theo hệ điều hành.
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => setTheme('light')}
-            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
-              theme === 'light'
-                ? 'border-[#1e3a2f] bg-[#f7f5f0] text-[#1e3a2f] ring-2 ring-[#1e3a2f]/20 font-bold'
-                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
-            }`}
-          >
-            <Sun className="h-5 w-5 mb-1.5 text-amber-500" />
-            <span className="text-xs">Sáng</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTheme('dark')}
-            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
-              theme === 'dark'
-                ? 'border-[#1e3a2f] dark:border-emerald-500 bg-stone-900 dark:bg-stone-800 text-stone-100 ring-2 ring-emerald-500/20 font-bold'
-                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
-            }`}
-          >
-            <Moon className="h-5 w-5 mb-1.5 text-indigo-400" />
-            <span className="text-xs">Tối</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTheme('system')}
-            className={`flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all cursor-pointer ${
-              theme === 'system'
-                ? 'border-[#1e3a2f] dark:border-emerald-500 bg-[#f7f5f0] dark:bg-stone-800 text-[#1e3a2f] dark:text-stone-100 ring-2 ring-[#1e3a2f]/20 font-bold'
-                : 'border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 text-stone-600 dark:text-stone-400'
-            }`}
-          >
-            <Laptop className="h-5 w-5 mb-1.5 text-stone-500 dark:text-stone-400" />
-            <span className="text-xs">Hệ thống</span>
-          </button>
+          {[
+            { id: 'light' as const, label: 'Sáng', icon: Sun },
+            { id: 'dark' as const, label: 'Tối', icon: Moon },
+            { id: 'system' as const, label: 'Hệ thống', icon: Laptop },
+          ].map((opt) => {
+            const isSelected = theme === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setTheme(opt.id)}
+                className={`flex flex-col items-center justify-center p-3.5 rounded-lg border transition-colors cursor-pointer ${
+                  isSelected
+                    ? 'border-primary bg-secondary text-foreground font-semibold'
+                    : 'border-border bg-card text-text-secondary hover:bg-accent hover:text-foreground'
+                }`}
+              >
+                <opt.icon className="h-4 w-4 mb-1.5" />
+                <span className="text-xs">{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* App Information Box */}
-      <div className="rounded-2xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-xs space-y-3">
-        <h3 className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-[#1e3a2f]" />
+      <div className="rounded-lg border border-border bg-card p-5 sm:p-6 shadow-2xs space-y-2.5">
+        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-text-secondary" />
           Về ứng dụng HomeBase
         </h3>
-        <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-          HomeBase là ứng dụng quản lý cuộc sống toàn diện giúp bạn tổ chức mọi thứ — từ sách vở, nhà cửa, tài chính, xe cộ cho đến thói quen và giải trí — tất cả trong một nơi duy nhất.
+        <p className="text-[13px] text-text-muted leading-relaxed">
+          HomeBase là ứng dụng quản lý cuộc sống cá nhân giúp bạn tổ chức tủ sách số, giải trí và các ngày quan trọng một cách tối giản, nhất quán.
         </p>
-        <div className="pt-2 text-[11px] text-stone-400">
-          Phiên bản: 1.0.0 (Production Quality) • Supabase Auth & Storage Connected
+        <div className="pt-1 text-xs text-text-muted">
+          Phiên bản 1.0.0 • Monochrome Design System
         </div>
       </div>
 
       {/* Danger Zone / Logout */}
-      <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20 p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="rounded-lg border border-destructive/30 bg-destructive-subtle/40 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h4 className="font-serif text-base font-bold text-rose-900 dark:text-rose-200">
+          <h4 className="text-base font-semibold text-foreground">
             Đăng xuất khỏi thiết bị
           </h4>
-          <p className="text-xs text-rose-700 dark:text-rose-400 mt-0.5">
+          <p className="text-[13px] text-text-muted mt-0.5">
             Kết thúc phiên làm việc hiện tại trên trình duyệt này.
           </p>
         </div>
 
-        <Button
-          variant="destructive"
-          onClick={handleSignOut}
-          className="gap-2 text-xs font-semibold"
-        >
+        <Button variant="destructive" onClick={handleSignOut} size="sm">
           <LogOut className="h-4 w-4" />
           Đăng xuất tài khoản
         </Button>

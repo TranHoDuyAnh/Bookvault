@@ -17,13 +17,13 @@ export function BookGrid({
 }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {Array.from({ length: 10 }).map((_, i) => (
           <div
             key={i}
-            className="flex flex-col rounded-xl border border-stone-200/70 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 space-y-3"
+            className="flex flex-col rounded-lg border border-border bg-card p-4 space-y-3"
           >
-            <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+            <Skeleton className="aspect-[3/4] w-full rounded-md" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />
             <Skeleton className="h-2 w-full mt-2" />
@@ -45,7 +45,7 @@ export function BookGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-6">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       {books.map((book) => (
         <BookCard key={book.id} book={book} />
       ))}

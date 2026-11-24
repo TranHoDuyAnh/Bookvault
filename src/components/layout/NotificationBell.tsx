@@ -7,23 +7,18 @@ import {
   AlertTriangle,
   Clock,
   Sparkles,
-  Zap,
   CheckCircle2,
-  Calendar,
   X,
   ChevronRight,
-  ShieldAlert,
 } from 'lucide-react';
 import { useGlobalNotifications } from '@/hooks/useNotifications';
 import { formatDateVN } from '@/lib/utils';
-import type { NotificationReminder } from '@/types/database';
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: notifications = [], isLoading } = useGlobalNotifications();
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -37,26 +32,23 @@ export function NotificationBell() {
   }, [isOpen]);
 
   const urgentCount = notifications.filter((n) => n.severity === 'urgent').length;
-  const warningCount = notifications.filter((n) => n.severity === 'warning').length;
   const totalCount = notifications.length;
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell Button */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#e7e2d9] dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:text-[#1e3a2f] hover:border-[#1e3a2f]/40 dark:hover:text-emerald-400 transition-all cursor-pointer shadow-2xs"
+        className="relative flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-text-secondary hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
         aria-label="Thông báo & Nhắc lịch"
         title="Thông báo & Nhắc lịch đến hạn"
       >
-        <Bell className={`h-4 w-4 ${totalCount > 0 ? 'text-amber-600 dark:text-amber-400' : ''}`} />
+        <Bell className="h-4 w-4" />
 
-        {/* Badge counter */}
         {totalCount > 0 && (
           <span
-            className={`absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-xs ${
-              urgentCount > 0 ? 'bg-rose-600 animate-pulse' : 'bg-amber-600'
+            className={`absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full text-[10px] font-semibold text-white tabular-nums ${
+              urgentCount > 0 ? 'bg-destructive' : 'bg-primary text-primary-foreground'
             }`}
           >
             {totalCount > 9 ? '9+' : totalCount}
@@ -64,37 +56,38 @@ export function NotificationBell() {
         )}
       </button>
 
-      {/* Notifications Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 z-50 w-80 sm:w-96 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-4 shadow-2xl space-y-3">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
+        <div className="absolute right-0 mt-2 z-50 w-80 sm:w-96 rounded-xl border border-border bg-popover text-popover-foreground p-4 shadow-lg space-y-3">
+          <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-emerald-800 dark:text-emerald-400" />
-              <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+              <Bell className="h-4 w-4 text-text-secondary" />
+              <h3 className="font-semibold text-sm text-foreground">
                 Nhắc lịch & Đến hạn ({totalCount})
               </h3>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="rounded p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+              className="rounded-md p-1 text-text-muted hover:bg-accent hover:text-foreground"
+              aria-label="Đóng"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          {/* List items */}
-          <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-1">
+          <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-0.5">
             {isLoading ? (
-              <div className="py-6 text-center text-xs text-stone-400">Đang kiểm tra lịch nhắc...</div>
+              <div className="py-6 text-center text-xs text-text-muted">
+                Đang kiểm tra lịch nhắc...
+              </div>
             ) : notifications.length === 0 ? (
-              <div className="py-8 text-center space-y-1">
-                <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
-                <p className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                  Không có lịch nhắc nào cần xử lý!
+              <div className="py-8 text-center space-y-1.5">
+                <CheckCircle2 className="h-7 w-7 text-success mx-auto" />
+                <p className="text-xs font-medium text-foreground">
+                  Không có lịch nhắc nào cần xử lý
                 </p>
-                <p className="text-[11px] text-stone-400">
-                  Không có ngày quan trọng hay sự kiện nào sắp tới trong 7 ngày tới.
+                <p className="text-xs text-text-muted">
+                  Không có sự kiện nào sắp tới trong 7 ngày tới.
                 </p>
               </div>
             ) : (
@@ -107,40 +100,34 @@ export function NotificationBell() {
                     key={item.id}
                     href={item.linkHref}
                     onClick={() => setIsOpen(false)}
-                    className={`block p-3 rounded-xl border transition-all hover:scale-[1.01] ${
-                      isUrgent
-                        ? 'border-rose-200 bg-rose-50/50 dark:bg-rose-950/20 dark:border-rose-900/50'
-                        : isWarning
-                        ? 'border-amber-200 bg-amber-50/40 dark:bg-amber-950/20 dark:border-amber-900/50'
-                        : 'border-stone-200 bg-stone-50/50 dark:bg-stone-900/40 dark:border-stone-800'
-                    }`}
+                    className="block p-3 rounded-lg border border-border bg-card hover:bg-accent/60 transition-colors"
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className="mt-0.5 flex-shrink-0">
+                      <div className="mt-0.5 shrink-0">
                         {isUrgent ? (
-                          <AlertTriangle className="h-4 w-4 text-rose-600" />
+                          <AlertTriangle className="h-4 w-4 text-destructive" />
                         ) : isWarning ? (
-                          <Clock className="h-4 w-4 text-amber-600" />
+                          <Clock className="h-4 w-4 text-warning" />
                         ) : (
-                          <Sparkles className="h-4 w-4 text-emerald-600" />
+                          <Sparkles className="h-4 w-4 text-info" />
                         )}
                       </div>
 
-                      <div className="flex-1 space-y-0.5">
-                        <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      <div className="flex-1 space-y-0.5 min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-snug">
+                        <p className="text-xs text-text-muted leading-snug">
                           {item.description}
                         </p>
                         {item.dueDate && (
-                          <p className="text-[10px] font-semibold text-stone-400 pt-0.5">
+                          <p className="text-[11px] text-text-muted pt-0.5 tabular-nums">
                             Hạn: {formatDateVN(item.dueDate)}
                           </p>
                         )}
                       </div>
 
-                      <ChevronRight className="h-4 w-4 text-stone-400 flex-shrink-0 self-center" />
+                      <ChevronRight className="h-4 w-4 text-text-muted shrink-0 self-center" />
                     </div>
                   </Link>
                 );

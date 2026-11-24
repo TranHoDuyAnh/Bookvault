@@ -14,12 +14,12 @@ export interface BookCoverProps {
 }
 
 const COLOR_PALETTES = [
-  { bg: 'bg-[#2D5A47]', text: 'text-[#FAF8F5]', border: 'border-[#1E3A2F]' },
-  { bg: 'bg-[#7A3E2D]', text: 'text-[#FAF8F5]', border: 'border-[#5A2D1F]' },
-  { bg: 'bg-[#2E4A62]', text: 'text-[#FAF8F5]', border: 'border-[#1E3345]' },
-  { bg: 'bg-[#6B5B3E]', text: 'text-[#FAF8F5]', border: 'border-[#4F422C]' },
-  { bg: 'bg-[#4A3B52]', text: 'text-[#FAF8F5]', border: 'border-[#332839]' },
-  { bg: 'bg-[#3A504B]', text: 'text-[#FAF8F5]', border: 'border-[#263733]' },
+  { bg: 'bg-zinc-900', text: 'text-zinc-50', border: 'border-zinc-800' },
+  { bg: 'bg-zinc-800', text: 'text-zinc-50', border: 'border-zinc-700' },
+  { bg: 'bg-neutral-800', text: 'text-neutral-50', border: 'border-neutral-700' },
+  { bg: 'bg-stone-800', text: 'text-stone-50', border: 'border-stone-700' },
+  { bg: 'bg-slate-800', text: 'text-slate-50', border: 'border-slate-700' },
+  { bg: 'bg-zinc-700', text: 'text-zinc-50', border: 'border-zinc-600' },
 ];
 
 export function BookCover({
@@ -32,7 +32,6 @@ export function BookCover({
 }: BookCoverProps) {
   const [imageError, setImageError] = useState(false);
 
-  // Deterministic palette based on title
   const paletteIndex = title
     ? Math.abs(
         title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -53,15 +52,15 @@ export function BookCover({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-md transition-transform duration-200 select-none book-shadow flex-shrink-0',
+        'relative overflow-hidden rounded-md transition-transform duration-150 select-none book-shadow shrink-0',
         size !== 'fill' && sizeClasses[size],
         aspectClass,
         className
       )}
     >
-      {/* Physical book spine effect on left edge */}
-      <div className="absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/35 via-black/10 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 left-0 w-[1px] bg-white/25 z-10 pointer-events-none" />
+      {/* Subtle book spine edge */}
+      <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/30 via-black/10 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-[1px] bg-white/20 z-10 pointer-events-none" />
 
       {src && !imageError ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -73,33 +72,29 @@ export function BookCover({
           loading="lazy"
         />
       ) : (
-        /* Editorial Fallback Book Cover */
         <div
           className={cn(
-            'flex h-full w-full flex-col justify-between p-2.5 sm:p-3.5 border text-left',
+            'flex h-full w-full flex-col justify-between p-2.5 sm:p-3 border text-left',
             palette.bg,
             palette.text,
             palette.border
           )}
         >
-          {/* Top header accent */}
-          <div className="flex items-center justify-between border-b border-white/20 pb-1.5 opacity-80">
-            <span className="text-[9px] uppercase tracking-widest font-sans font-medium line-clamp-1">
+          <div className="flex items-center justify-between border-b border-white/15 pb-1.5 opacity-80">
+            <span className="text-[9px] uppercase tracking-wider font-medium line-clamp-1">
               {author || 'HomeBase'}
             </span>
-            <BookOpen className="h-3 w-3 opacity-70 flex-shrink-0" />
+            <BookOpen className="h-3 w-3 opacity-70 shrink-0" />
           </div>
 
-          {/* Center Book Title */}
           <div className="my-auto py-1">
-            <p className="font-serif font-bold leading-tight line-clamp-3 text-shadow-sm">
+            <p className="font-semibold leading-tight line-clamp-3">
               {title}
             </p>
           </div>
 
-          {/* Bottom footer accent */}
-          <div className="border-t border-white/20 pt-1 opacity-75">
-            <p className="text-[9px] font-sans italic line-clamp-1">
+          <div className="border-t border-white/15 pt-1 opacity-75">
+            <p className="text-[9px] line-clamp-1">
               {author || 'Ấn bản cá nhân'}
             </p>
           </div>
