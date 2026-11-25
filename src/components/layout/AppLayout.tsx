@@ -26,7 +26,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           setAddPrefill(undefined);
           setIsAddOpen(true);
         }}
-        onOpenSearchModal={() => setIsSearchOpen(true)}
       />
 
       {/* Main Content Area */}

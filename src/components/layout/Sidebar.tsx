@@ -10,7 +10,6 @@ import {
   Settings,
   Plus,
   LogOut,
-  Search,
   Tv,
   CalendarHeart,
   Wallet,
@@ -24,10 +23,9 @@ import { Button } from '@/components/ui/Button';
 
 interface SidebarProps {
   onOpenAddModal: () => void;
-  onOpenSearchModal: () => void;
 }
 
-export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
+export function Sidebar({ onOpenAddModal }: SidebarProps) {
   const pathname = usePathname();
   const { user, profile } = useUser();
   const [collapsed, setCollapsed] = useState(false);
@@ -107,26 +105,6 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
             <Plus className="h-4 w-4 shrink-0" />
             {!collapsed && <span>Thêm sách mới</span>}
           </Button>
-
-          <button
-            type="button"
-            onClick={onOpenSearchModal}
-            title="Tra cứu tại nhà sách (⌘K)"
-            className={cn(
-              'w-full flex items-center rounded-md border border-border bg-card hover:bg-accent text-text-muted hover:text-foreground transition-colors cursor-pointer h-8',
-              collapsed ? 'justify-center px-0' : 'justify-between px-2.5 text-xs'
-            )}
-          >
-            <span className="flex items-center gap-2 truncate">
-              <Search className="h-3.5 w-3.5 shrink-0" />
-              {!collapsed && <span className="truncate">Tra cứu nhanh</span>}
-            </span>
-            {!collapsed && (
-              <kbd className="text-[10px] font-mono bg-secondary border border-border px-1.5 py-0.5 rounded text-text-muted">
-                ⌘K
-              </kbd>
-            )}
-          </button>
         </div>
 
         {/* Section 1: Books */}

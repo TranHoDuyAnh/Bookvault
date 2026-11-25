@@ -24,13 +24,12 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
     { name: 'Trang chủ', href: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Tủ sách', href: '/app/library', icon: Library },
     { name: 'Giải trí', href: '/app/entertainment', icon: Tv },
-    { name: 'Ngày lễ', href: '/app/dates', icon: CalendarHeart },
+    { name: 'Chi tiêu', href: '/app/budget', icon: Wallet },
   ];
 
   const moreItems = [
-    { name: 'Ngân sách tuần', href: '/app/budget', icon: Wallet },
-    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
+    { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings },
   ];
 

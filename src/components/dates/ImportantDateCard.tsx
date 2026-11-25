@@ -88,6 +88,19 @@ export function ImportantDateCard({
     year: 'numeric',
   });
 
+  const originYear = new Date(item.event_date).getFullYear();
+  const yearsCount = nextDate.getFullYear() - originYear;
+  let milestoneLabel: string | null = null;
+  if (item.is_recurring && yearsCount > 0) {
+    if (item.category === 'BIRTHDAY') {
+      milestoneLabel = `Tròn ${yearsCount} tuổi`;
+    } else if (item.category === 'ANNIVERSARY') {
+      milestoneLabel = `Kỷ niệm ${yearsCount} năm`;
+    } else {
+      milestoneLabel = `Năm thứ ${yearsCount}`;
+    }
+  }
+
   return (
     <div className="rounded-lg border border-border bg-card p-4 shadow-2xs space-y-3 flex flex-col h-full">
       <div className="flex justify-between items-start gap-2">
@@ -102,12 +115,17 @@ export function ImportantDateCard({
             {item.person_name && (
               <p className="text-xs text-text-muted mt-0.5 truncate">{item.person_name}</p>
             )}
-            <div className="flex items-center gap-1.5 mt-1 tabular-nums">
+            <div className="flex flex-wrap items-center gap-1.5 mt-1 tabular-nums">
               <Calendar className="h-3.5 w-3.5 text-text-muted shrink-0" />
               <span className="text-xs text-text-muted">{formattedDate}</span>
               {item.is_recurring && (
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                   Hàng năm
+                </Badge>
+              )}
+              {milestoneLabel && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-medium">
+                  {milestoneLabel}
                 </Badge>
               )}
             </div>
