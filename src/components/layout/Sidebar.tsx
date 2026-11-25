@@ -46,7 +46,7 @@ export function Sidebar({ onOpenAddModal }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'hidden lg:flex flex-col justify-between border-r border-border bg-sidebar text-sidebar-foreground min-h-screen shrink-0 transition-[width] duration-150',
+        'hidden lg:flex flex-col justify-between border-r border-border bg-sidebar backdrop-blur-2xl text-sidebar-foreground min-h-screen shrink-0 transition-[width] duration-150',
         collapsed ? 'w-16 p-2' : 'w-60 p-3'
       )}
     >

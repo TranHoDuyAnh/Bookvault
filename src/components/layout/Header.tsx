@@ -28,7 +28,7 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
   }, [onOpenSearchModal]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md pt-[env(safe-area-inset-top)] transition-colors">
+    <header className="sticky top-0 z-30 border-b border-border bg-sidebar backdrop-blur-2xl pt-[env(safe-area-inset-top)] transition-colors">
       <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3 px-3 sm:px-6">
       {/* Mobile Logo */}
       <Link href="/app/dashboard" className="flex items-center gap-2 lg:hidden shrink-0">
@@ -45,7 +45,7 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
         <button
           type="button"
           onClick={onOpenSearchModal}
-          className="group flex h-9 w-full min-w-0 items-center justify-between rounded-md border border-border bg-card px-2.5 sm:px-3 text-[13px] text-text-muted hover:border-ring/60 hover:text-foreground transition-colors cursor-pointer"
+          className="group flex h-9 w-full min-w-0 items-center justify-between rounded-full border border-border bg-card backdrop-blur-md px-3 sm:px-3.5 text-[13px] text-text-muted hover:border-primary/40 hover:text-foreground transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Search className="h-3.5 w-3.5 shrink-0" />

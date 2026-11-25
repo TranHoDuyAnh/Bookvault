@@ -27,8 +27,8 @@ export function StatCard({
   const content = (
     <div
       className={cn(
-        'rounded-lg border border-border bg-card p-4 sm:p-5 shadow-2xs transition-colors duration-150 space-y-1.5',
-        href && 'hover:border-ring/50 hover:bg-card',
+        'rounded-2xl border border-border bg-card backdrop-blur-xl p-4 sm:p-5 shadow-[var(--glass-shadow)] transition-all duration-150 space-y-1.5',
+        href && 'hover:border-primary/40 hover:-translate-y-0.5',
         className
       )}
     >

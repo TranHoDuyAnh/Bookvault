@@ -65,7 +65,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         className={cn(
-          'relative z-50 w-full rounded-xl bg-card text-card-foreground border border-border p-6 shadow-lg my-8 max-h-[90vh] overflow-y-auto flex flex-col',
+          'relative z-50 w-full rounded-2xl bg-popover backdrop-blur-2xl text-popover-foreground border border-border p-6 shadow-xl my-8 max-h-[90vh] overflow-y-auto flex flex-col',
           maxWidthClasses[maxWidth],
           className
         )}

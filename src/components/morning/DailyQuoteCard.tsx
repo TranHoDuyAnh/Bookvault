@@ -27,7 +27,7 @@ export function DailyQuoteCard({ quote, isLoading = false }: DailyQuoteCardProps
   const hasTranslation = quote.textVi && quote.textVi !== quote.textEn;
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card px-5 py-4 sm:px-6 shadow-2xs">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card backdrop-blur-xl px-5 py-4 sm:px-6 shadow-[var(--glass-shadow)]">
       <div className="flex items-start gap-3.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-text-secondary mt-0.5">
           <Quote className="h-4 w-4" />

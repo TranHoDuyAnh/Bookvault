@@ -50,7 +50,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-sidebar/95 backdrop-blur-md px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-sidebar backdrop-blur-2xl px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))] shadow-[var(--glass-highlight)]">
         <div className="flex items-center justify-around">
           {mainItems.map((item) => {
             const isActive =

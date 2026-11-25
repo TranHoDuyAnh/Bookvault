@@ -126,7 +126,7 @@ export function MaintenanceCard({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs transition-all duration-150 flex flex-col justify-between',
+        'group relative overflow-hidden rounded-2xl border bg-card backdrop-blur-xl text-card-foreground shadow-[var(--glass-shadow)] transition-all duration-150 flex flex-col justify-between',
         urgencyStyles.cardBorder
       )}
     >
