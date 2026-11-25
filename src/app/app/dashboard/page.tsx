@@ -15,9 +15,6 @@ import type { MorningBriefResponse } from '@/app/api/morning/route';
 import { getHcmcPeriodMeta, getLunarDateInfo } from '@/lib/lunar';
 import { useUser } from '@/hooks/useUser';
 import { useLibrary, useLibraryStats } from '@/hooks/useLibrary';
-import { BookCard } from '@/components/books/BookCard';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { EmptyState } from '@/components/common/EmptyState';
 import { StatCard } from '@/components/ui/StatCard';
 import { MorningHeroBanner } from '@/components/morning/MorningHeroBanner';
 import { HcmcWeatherCard } from '@/components/morning/HcmcWeatherCard';
@@ -104,9 +101,6 @@ export default function DashboardPage() {
 
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'bạn';
   const currentlyReading = allBooks.filter((b) => b.status === 'READING');
-  const recentlyAdded = [...allBooks]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 5);
   const readCount = allBooks.filter((b) => b.status === 'READ').length;
 
   return (
@@ -208,45 +202,6 @@ export default function DashboardPage() {
           <ArrowRight className="h-4 w-4 text-text-muted group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
         </Link>
       </div>
-
-      {/* Section: Recently Added Books */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
-            Mới thêm vào tủ sách
-          </h2>
-          <Link
-            href="/app/library"
-            className="text-[13px] font-medium text-text-secondary hover:text-foreground transition-colors"
-          >
-            Xem toàn bộ &rarr;
-          </Link>
-        </div>
-
-        {booksLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[3/4] w-full rounded-lg" />
-            ))}
-          </div>
-        ) : recentlyAdded.length === 0 ? (
-          <EmptyState
-            title="Tủ sách của bạn còn trống"
-            description="Hãy bắt đầu thêm những cuốn sách đầu tiên bạn đang sở hữu."
-            actionLabel="Thêm sách mới"
-            onAction={() => {
-              const addBtn = document.querySelector('header button');
-              if (addBtn instanceof HTMLElement) addBtn.click();
-            }}
-          />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {recentlyAdded.map((book) => (
-              <BookCard key={book.id} book={book} />
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }
