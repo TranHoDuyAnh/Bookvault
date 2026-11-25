@@ -1,14 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Check, Coffee, Edit3, Filter, Trash2 } from 'lucide-react';
-import { RHYTHM_COLORS } from '@/lib/rhythm';
-import type { RhythmHabit, RhythmLogStatus } from '@/types/database';
+import { buildGithubHeatmapGrid, RHYTHM_COLORS } from '@/lib/rhythm';
+import type { RhythmHabit, RhythmLog, RhythmLogStatus } from '@/types/database';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 interface HabitRhythmCardProps {
   habit: RhythmHabit;
+  logs: RhythmLog[];
+  selectedDate: string;
+  onSelectDate: (isoDate: string) => void;
   weekDoneCount: number;
   weekRestCount: number;
   selectedDateStatus: RhythmLogStatus | null;
@@ -22,6 +25,9 @@ interface HabitRhythmCardProps {
 
 export function HabitRhythmCard({
   habit,
+  logs,
+  selectedDate,
+  onSelectDate,
   weekDoneCount,
   weekRestCount,
   selectedDateStatus,
@@ -40,6 +46,17 @@ export function HabitRhythmCard({
   );
   const isTargetMet = weekDoneCount >= adjustedTarget;
 
+  const { columns, totalDoneInRange } = useMemo(
+    () =>
+      buildGithubHeatmapGrid({
+        habits: [habit],
+        logs,
+        selectedHabitId: habit.id,
+        weeksCount: 26,
+      }),
+    [habit, logs]
+  );
+
   return (
     <div
       className={cn(
@@ -55,8 +72,10 @@ export function HabitRhythmCard({
               {habit.title}
             </h3>
             <p className="text-xs text-text-muted">
-              Mục tiêu: {habit.weekly_target} ngày/tuần
-              {weekRestCount > 0 && ` • Đã nghỉ ${weekRestCount} ngày`}
+              Mục tiêu: {habit.weekly_target} ngày/tuần •{' '}
+              <span className="text-text-secondary font-medium">
+                {totalDoneInRange} buổi / 26 tuần
+              </span>
             </p>
           </div>
         </div>
@@ -71,8 +90,8 @@ export function HabitRhythmCard({
                 ? 'bg-primary text-primary-foreground'
                 : 'text-text-muted hover:bg-accent hover:text-foreground'
             )}
-            title="Lọc Heatmap theo mục này"
-            aria-label="Lọc Heatmap theo mục này"
+            title="Phóng to lên bảng 52 tuần phía trên"
+            aria-label="Phóng to lên bảng 52 tuần phía trên"
           >
             <Filter className="h-3.5 w-3.5" />
           </button>
@@ -97,6 +116,50 @@ export function HabitRhythmCard({
         </div>
       </div>
 
+      {/* Individual 26-week Contribution Heatmap */}
+      <div className="overflow-x-auto pb-1">
+        <div className="inline-flex gap-[3px] min-w-max">
+          {columns.map((col) => (
+            <div key={col.weekStart} className="flex flex-col gap-[3px]">
+              {col.days.map((cell) => {
+                const isSelected = cell.date === selectedDate;
+                const cellClass = cell.isFuture
+                  ? 'bg-transparent border border-dashed border-border/40 opacity-30'
+                  : cell.doneCount > 0
+                  ? colorMeta.cellDone
+                  : cell.isRestOnly
+                  ? colorMeta.cellRest
+                  : 'bg-zinc-200/75 dark:bg-white/[0.07]';
+
+                return (
+                  <button
+                    key={cell.date}
+                    type="button"
+                    disabled={cell.isFuture}
+                    onClick={() => !cell.isFuture && onSelectDate(cell.date)}
+                    title={`${cell.dateLabel}: ${
+                      cell.doneCount > 0
+                        ? 'Đã hoàn thành'
+                        : cell.isRestOnly
+                        ? 'Ngày nghỉ'
+                        : 'Chưa ghi nhận'
+                    }`}
+                    className={cn(
+                      'h-[10px] w-[10px] sm:h-[11px] sm:w-[11px] rounded-[2.5px] transition-transform duration-100',
+                      !cell.isFuture && 'hover:scale-125 cursor-pointer',
+                      cellClass,
+                      isSelected &&
+                        !cell.isFuture &&
+                        'ring-2 ring-primary ring-offset-1 ring-offset-background'
+                    )}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Weekly Progress Bar */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
@@ -116,7 +179,7 @@ export function HabitRhythmCard({
             {isTargetMet ? 'Đạt mục tiêu tuần ✓' : `${progressPercent}%`}
           </span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
           <div
             className={cn(
               'h-full rounded-full transition-all duration-300',
@@ -128,7 +191,7 @@ export function HabitRhythmCard({
       </div>
 
       {/* Check-in buttons for selected date */}
-      <div className="flex items-center gap-2 pt-1">
+      <div className="flex items-center gap-2 pt-0.5">
         <Button
           type="button"
           size="sm"

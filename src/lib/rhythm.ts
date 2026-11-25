@@ -11,32 +11,42 @@ import type { RhythmColor, RhythmHabit, RhythmLog } from '@/types/database';
 
 export const RHYTHM_COLORS: Record<
   RhythmColor,
-  { label: string; dot: string; bar: string }
+  { label: string; dot: string; bar: string; cellDone: string; cellRest: string }
 > = {
   emerald: {
     label: 'Xanh GitHub',
     dot: 'bg-emerald-500',
     bar: 'bg-emerald-500',
+    cellDone: 'bg-[#30a14e] dark:bg-[#39d353]',
+    cellRest: 'bg-emerald-400/25 ring-1 ring-emerald-500/35',
   },
   blue: {
     label: 'Xanh Apple',
     dot: 'bg-blue-500',
     bar: 'bg-blue-500',
+    cellDone: 'bg-blue-500 dark:bg-sky-400',
+    cellRest: 'bg-blue-400/25 ring-1 ring-blue-500/35',
   },
   violet: {
     label: 'Tím Indigo',
     dot: 'bg-violet-500',
     bar: 'bg-violet-500',
+    cellDone: 'bg-violet-500 dark:bg-violet-400',
+    cellRest: 'bg-violet-400/25 ring-1 ring-violet-500/35',
   },
   amber: {
     label: 'Vàng ấm',
     dot: 'bg-amber-500',
     bar: 'bg-amber-500',
+    cellDone: 'bg-amber-500 dark:bg-amber-400',
+    cellRest: 'bg-amber-400/25 ring-1 ring-amber-500/35',
   },
   rose: {
     label: 'Hồng san hô',
     dot: 'bg-rose-500',
     bar: 'bg-rose-500',
+    cellDone: 'bg-rose-500 dark:bg-rose-400',
+    cellRest: 'bg-rose-400/25 ring-1 ring-rose-500/35',
   },
 };
 

@@ -263,6 +263,9 @@ export default function RhythmPage() {
                 <HabitRhythmCard
                   key={habit.id}
                   habit={habit}
+                  logs={logs}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
                   weekDoneCount={weekDoneCount}
                   weekRestCount={weekRestCount}
                   selectedDateStatus={selectedLog?.status ?? null}
