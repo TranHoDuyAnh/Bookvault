@@ -28,7 +28,8 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
   }, [onOpenSearchModal]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3 border-b border-border bg-background/90 backdrop-blur-md px-3 sm:px-6 transition-colors">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md pt-[env(safe-area-inset-top)] transition-colors">
+      <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3 px-3 sm:px-6">
       {/* Mobile Logo */}
       <Link href="/app/dashboard" className="flex items-center gap-2 lg:hidden shrink-0">
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -78,6 +79,7 @@ export function Header({ onOpenSearchModal, onOpenAddModal }: HeaderProps) {
         >
           {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
         </Link>
+      </div>
       </div>
     </header>
   );

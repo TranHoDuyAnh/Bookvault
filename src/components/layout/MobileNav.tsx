@@ -35,7 +35,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   return (
     <>
       {/* Mobile Floating Action Button (+) */}
-      <div className="fixed bottom-20 right-4 z-40 lg:hidden">
+      <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-4 z-40 lg:hidden">
         <button
           type="button"
           onClick={onOpenAddModal}
@@ -47,7 +47,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-sidebar/95 backdrop-blur-md px-2 py-1.5">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-sidebar/95 backdrop-blur-md px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-around">
           {mainItems.map((item) => {
             const isActive =

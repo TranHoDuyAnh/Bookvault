@@ -8,12 +8,21 @@ export const metadata: Metadata = {
   title: "HomeBase — Trung Tâm Cuộc Sống",
   description: "Ứng dụng quản lý cuộc sống toàn diện: sách, giải trí, ngày quan trọng và nhiều hơn nữa.",
   keywords: ["life management", "homebase", "quản lý cuộc sống", "personal os", "home manager"],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HomeBase",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fafafa" },
     { media: "(prefers-color-scheme: dark)", color: "#09090b" },
