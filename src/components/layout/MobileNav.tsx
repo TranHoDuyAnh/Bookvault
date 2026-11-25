@@ -12,6 +12,7 @@ import {
   Settings,
   Tv,
   CalendarHeart,
+  Sunrise,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +28,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   ];
 
   const moreItems = [
+    { name: 'Bản tin mỗi ngày', href: '/app/morning', icon: Sunrise },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
     { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings },
