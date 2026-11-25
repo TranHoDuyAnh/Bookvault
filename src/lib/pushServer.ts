@@ -31,30 +31,45 @@ function getWebPush(): typeof webpushNamespace {
 
 let vapidConfigured = false;
 
-export function ensureVapidConfigured(): boolean {
-  if (vapidConfigured) return true;
+export function ensureVapidConfigured(): { ok: boolean; error?: string } {
+  if (vapidConfigured) return { ok: true };
 
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim();
   const privateKey = process.env.VAPID_PRIVATE_KEY?.trim();
-  const subject =
+  let subject =
     process.env.VAPID_SUBJECT?.trim() || 'mailto:homebase@example.com';
 
   if (!publicKey || !privateKey) {
-    return false;
+    return {
+      ok: false,
+      error:
+        'Chưa cấu hình NEXT_PUBLIC_VAPID_PUBLIC_KEY hoặc VAPID_PRIVATE_KEY trên server.',
+    };
   }
 
-  const wp = getWebPush();
-  wp.setVapidDetails(subject, publicKey, privateKey);
-  vapidConfigured = true;
-  return true;
+  if (!subject.startsWith('mailto:') && !subject.startsWith('https://')) {
+    subject = `mailto:${subject}`;
+  }
+
+  try {
+    const wp = getWebPush();
+    wp.setVapidDetails(subject, publicKey, privateKey);
+    vapidConfigured = true;
+    return { ok: true };
+  } catch (err) {
+    const msg =
+      err instanceof Error ? err.message : 'Cấu hình VAPID keys không hợp lệ.';
+    return { ok: false, error: `Lỗi VAPID: ${msg}` };
+  }
 }
 
 export async function sendWebPush(
   sub: StoredPushSubscription,
   payload: WebPushPayload
 ): Promise<{ ok: boolean; expired?: boolean; error?: string }> {
-  if (!ensureVapidConfigured()) {
-    return { ok: false, error: 'VAPID keys chưa được cấu hình.' };
+  const vapid = ensureVapidConfigured();
+  if (!vapid.ok) {
+    return { ok: false, error: vapid.error || 'VAPID keys chưa được cấu hình.' };
   }
 
   try {

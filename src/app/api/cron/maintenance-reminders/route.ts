@@ -43,8 +43,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!ensureVapidConfigured()) {
-    return NextResponse.json({ error: 'Missing VAPID keys' }, { status: 500 });
+  const vapid = ensureVapidConfigured();
+  if (!vapid.ok) {
+    return NextResponse.json(
+      { error: vapid.error || 'Missing VAPID keys' },
+      { status: 500 }
+    );
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

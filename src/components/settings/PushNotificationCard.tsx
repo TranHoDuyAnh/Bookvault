@@ -146,7 +146,7 @@ export function PushNotificationCard() {
         setStatus('disabled');
       }
       if (!res.ok) {
-        throw new Error(data.error || 'Gửi thử thất bại.');
+        throw new Error(data.error || `Gửi thử thất bại (HTTP ${res.status}).`);
       }
       toast.success('Đã gửi thông báo thử! Kiểm tra màn hình iPhone nhé.');
     } catch (err) {
