@@ -1186,4 +1186,61 @@ create policy "Users manage own push_subscriptions"
   with check (auth.uid() = user_id);
 
 -- ============================================================
+-- 21. ANTI-BURNOUT RHYTHM TRACKER (NHIP SONG)
+-- ============================================================
+
+create table if not exists public.rhythm_habits (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  weekly_target integer not null default 5 check (weekly_target >= 1 and weekly_target <= 7),
+  color text not null default 'emerald' check (
+    color in ('emerald', 'blue', 'violet', 'amber', 'rose')
+  ),
+  is_active boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.rhythm_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  habit_id uuid not null references public.rhythm_habits(id) on delete cascade,
+  log_date date not null,
+  status text not null default 'DONE' check (status in ('DONE', 'REST')),
+  note text,
+  created_at timestamptz not null default now(),
+  unique (habit_id, log_date)
+);
+
+create index if not exists idx_rhythm_habits_user
+  on public.rhythm_habits (user_id, is_active, sort_order);
+
+create index if not exists idx_rhythm_logs_user_date
+  on public.rhythm_logs (user_id, log_date desc);
+
+create index if not exists idx_rhythm_logs_habit_date
+  on public.rhythm_logs (habit_id, log_date desc);
+
+drop trigger if exists rhythm_habits_updated_at on public.rhythm_habits;
+create trigger rhythm_habits_updated_at
+  before update on public.rhythm_habits
+  for each row
+  execute function public.handle_updated_at();
+
+alter table public.rhythm_habits enable row level security;
+alter table public.rhythm_logs enable row level security;
+
+create policy "Users manage own rhythm_habits"
+  on public.rhythm_habits for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own rhythm_logs"
+  on public.rhythm_logs for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ============================================================
 -- END

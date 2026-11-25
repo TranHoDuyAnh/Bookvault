@@ -272,3 +272,29 @@ export interface MaintenanceLog {
   notes: string | null;
   created_at: string;
 }
+
+// ================= ANTI-BURNOUT RHYTHM TRACKER =================
+export type RhythmColor = 'emerald' | 'blue' | 'violet' | 'amber' | 'rose';
+export type RhythmLogStatus = 'DONE' | 'REST';
+
+export interface RhythmHabit {
+  id: string;
+  user_id: string;
+  title: string;
+  weekly_target: number;
+  color: RhythmColor;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RhythmLog {
+  id: string;
+  user_id: string;
+  habit_id: string;
+  log_date: string;
+  status: RhythmLogStatus;
+  note: string | null;
+  created_at: string;
+}

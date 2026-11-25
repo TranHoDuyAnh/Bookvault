@@ -14,6 +14,7 @@ import {
   CalendarHeart,
   Wallet,
   Wrench,
+  Activity,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -39,6 +40,7 @@ export function Sidebar({ onOpenAddModal }: SidebarProps) {
   const lifestyleNavItems = [
     { name: 'Ngân sách tuần', href: '/app/budget', icon: Wallet },
     { name: 'Bảo trì cuộc sống', href: '/app/maintenance', icon: Wrench },
+    { name: 'Nhịp sống', href: '/app/rhythm', icon: Activity },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
   ];
