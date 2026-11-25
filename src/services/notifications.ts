@@ -1,5 +1,7 @@
 import type { NotificationReminder } from '@/types/database';
 import { getUpcomingDates } from './importantDates';
+import { getMaintenanceItems } from './maintenance';
+import { evaluateMaintenanceItem, formatDueCountdown } from '@/lib/maintenance';
 
 export async function getGlobalNotifications(userId: string): Promise<NotificationReminder[]> {
   const notifications: NotificationReminder[] = [];
@@ -21,6 +23,39 @@ export async function getGlobalNotifications(userId: string): Promise<Notificati
     });
   } catch (err) {
     console.error('Error checking important dates notification:', err);
+  }
+
+  // Check Life Maintenance due/overdue items
+  try {
+    const maintenanceItems = await getMaintenanceItems(userId);
+    maintenanceItems.forEach((item) => {
+      const evaluated = evaluateMaintenanceItem(item);
+      if (evaluated.urgency === 'OVERDUE') {
+        notifications.push({
+          id: `maint_${item.id}`,
+          type: 'MAINTENANCE_OVERDUE',
+          title: `Quá hạn: ${item.title}`,
+          description: `${formatDueCountdown(evaluated.daysUntilDue, evaluated.isOdoDue)} (${item.next_due_at})`,
+          dueDate: item.next_due_at,
+          severity: 'urgent',
+          linkHref: '/app/maintenance',
+          actionText: 'Xử lý ngay',
+        });
+      } else if (evaluated.urgency === 'DUE_SOON') {
+        notifications.push({
+          id: `maint_${item.id}`,
+          type: 'MAINTENANCE_DUE_SOON',
+          title: `Sắp đến hạn: ${item.title}`,
+          description: `${formatDueCountdown(evaluated.daysUntilDue, evaluated.isOdoDue)} (${item.next_due_at})`,
+          dueDate: item.next_due_at,
+          severity: 'warning',
+          linkHref: '/app/maintenance',
+          actionText: 'Xem chi tiết',
+        });
+      }
+    });
+  } catch (err) {
+    console.error('Error checking maintenance notifications:', err);
   }
 
   // Sort: urgent first, then warning, then info

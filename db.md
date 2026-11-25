@@ -1069,4 +1069,90 @@ create policy "Users manage own savings_transactions"
   with check (auth.uid() = user_id);
 
 -- ============================================================
+-- 19. LIFE MAINTENANCE (BAO TRI CUOC SONG)
+-- ============================================================
+
+create table if not exists public.maintenance_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  category text not null default 'OTHER' check (
+    category in (
+      'PERSONAL_CARE',
+      'LAUNDRY',
+      'CLEANING',
+      'VEHICLE',
+      'TECH',
+      'HEALTH',
+      'SUBSCRIPTION',
+      'OTHER'
+    )
+  ),
+  recurrence_mode text not null default 'AFTER_COMPLETION' check (
+    recurrence_mode in ('AFTER_COMPLETION', 'FIXED_CALENDAR', 'USAGE_BASED')
+  ),
+  interval_value integer not null default 30 check (interval_value > 0),
+  interval_unit text not null default 'DAY' check (
+    interval_unit in ('DAY', 'WEEK', 'MONTH', 'YEAR')
+  ),
+  remind_before_days integer not null default 3 check (remind_before_days >= 0),
+  last_done_at date,
+  next_due_at date not null,
+  snoozed_until date,
+  vehicle_name text,
+  interval_km integer check (interval_km is null or interval_km > 0),
+  last_odo integer check (last_odo is null or last_odo >= 0),
+  current_odo integer check (current_odo is null or current_odo >= 0),
+  estimated_cost numeric(12,0) check (estimated_cost is null or estimated_cost >= 0),
+  provider_name text,
+  provider_contact text,
+  auto_renew boolean not null default false,
+  notes text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.maintenance_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  item_id uuid not null references public.maintenance_items(id) on delete cascade,
+  done_at date not null default current_date,
+  cost numeric(12,0) check (cost is null or cost >= 0),
+  odo_at_done integer check (odo_at_done is null or odo_at_done >= 0),
+  provider_name text,
+  rating integer check (rating is null or (rating >= 1 and rating <= 5)),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_maintenance_items_user_due
+  on public.maintenance_items (user_id, is_active, next_due_at);
+
+create index if not exists idx_maintenance_logs_item_done
+  on public.maintenance_logs (item_id, done_at desc);
+
+create index if not exists idx_maintenance_logs_user_done
+  on public.maintenance_logs (user_id, done_at desc);
+
+drop trigger if exists maintenance_items_updated_at on public.maintenance_items;
+create trigger maintenance_items_updated_at
+  before update on public.maintenance_items
+  for each row
+  execute function public.handle_updated_at();
+
+alter table public.maintenance_items enable row level security;
+alter table public.maintenance_logs enable row level security;
+
+create policy "Users manage own maintenance_items"
+  on public.maintenance_items for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own maintenance_logs"
+  on public.maintenance_logs for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ============================================================
 -- END

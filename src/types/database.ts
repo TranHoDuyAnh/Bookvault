@@ -87,7 +87,10 @@ export interface MyLibraryItem {
 }
 
 // ================= NOTIFICATION REMINDER TYPES =================
-export type NotificationType = 'IMPORTANT_DATE';
+export type NotificationType =
+  | 'IMPORTANT_DATE'
+  | 'MAINTENANCE_OVERDUE'
+  | 'MAINTENANCE_DUE_SOON';
 
 export interface NotificationReminder {
   id: string;
@@ -203,5 +206,69 @@ export interface SavingsTransaction {
   weekly_budget_id: string | null;
   amount: number;
   note: string | null;
+  created_at: string;
+}
+
+// ================= LIFE MAINTENANCE =================
+export type MaintenanceCategory =
+  | 'PERSONAL_CARE'
+  | 'LAUNDRY'
+  | 'CLEANING'
+  | 'VEHICLE'
+  | 'TECH'
+  | 'HEALTH'
+  | 'SUBSCRIPTION'
+  | 'OTHER';
+
+export type MaintenanceRecurrenceMode =
+  | 'AFTER_COMPLETION'
+  | 'FIXED_CALENDAR'
+  | 'USAGE_BASED';
+
+export type MaintenanceIntervalUnit = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
+
+export type MaintenanceUrgency =
+  | 'OVERDUE'
+  | 'DUE_SOON'
+  | 'SNOOZED'
+  | 'UPCOMING'
+  | 'PAUSED';
+
+export interface MaintenanceItem {
+  id: string;
+  user_id: string;
+  title: string;
+  category: MaintenanceCategory;
+  recurrence_mode: MaintenanceRecurrenceMode;
+  interval_value: number;
+  interval_unit: MaintenanceIntervalUnit;
+  remind_before_days: number;
+  last_done_at: string | null;
+  next_due_at: string;
+  snoozed_until: string | null;
+  vehicle_name: string | null;
+  interval_km: number | null;
+  last_odo: number | null;
+  current_odo: number | null;
+  estimated_cost: number | null;
+  provider_name: string | null;
+  provider_contact: string | null;
+  auto_renew: boolean;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MaintenanceLog {
+  id: string;
+  user_id: string;
+  item_id: string;
+  done_at: string;
+  cost: number | null;
+  odo_at_done: number | null;
+  provider_name: string | null;
+  rating: number | null;
+  notes: string | null;
   created_at: string;
 }

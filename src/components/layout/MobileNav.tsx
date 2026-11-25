@@ -13,6 +13,7 @@ import {
   Tv,
   CalendarHeart,
   Wallet,
+  Wrench,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ export function MobileNav({ onOpenAddModal }: { onOpenAddModal: () => void }) {
   ];
 
   const moreItems = [
+    { name: 'Bảo trì cuộc sống', href: '/app/maintenance', icon: Wrench },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Cài đặt tài khoản', href: '/app/settings', icon: Settings },

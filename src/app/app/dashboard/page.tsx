@@ -2,15 +2,21 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import {
+  ArrowRight,
   BookOpen,
   CheckCircle2,
   Flame,
+  Wrench,
 } from 'lucide-react';
 import type { MorningBriefResponse } from '@/app/api/morning/route';
 import { getHcmcPeriodMeta, getLunarDateInfo } from '@/lib/lunar';
+import { evaluateMaintenanceItem, formatDueCountdown } from '@/lib/maintenance';
 import { useUser } from '@/hooks/useUser';
 import { useLibrary, useLibraryStats } from '@/hooks/useLibrary';
+import { useMaintenanceItems } from '@/hooks/useMaintenance';
+import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { MorningHeroBanner } from '@/components/morning/MorningHeroBanner';
 import { HcmcWeatherCard } from '@/components/morning/HcmcWeatherCard';
@@ -59,6 +65,15 @@ export default function DashboardPage() {
   const { user, profile } = useUser();
   const { data: stats, isLoading: statsLoading } = useLibraryStats();
   const { data: allBooks = [], isLoading: booksLoading } = useLibrary();
+  const { data: maintenanceItems = [] } = useMaintenanceItems();
+
+  const dueMaintenance = useMemo(() => {
+    return maintenanceItems
+      .map((item) => evaluateMaintenanceItem(item))
+      .filter((e) => e.urgency === 'OVERDUE' || e.urgency === 'DUE_SOON')
+      .sort((a, b) => a.daysUntilDue - b.daysUntilDue)
+      .slice(0, 4);
+  }, [maintenanceItems]);
 
   const [now, setNow] = useState<Date>(() => new Date());
   const [photoOffset, setPhotoOffset] = useState(0);
@@ -155,6 +170,46 @@ export default function DashboardPage() {
           className="col-span-2 sm:col-span-1"
         />
       </div>
+
+      {/* Life Maintenance Attention Widget */}
+      {dueMaintenance.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Wrench className="h-4 w-4 text-text-secondary" />
+              <h2 className="text-sm font-semibold text-foreground">
+                Bảo trì cuộc sống cần chú ý
+              </h2>
+            </div>
+            <Link
+              href="/app/maintenance"
+              className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-foreground transition-colors"
+            >
+              Xem tất cả
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {dueMaintenance.map((e) => (
+              <Link
+                key={e.item.id}
+                href="/app/maintenance"
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-secondary/35 px-3.5 py-2.5 hover:bg-accent/60 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground truncate">
+                  {e.item.title}
+                </span>
+                <Badge
+                  variant={e.urgency === 'OVERDUE' ? 'destructive' : 'warning'}
+                  className="shrink-0"
+                >
+                  {formatDueCountdown(e.daysUntilDue, e.isOdoDue)}
+                </Badge>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
