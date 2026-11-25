@@ -1,8 +1,39 @@
 import { NextResponse } from 'next/server';
 import { createClient as createSupabaseAdmin } from '@supabase/supabase-js';
+import { differenceInCalendarDays, parseISO, startOfDay } from 'date-fns';
 import { evaluateMaintenanceItem, formatDueCountdown } from '@/lib/maintenance';
 import { ensureVapidConfigured, sendWebPush } from '@/lib/pushServer';
-import type { MaintenanceItem } from '@/types/database';
+import type { ImportantDate, MaintenanceItem } from '@/types/database';
+
+function getUpcomingImportantDates(dates: ImportantDate[], today: Date) {
+  const todayStart = startOfDay(today);
+  const year = todayStart.getFullYear();
+
+  return dates
+    .map((d) => {
+      const eventDate = parseISO(d.event_date);
+      let nextOccurrence = startOfDay(eventDate);
+      if (d.is_recurring) {
+        nextOccurrence = new Date(
+          year,
+          eventDate.getMonth(),
+          eventDate.getDate()
+        );
+        if (nextOccurrence < todayStart) {
+          nextOccurrence = new Date(
+            year + 1,
+            eventDate.getMonth(),
+            eventDate.getDate()
+          );
+        }
+      }
+      const daysUntil = differenceInCalendarDays(nextOccurrence, todayStart);
+      const windowDays = Math.max(1, d.reminder_days_before || 7);
+      return { date: d, daysUntil, windowDays };
+    })
+    .filter((x) => x.daysUntil >= 0 && x.daysUntil <= x.windowDays)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+}
 
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
@@ -13,10 +44,7 @@ export async function GET(request: Request) {
   }
 
   if (!ensureVapidConfigured()) {
-    return NextResponse.json(
-      { error: 'Missing VAPID keys' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Missing VAPID keys' }, { status: 500 });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -45,7 +73,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, usersNotified: 0, sent: 0 });
   }
 
-  // Group subscriptions by user_id
   const subsByUser = new Map<string, typeof subscriptions>();
   for (const sub of subscriptions) {
     const list = subsByUser.get(sub.user_id) || [];
@@ -53,35 +80,66 @@ export async function GET(request: Request) {
     subsByUser.set(sub.user_id, list);
   }
 
+  const today = new Date();
   let usersNotified = 0;
   let sent = 0;
 
   for (const [userId, userSubs] of subsByUser.entries()) {
-    const { data: items } = await admin
-      .from('maintenance_items')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('is_active', true);
+    const [{ data: maintRows }, { data: dateRows }] = await Promise.all([
+      admin
+        .from('maintenance_items')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true),
+      admin.from('important_dates').select('*').eq('user_id', userId),
+    ]);
 
-    const dueItems = ((items || []) as MaintenanceItem[])
-      .map((item) => evaluateMaintenanceItem(item))
+    const dueMaint = ((maintRows || []) as MaintenanceItem[])
+      .map((item) => evaluateMaintenanceItem(item, today))
       .filter((e) => e.urgency === 'OVERDUE' || e.urgency === 'DUE_SOON')
       .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
 
-    if (dueItems.length === 0) continue;
+    const upcomingDates = getUpcomingImportantDates(
+      (dateRows || []) as ImportantDate[],
+      today
+    );
 
-    const preview = dueItems
-      .slice(0, 3)
-      .map((e) => `${e.item.title} (${formatDueCountdown(e.daysUntilDue, e.isOdoDue)})`)
-      .join(', ');
-    const moreText =
-      dueItems.length > 3 ? ` và ${dueItems.length - 3} việc khác` : '';
+    const totalCount = dueMaint.length + upcomingDates.length;
+    if (totalCount === 0) continue;
+
+    const snippets: string[] = [];
+    dueMaint.slice(0, 2).forEach((e) => {
+      snippets.push(
+        `${e.item.title} (${formatDueCountdown(e.daysUntilDue, e.isOdoDue)})`
+      );
+    });
+    upcomingDates.slice(0, 2).forEach((d) => {
+      const when =
+        d.daysUntil === 0
+          ? 'Hôm nay'
+          : d.daysUntil === 1
+          ? 'Ngày mai'
+          : `Còn ${d.daysUntil} ngày`;
+      snippets.push(`${d.date.title} (${when})`);
+    });
+
+    const extraCount = totalCount - snippets.length;
+    const bodyText =
+      snippets.join(' • ') +
+      (extraCount > 0 ? ` và ${extraCount} nhắc nhở khác` : '');
+
+    const targetUrl =
+      dueMaint.length > 0 && upcomingDates.length === 0
+        ? '/app/maintenance'
+        : upcomingDates.length > 0 && dueMaint.length === 0
+        ? '/app/dates'
+        : '/app/dashboard';
 
     const payload = {
-      title: `HomeBase • ${dueItems.length} việc bảo trì cần chú ý`,
-      body: `${preview}${moreText}`,
-      url: '/app/maintenance',
-      tag: 'homebase-daily-maintenance',
+      title: `HomeBase • ${totalCount} nhắc nhở hôm nay`,
+      body: bodyText,
+      url: targetUrl,
+      tag: 'homebase-daily-reminders',
     };
 
     let userSent = false;

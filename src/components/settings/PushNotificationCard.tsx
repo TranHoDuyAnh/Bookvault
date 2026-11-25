@@ -142,6 +142,9 @@ export function PushNotificationCard() {
     try {
       const res = await fetch('/api/push/test', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
+      if (res.status === 404) {
+        setStatus('disabled');
+      }
       if (!res.ok) {
         throw new Error(data.error || 'Gửi thử thất bại.');
       }
@@ -165,7 +168,7 @@ export function PushNotificationCard() {
             Thông báo trên iPhone / PWA
           </h3>
           <p className="text-[13px] text-text-muted">
-            Nhận thông báo nhắc lịch bảo trì cuộc sống trực tiếp trên màn hình khóa lúc 8:00 sáng mỗi ngày.
+            Nhận tất cả thông báo nhắc nhở (Bảo trì cuộc sống, Ngày quan trọng...) trực tiếp trên màn hình khóa lúc 8:00 sáng mỗi ngày.
           </p>
         </div>
 

@@ -20,7 +20,7 @@ export async function POST() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Bạn chưa đăng nhập.' }, { status: 401 });
   }
 
   const { data: subs, error } = await supabase
@@ -34,25 +34,39 @@ export async function POST() {
 
   if (!subs || subs.length === 0) {
     return NextResponse.json(
-      { error: 'Thiết bị chưa đăng ký nhận thông báo.' },
+      { error: 'Thiết bị chưa đăng ký nhận thông báo. Hãy tắt và bật lại.' },
       { status: 404 }
     );
   }
 
   let sent = 0;
+  const errors: string[] = [];
+
   for (const sub of subs) {
     const res = await sendWebPush(sub, {
       title: 'HomeBase — Thông báo thử nghiệm',
-      body: 'Kết nối thành công! Nhắc lịch bảo trì cuộc sống sẽ hiển thị tại đây.',
-      url: '/app/maintenance',
+      body: 'Kết nối thành công! Tất cả nhắc nhở từ HomeBase sẽ hiển thị tại đây.',
+      url: '/app/dashboard',
       tag: 'homebase-test',
     });
 
     if (res.ok) {
       sent += 1;
-    } else if (res.expired) {
-      await supabase.from('push_subscriptions').delete().eq('id', sub.id);
+    } else {
+      if (res.error) errors.push(res.error);
+      if (res.expired) {
+        await supabase.from('push_subscriptions').delete().eq('id', sub.id);
+      }
     }
+  }
+
+  if (sent === 0) {
+    return NextResponse.json(
+      {
+        error: errors[0] || 'Không gửi được thông báo tới thiết bị.',
+      },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ ok: true, sent });
