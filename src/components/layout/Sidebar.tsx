@@ -13,7 +13,6 @@ import {
   Search,
   Tv,
   CalendarHeart,
-  Sunrise,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -38,7 +37,6 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   ];
 
   const lifestyleNavItems = [
-    { name: 'Bản tin mỗi ngày', href: '/app/morning', icon: Sunrise },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
   ];

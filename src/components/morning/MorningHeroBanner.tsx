@@ -125,11 +125,6 @@ export function MorningHeroBanner({
           <div className="text-4xl sm:text-5xl font-semibold tracking-tight tabular-nums text-white leading-none">
             {timeStr}
           </div>
-          {activePhoto?.copyright && (
-            <p className="text-[11px] text-white/65 mt-2 max-w-xs sm:ml-auto truncate">
-              {activePhoto.copyright}
-            </p>
-          )}
         </div>
       </div>
     </section>
