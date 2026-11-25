@@ -19,6 +19,7 @@ import { useMaintenanceItems } from '@/hooks/useMaintenance';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { MorningHeroBanner } from '@/components/morning/MorningHeroBanner';
+import { DailyQuoteCard } from '@/components/morning/DailyQuoteCard';
 import { HcmcWeatherCard } from '@/components/morning/HcmcWeatherCard';
 import { MarketSnapshotCards } from '@/components/morning/MarketSnapshotCards';
 
@@ -129,6 +130,9 @@ export default function DashboardPage() {
         timeStr={timeStr}
         displayName={displayName}
       />
+
+      {/* Quote of the Day (Bilingual EN - VI) */}
+      <DailyQuoteCard quote={morningData?.quote} isLoading={morningLoading} />
 
       {/* HCMC Weather, Gold 9999 & Fuel Snapshot */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

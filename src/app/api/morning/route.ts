@@ -49,12 +49,19 @@ export interface MorningPhotoItem {
   copyright: string;
 }
 
+export interface MorningQuoteData {
+  textEn: string;
+  textVi: string;
+  author: string;
+}
+
 export interface MorningBriefResponse {
   updatedAt: string;
   weather: MorningWeatherData | null;
   gold: MorningGoldData | null;
   fuel: MorningFuelItem[];
   photos: MorningPhotoItem[];
+  quote: MorningQuoteData | null;
 }
 
 const WMO_WEATHER_LABELS: Record<number, string> = {
@@ -352,14 +359,81 @@ function resolveCurrentHcmcPeriod(param: string | null): DayPeriod {
   return getHcmcPeriodMeta(isNaN(hourNum) ? 8 : hourNum).period;
 }
 
+async function translateEnToVi(text: string): Promise<string> {
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(
+      text
+    )}`;
+    const res = await fetch(url, { next: { revalidate: 21600 } });
+    if (!res.ok) return text;
+    const json = await res.json();
+    if (!Array.isArray(json) || !Array.isArray(json[0])) return text;
+    const translated = (json[0] as Array<[string]>)
+      .map((part) => (Array.isArray(part) ? part[0] : ''))
+      .join('')
+      .trim();
+    return translated || text;
+  } catch {
+    return text;
+  }
+}
+
+async function fetchDailyQuote(): Promise<MorningQuoteData | null> {
+  let textEn = '';
+  let author = '';
+
+  try {
+    const res = await fetch('https://zenquotes.io/api/today', {
+      next: { revalidate: 21600 },
+    });
+    if (res.ok) {
+      const json = (await res.json()) as Array<{ q?: string; a?: string }>;
+      if (Array.isArray(json) && json[0]?.q) {
+        textEn = json[0].q.trim();
+        author = (json[0].a || 'Unknown').trim();
+      }
+    }
+  } catch {
+    // Fallback to DummyJSON below
+  }
+
+  if (!textEn) {
+    try {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const dayOfYear = Math.floor(
+        (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const quoteId = (dayOfYear % 100) + 1;
+      const res = await fetch(`https://dummyjson.com/quotes/${quoteId}`, {
+        next: { revalidate: 21600 },
+      });
+      if (res.ok) {
+        const json = (await res.json()) as { quote?: string; author?: string };
+        if (json?.quote) {
+          textEn = json.quote.trim();
+          author = (json.author || 'Unknown').trim();
+        }
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  if (!textEn) return null;
+  const textVi = await translateEnToVi(textEn);
+  return { textEn, textVi, author };
+}
+
 export async function GET(request: NextRequest) {
   const period = resolveCurrentHcmcPeriod(request.nextUrl.searchParams.get('period'));
 
-  const [weatherRes, goldRes, fuelRes, photosRes] = await Promise.allSettled([
+  const [weatherRes, goldRes, fuelRes, photosRes, quoteRes] = await Promise.allSettled([
     fetchHcmcWeather(),
     fetchPnjGold9999(),
     fetchFuelPrices(),
     fetchDailyPhotos(period),
+    fetchDailyQuote(),
   ]);
 
   const payload: MorningBriefResponse = {
@@ -368,6 +442,7 @@ export async function GET(request: NextRequest) {
     gold: goldRes.status === 'fulfilled' ? goldRes.value : null,
     fuel: fuelRes.status === 'fulfilled' ? fuelRes.value : [],
     photos: photosRes.status === 'fulfilled' ? photosRes.value : [],
+    quote: quoteRes.status === 'fulfilled' ? quoteRes.value : null,
   };
 
   return NextResponse.json(payload);
