@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { differenceInCalendarDays, format, isValid, parseISO, subDays } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { CalendarCheck2, ChevronDown } from 'lucide-react';
 import {
   addIntervalToDate,
   MAINTENANCE_CATEGORIES,
@@ -32,6 +35,67 @@ interface MaintenanceFormModalProps {
   isSaving?: boolean;
 }
 
+interface FormState {
+  title: string;
+  category: MaintenanceCategory;
+  recurrenceMode: MaintenanceRecurrenceMode;
+  intervalValue: string;
+  intervalUnit: MaintenanceIntervalUnit;
+  remindBeforeDays: string;
+  lastDoneAt: string;
+  manualDueOverride: boolean;
+  manualNextDueAt: string;
+  vehicleName: string;
+  intervalKm: string;
+  currentOdo: string;
+  estimatedCost: string;
+  providerName: string;
+  providerContact: string;
+  autoRenew: boolean;
+  notes: string;
+}
+
+function buildInitialState(item?: MaintenanceItem | null): FormState {
+  const today = toISODate(new Date());
+  return {
+    title: item?.title ?? '',
+    category: item?.category ?? 'PERSONAL_CARE',
+    recurrenceMode: item?.recurrence_mode ?? 'AFTER_COMPLETION',
+    intervalValue: item ? String(item.interval_value) : '30',
+    intervalUnit: item?.interval_unit ?? 'DAY',
+    remindBeforeDays: item ? String(item.remind_before_days) : '3',
+    lastDoneAt: item ? item.last_done_at ?? '' : today,
+    manualDueOverride: false,
+    manualNextDueAt:
+      item?.next_due_at ?? toISODate(addIntervalToDate(new Date(), 30, 'DAY')),
+    vehicleName: item?.vehicle_name ?? '',
+    intervalKm: item?.interval_km ? String(item.interval_km) : '',
+    currentOdo: item && item.current_odo !== null ? String(item.current_odo) : '',
+    estimatedCost: item?.estimated_cost ? String(item.estimated_cost) : '',
+    providerName: item?.provider_name ?? '',
+    providerContact: item?.provider_contact ?? '',
+    autoRenew: item?.auto_renew ?? false,
+    notes: item?.notes ?? '',
+  };
+}
+
+function Field({
+  label,
+  className = '',
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`space-y-1 ${className}`}>
+      <label className="text-xs font-medium text-text-secondary">{label}</label>
+      {children}
+    </div>
+  );
+}
+
 export function MaintenanceFormModal({
   isOpen,
   onClose,
@@ -39,152 +103,147 @@ export function MaintenanceFormModal({
   onSave,
   isSaving = false,
 }: MaintenanceFormModalProps) {
-  const [title, setTitle] = useState(() => editingItem?.title ?? '');
-  const [category, setCategory] = useState<MaintenanceCategory>(
-    () => editingItem?.category ?? 'PERSONAL_CARE'
-  );
-  const [recurrenceMode, setRecurrenceMode] =
-    useState<MaintenanceRecurrenceMode>(
-      () => editingItem?.recurrence_mode ?? 'AFTER_COMPLETION'
-    );
-  const [intervalValue, setIntervalValue] = useState(() =>
-    editingItem ? String(editingItem.interval_value) : '30'
-  );
-  const [intervalUnit, setIntervalUnit] = useState<MaintenanceIntervalUnit>(
-    () => editingItem?.interval_unit ?? 'DAY'
-  );
-  const [remindBeforeDays, setRemindBeforeDays] = useState(() =>
-    editingItem ? String(editingItem.remind_before_days) : '3'
-  );
-  const [nextDueAt, setNextDueAt] = useState(
+  const [form, setForm] = useState<FormState>(() => buildInitialState(editingItem));
+  const [showExtras, setShowExtras] = useState(
     () =>
-      editingItem?.next_due_at ??
-      toISODate(addIntervalToDate(new Date(), 30, 'DAY'))
+      Boolean(
+        editingItem?.provider_name ||
+          editingItem?.provider_contact ||
+          editingItem?.notes ||
+          editingItem?.estimated_cost
+      )
   );
-  const [vehicleName, setVehicleName] = useState(
-    () => editingItem?.vehicle_name ?? ''
-  );
-  const [intervalKm, setIntervalKm] = useState(() =>
-    editingItem?.interval_km ? String(editingItem.interval_km) : ''
-  );
-  const [currentOdo, setCurrentOdo] = useState(() =>
-    editingItem && editingItem.current_odo !== null
-      ? String(editingItem.current_odo)
-      : ''
-  );
-  const [estimatedCost, setEstimatedCost] = useState(() =>
-    editingItem?.estimated_cost ? String(editingItem.estimated_cost) : ''
-  );
-  const [providerName, setProviderName] = useState(
-    () => editingItem?.provider_name ?? ''
-  );
-  const [providerContact, setProviderContact] = useState(
-    () => editingItem?.provider_contact ?? ''
-  );
-  const [autoRenew, setAutoRenew] = useState(
-    () => editingItem?.auto_renew ?? false
-  );
-  const [notes, setNotes] = useState(() => editingItem?.notes ?? '');
 
-  const applyTemplate = (templateKey: string) => {
-    const tpl = MAINTENANCE_TEMPLATES.find((t) => t.key === templateKey);
+  const setField = <K extends keyof FormState>(key: K, value: FormState[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const computedNextDueAt = useMemo(() => {
+    if (form.manualDueOverride && form.manualNextDueAt) return form.manualNextDueAt;
+    if (!form.lastDoneAt) return toISODate(new Date());
+    const base = parseISO(form.lastDoneAt);
+    if (!isValid(base)) return toISODate(new Date());
+    const val = Math.max(1, Number(form.intervalValue) || 1);
+    return toISODate(addIntervalToDate(base, val, form.intervalUnit));
+  }, [
+    form.manualDueOverride,
+    form.manualNextDueAt,
+    form.lastDoneAt,
+    form.intervalValue,
+    form.intervalUnit,
+  ]);
+
+  const duePreview = useMemo(() => {
+    const parsed = parseISO(computedNextDueAt);
+    if (!isValid(parsed)) return null;
+    const diff = differenceInCalendarDays(parsed, new Date());
+    const diffText =
+      diff < 0
+        ? `quá hạn ${Math.abs(diff)} ngày`
+        : diff === 0
+        ? 'hôm nay'
+        : diff === 1
+        ? 'ngày mai'
+        : `còn ${diff} ngày`;
+    return {
+      dateLabel: format(parsed, 'dd/MM/yyyy', { locale: vi }),
+      diff,
+      diffText,
+    };
+  }, [computedNextDueAt]);
+
+  const applyTemplate = (key: string) => {
+    const tpl = MAINTENANCE_TEMPLATES.find((t) => t.key === key);
     if (!tpl) return;
-    setTitle(tpl.title);
-    setCategory(tpl.category);
-    setRecurrenceMode(tpl.recurrence_mode);
-    setIntervalValue(String(tpl.interval_value));
-    setIntervalUnit(tpl.interval_unit);
-    setRemindBeforeDays(String(tpl.remind_before_days));
-    setNextDueAt(
-      toISODate(addIntervalToDate(new Date(), tpl.interval_value, tpl.interval_unit))
-    );
-    setIntervalKm(tpl.interval_km ? String(tpl.interval_km) : '');
-    setEstimatedCost(tpl.estimated_cost ? String(tpl.estimated_cost) : '');
-    setAutoRenew(Boolean(tpl.auto_renew));
-    setNotes(tpl.notes || '');
+    setForm((prev) => ({
+      ...prev,
+      title: tpl.title,
+      category: tpl.category,
+      recurrenceMode: tpl.recurrence_mode,
+      intervalValue: String(tpl.interval_value),
+      intervalUnit: tpl.interval_unit,
+      remindBeforeDays: String(tpl.remind_before_days),
+      manualDueOverride: false,
+      intervalKm: tpl.interval_km ? String(tpl.interval_km) : '',
+      estimatedCost: tpl.estimated_cost ? String(tpl.estimated_cost) : '',
+      autoRenew: Boolean(tpl.auto_renew),
+      notes: tpl.notes || '',
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsedInterval = Math.max(1, Number(intervalValue) || 1);
-    const parsedRemind = Math.max(0, Number(remindBeforeDays) || 0);
-    const parsedOdo = currentOdo.trim() ? Number(currentOdo) : null;
-
+    const odo = form.currentOdo.trim() ? Number(form.currentOdo) : null;
     await onSave(
       {
-        title: title.trim(),
-        category,
-        recurrence_mode: recurrenceMode,
-        interval_value: parsedInterval,
-        interval_unit: intervalUnit,
-        remind_before_days: parsedRemind,
-        next_due_at: nextDueAt,
-        vehicle_name: vehicleName.trim() || null,
-        interval_km: intervalKm.trim() ? Number(intervalKm) : null,
-        last_odo: editingItem ? editingItem.last_odo : parsedOdo,
-        current_odo: parsedOdo,
-        estimated_cost: estimatedCost.trim() ? Number(estimatedCost) : null,
-        provider_name: providerName.trim() || null,
-        provider_contact: providerContact.trim() || null,
-        auto_renew: autoRenew,
-        notes: notes.trim() || null,
+        title: form.title.trim(),
+        category: form.category,
+        recurrence_mode: form.recurrenceMode,
+        interval_value: Math.max(1, Number(form.intervalValue) || 1),
+        interval_unit: form.intervalUnit,
+        remind_before_days: Math.max(0, Number(form.remindBeforeDays) || 0),
+        last_done_at: form.lastDoneAt || null,
+        next_due_at: computedNextDueAt,
+        vehicle_name: form.vehicleName.trim() || null,
+        interval_km: form.intervalKm.trim() ? Number(form.intervalKm) : null,
+        last_odo: editingItem ? editingItem.last_odo : odo,
+        current_odo: odo,
+        estimated_cost: form.estimatedCost.trim() ? Number(form.estimatedCost) : null,
+        provider_name: form.providerName.trim() || null,
+        provider_contact: form.providerContact.trim() || null,
+        auto_renew: form.autoRenew,
+        notes: form.notes.trim() || null,
         is_active: editingItem ? editingItem.is_active : true,
       },
       editingItem?.id
     );
   };
 
+  const presets = [
+    { label: 'Hôm nay', value: toISODate(new Date()) },
+    { label: 'Hôm qua', value: toISODate(subDays(new Date(), 1)) },
+    { label: '7 ngày trước', value: toISODate(subDays(new Date(), 7)) },
+    { label: 'Chưa làm bao giờ', value: '' },
+  ];
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={editingItem ? 'Chỉnh sửa mục bảo trì' : 'Thêm mục bảo trì mới'}
-      description="Thiết lập chu kỳ thông minh để không bỏ sót việc chăm sóc bản thân, nhà cửa & tài sản."
+      description="Chỉ cần chọn ngày làm gần nhất, HomeBase sẽ tự tính hạn kế tiếp cho bạn."
       maxWidth="xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Quick template picker when creating */}
         {!editingItem && (
-          <div className="space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">
-              Điền nhanh từ mẫu gợi ý:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {MAINTENANCE_TEMPLATES.map((tpl) => (
-                <button
-                  key={tpl.key}
-                  type="button"
-                  onClick={() => applyTemplate(tpl.key)}
-                  className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-xs font-medium text-text-secondary hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
-                >
-                  + {tpl.title}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-1.5">
+            {MAINTENANCE_TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.key}
+                type="button"
+                onClick={() => applyTemplate(tpl.key)}
+                className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-xs font-medium text-text-secondary hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
+              >
+                + {tpl.title}
+              </button>
+            ))}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5 sm:col-span-2">
-            <label className="text-xs font-medium text-text-secondary">
-              Tên công việc / hạng mục *
-            </label>
+          <Field label="Tên công việc / hạng mục *" className="sm:col-span-2">
             <Input
               required
               placeholder="Ví dụ: Cắt tóc, Giặt chăn ga, Thay nhớt xe..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={form.title}
+              onChange={(e) => setField('title', e.target.value)}
             />
-          </div>
+          </Field>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Danh mục
-            </label>
+          <Field label="Danh mục">
             <Select
-              value={category}
+              value={form.category}
               onChange={(e) =>
-                setCategory(e.target.value as MaintenanceCategory)
+                setField('category', e.target.value as MaintenanceCategory)
               }
             >
               {MAINTENANCE_CATEGORIES.map((c) => (
@@ -193,16 +252,16 @@ export function MaintenanceFormModal({
                 </option>
               ))}
             </Select>
-          </div>
+          </Field>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Kiểu lặp lại
-            </label>
+          <Field label="Kiểu lặp lại">
             <Select
-              value={recurrenceMode}
+              value={form.recurrenceMode}
               onChange={(e) =>
-                setRecurrenceMode(e.target.value as MaintenanceRecurrenceMode)
+                setField(
+                  'recurrenceMode',
+                  e.target.value as MaintenanceRecurrenceMode
+                )
               }
             >
               {Object.entries(RECURRENCE_MODE_LABELS).map(([key, meta]) => (
@@ -211,35 +270,24 @@ export function MaintenanceFormModal({
                 </option>
               ))}
             </Select>
-          </div>
+          </Field>
         </div>
 
-        <p className="text-[11px] text-text-muted -mt-2">
-          {RECURRENCE_MODE_LABELS[recurrenceMode].hint}
-        </p>
-
-        {/* Interval + Due date */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Mỗi bao lâu
-            </label>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="Mỗi bao lâu">
             <Input
               type="number"
               min={1}
               required
-              value={intervalValue}
-              onChange={(e) => setIntervalValue(e.target.value)}
+              value={form.intervalValue}
+              onChange={(e) => setField('intervalValue', e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Đơn vị
-            </label>
+          </Field>
+          <Field label="Đơn vị">
             <Select
-              value={intervalUnit}
+              value={form.intervalUnit}
               onChange={(e) =>
-                setIntervalUnit(e.target.value as MaintenanceIntervalUnit)
+                setField('intervalUnit', e.target.value as MaintenanceIntervalUnit)
               }
             >
               <option value="DAY">Ngày</option>
@@ -247,142 +295,208 @@ export function MaintenanceFormModal({
               <option value="MONTH">Tháng</option>
               <option value="YEAR">Năm</option>
             </Select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Nhắc trước (ngày)
-            </label>
+          </Field>
+          <Field label="Nhắc trước (ngày)">
             <Input
               type="number"
               min={0}
               required
-              value={remindBeforeDays}
-              onChange={(e) => setRemindBeforeDays(e.target.value)}
+              value={form.remindBeforeDays}
+              onChange={(e) => setField('remindBeforeDays', e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Hạn kế tiếp *
-            </label>
-            <Input
-              type="date"
-              required
-              value={nextDueAt}
-              onChange={(e) => setNextDueAt(e.target.value)}
-            />
-          </div>
+          </Field>
         </div>
 
-        {/* Vehicle specific section */}
-        {(category === 'VEHICLE' || recurrenceMode === 'USAGE_BASED') && (
-          <div className="rounded-lg border border-border bg-secondary/40 p-3.5 space-y-3">
-            <span className="text-xs font-semibold text-foreground block">
-              Thông số phương tiện & Odo
+        {/* Last Done Date -> Auto Calculate Next Due */}
+        <div className="rounded-lg border border-border bg-secondary/35 p-3 space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs font-medium text-foreground">
+              Lần gần nhất bạn làm là khi nào?
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-text-secondary">Tên xe</label>
-                <Input
-                  placeholder="AirBlade 150..."
-                  value={vehicleName}
-                  onChange={(e) => setVehicleName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-text-secondary">
-                  Chu kỳ (km)
-                </label>
-                <Input
-                  type="number"
-                  min={100}
-                  step={100}
-                  placeholder="1500"
-                  value={intervalKm}
-                  onChange={(e) => setIntervalKm(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-text-secondary">
-                  Odo hiện tại (km)
-                </label>
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="18500"
-                  value={currentOdo}
-                  onChange={(e) => setCurrentOdo(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-wrap gap-1">
+              {presets.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      lastDoneAt: p.value,
+                      manualDueOverride: false,
+                    }))
+                  }
+                  className={
+                    form.lastDoneAt === p.value
+                      ? 'rounded-md bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground cursor-pointer'
+                      : 'rounded-md border border-border bg-card px-2 py-0.5 text-[11px] font-medium text-text-secondary hover:bg-accent cursor-pointer'
+                  }
+                >
+                  {p.label}
+                </button>
+              ))}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center">
+            <Input
+              type="date"
+              value={form.lastDoneAt}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  lastDoneAt: e.target.value,
+                  manualDueOverride: false,
+                }))
+              }
+            />
+            {duePreview && (
+              <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs">
+                <span className="flex items-center gap-1.5 truncate text-text-secondary">
+                  <CalendarCheck2 className="h-4 w-4 shrink-0 text-success" />
+                  Hạn tới:{' '}
+                  <strong className="text-foreground">{duePreview.dateLabel}</strong>
+                  <span
+                    className={
+                      duePreview.diff < 0 ? 'text-destructive font-medium' : 'text-text-muted'
+                    }
+                  >
+                    ({duePreview.diffText})
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      manualNextDueAt: prev.manualDueOverride
+                        ? prev.manualNextDueAt
+                        : computedNextDueAt,
+                      manualDueOverride: !prev.manualDueOverride,
+                    }))
+                  }
+                  className="shrink-0 text-[11px] text-text-muted underline hover:text-foreground cursor-pointer"
+                >
+                  {form.manualDueOverride ? 'Tự tính' : 'Chỉnh tay'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {form.manualDueOverride && (
+            <Field label="Ngày đến hạn tùy chỉnh">
+              <Input
+                type="date"
+                required
+                value={form.manualNextDueAt}
+                onChange={(e) => setField('manualNextDueAt', e.target.value)}
+              />
+            </Field>
+          )}
+        </div>
+
+        {(form.category === 'VEHICLE' || form.recurrenceMode === 'USAGE_BASED') && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-lg border border-border bg-secondary/40 p-3">
+            <Field label="Tên xe">
+              <Input
+                placeholder="AirBlade 150..."
+                value={form.vehicleName}
+                onChange={(e) => setField('vehicleName', e.target.value)}
+              />
+            </Field>
+            <Field label="Chu kỳ (km)">
+              <Input
+                type="number"
+                min={100}
+                step={100}
+                placeholder="1500"
+                value={form.intervalKm}
+                onChange={(e) => setField('intervalKm', e.target.value)}
+              />
+            </Field>
+            <Field label="Odo hiện tại (km)">
+              <Input
+                type="number"
+                min={0}
+                placeholder="18500"
+                value={form.currentOdo}
+                onChange={(e) => setField('currentOdo', e.target.value)}
+              />
+            </Field>
           </div>
         )}
 
-        {/* Cost & Provider */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Chi phí dự kiến (₫)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1000}
-              placeholder="150000"
-              value={estimatedCost}
-              onChange={(e) => setEstimatedCost(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Tiệm quen / Nhà cung cấp
-            </label>
-            <Input
-              placeholder="Tên tiệm, phòng khám..."
-              value={providerName}
-              onChange={(e) => setProviderName(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              SĐT / Địa chỉ / Link
-            </label>
-            <Input
-              placeholder="090..., link gia hạn"
-              value={providerContact}
-              onChange={(e) => setProviderContact(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {category === 'SUBSCRIPTION' && (
+        {form.category === 'SUBSCRIPTION' && (
           <label className="flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer select-none">
             <input
               type="checkbox"
-              checked={autoRenew}
-              onChange={(e) => setAutoRenew(e.target.checked)}
+              checked={form.autoRenew}
+              onChange={(e) => setField('autoRenew', e.target.checked)}
               className="h-4 w-4 rounded border-input accent-primary"
             />
-            Dịch vụ có tự động trừ tiền gia hạn (Auto-renew)
+            Dịch vụ tự động trừ tiền gia hạn (Auto-renew)
           </label>
         )}
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-text-secondary">
-            Ghi chú
-          </label>
-          <Textarea
-            rows={2}
-            placeholder="Kiểu tóc hay cắt, loại nhớt, hoặc những lưu ý riêng..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
+        {/* Collapsible Extras */}
+        <div className="border-t border-border pt-2">
+          <button
+            type="button"
+            onClick={() => setShowExtras((prev) => !prev)}
+            className="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-foreground cursor-pointer"
+          >
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${
+                showExtras ? 'rotate-180' : ''
+              }`}
+            />
+            Chi tiết thêm (chi phí, tiệm quen, ghi chú)
+          </button>
+
+          {showExtras && (
+            <div className="mt-3 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Field label="Chi phí dự kiến (₫)">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    placeholder="150000"
+                    value={form.estimatedCost}
+                    onChange={(e) => setField('estimatedCost', e.target.value)}
+                  />
+                </Field>
+                <Field label="Tiệm quen / Nơi làm">
+                  <Input
+                    placeholder="Tên tiệm, phòng khám..."
+                    value={form.providerName}
+                    onChange={(e) => setField('providerName', e.target.value)}
+                  />
+                </Field>
+                <Field label="SĐT / Địa chỉ / Link">
+                  <Input
+                    placeholder="090..., link gia hạn"
+                    value={form.providerContact}
+                    onChange={(e) => setField('providerContact', e.target.value)}
+                  />
+                </Field>
+              </div>
+              <Field label="Ghi chú">
+                <Textarea
+                  rows={2}
+                  placeholder="Kiểu tóc hay cắt, loại nhớt, hoặc lưu ý riêng..."
+                  value={form.notes}
+                  onChange={(e) => setField('notes', e.target.value)}
+                />
+              </Field>
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex justify-end gap-2 pt-1">
           <Button type="button" variant="outline" onClick={onClose}>
             Hủy
           </Button>
-          <Button type="submit" disabled={isSaving || !title.trim()}>
+          <Button type="submit" disabled={isSaving || !form.title.trim()}>
             {isSaving
               ? 'Đang lưu...'
               : editingItem
