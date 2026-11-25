@@ -8,6 +8,7 @@ import { updateProfile, signOut } from '@/services/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { PushNotificationCard } from '@/components/settings/PushNotificationCard';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
@@ -148,6 +149,9 @@ export default function SettingsPage() {
           })}
         </div>
       </div>
+
+      {/* Push Notifications for iPhone / PWA */}
+      <PushNotificationCard />
 
       {/* App Information Box */}
       <div className="rounded-lg border border-border bg-card p-5 sm:p-6 shadow-2xs space-y-2.5">

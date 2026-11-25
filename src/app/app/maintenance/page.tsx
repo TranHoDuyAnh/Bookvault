@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   AlertCircle,
+  Bell,
   CheckCircle2,
   Coins,
   Plus,
@@ -283,6 +285,12 @@ export default function MaintenancePage() {
         description="Nhắc lịch cắt tóc, giặt chăn ga, dọn phòng, bảo dưỡng xe, vệ sinh laptop, khám sức khỏe và gia hạn dịch vụ."
         actions={
           <>
+            <Link href="/app/settings#push">
+              <Button variant="ghost" title="Cài đặt thông báo về iPhone">
+                <Bell className="h-4 w-4" />
+                <span className="hidden sm:inline">Nhắc iPhone</span>
+              </Button>
+            </Link>
             <Button
               variant="outline"
               onClick={() => setIsTemplateModalOpen(true)}
