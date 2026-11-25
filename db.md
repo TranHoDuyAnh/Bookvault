@@ -976,4 +976,97 @@ execute function public.sync_profile_from_auth();
 
 
 -- ============================================================
+-- 29. WEEKLY ENVELOPE BUDGET & SAVINGS
+-- ============================================================
+
+create table if not exists public.weekly_budgets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  week_start date not null,
+  week_end date not null,
+  total_cap numeric(12,0) not null default 1000000,
+  rollover_in numeric(12,0) not null default 0,
+  status text not null default 'OPEN' check (status in ('OPEN', 'CLOSED')),
+  surplus_to_next_week numeric(12,0) not null default 0,
+  surplus_to_savings numeric(12,0) not null default 0,
+  closed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, week_start)
+);
+
+create table if not exists public.budget_envelopes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  weekly_budget_id uuid not null references public.weekly_budgets(id) on delete cascade,
+  name text not null,
+  allocated_amount numeric(12,0) not null default 0 check (allocated_amount >= 0),
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.budget_expenses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  weekly_budget_id uuid not null references public.weekly_budgets(id) on delete cascade,
+  envelope_id uuid not null references public.budget_envelopes(id) on delete cascade,
+  amount numeric(12,0) not null check (amount > 0),
+  note text,
+  spent_at date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.savings_goals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  target_amount numeric(12,0),
+  current_amount numeric(12,0) not null default 0 check (current_amount >= 0),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.savings_transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  savings_goal_id uuid not null references public.savings_goals(id) on delete cascade,
+  weekly_budget_id uuid references public.weekly_budgets(id) on delete set null,
+  amount numeric(12,0) not null check (amount > 0),
+  note text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.weekly_budgets enable row level security;
+alter table public.budget_envelopes enable row level security;
+alter table public.budget_expenses enable row level security;
+alter table public.savings_goals enable row level security;
+alter table public.savings_transactions enable row level security;
+
+create policy "Users manage own weekly_budgets"
+  on public.weekly_budgets for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own budget_envelopes"
+  on public.budget_envelopes for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own budget_expenses"
+  on public.budget_expenses for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own savings_goals"
+  on public.savings_goals for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "Users manage own savings_transactions"
+  on public.savings_transactions for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ============================================================
 -- END

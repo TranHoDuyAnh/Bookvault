@@ -13,6 +13,7 @@ import {
   Search,
   Tv,
   CalendarHeart,
+  Wallet,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -37,6 +38,7 @@ export function Sidebar({ onOpenAddModal, onOpenSearchModal }: SidebarProps) {
   ];
 
   const lifestyleNavItems = [
+    { name: 'Ngân sách tuần', href: '/app/budget', icon: Wallet },
     { name: 'Giải trí & Văn hoá', href: '/app/entertainment', icon: Tv },
     { name: 'Ngày quan trọng', href: '/app/dates', icon: CalendarHeart },
   ];

@@ -140,3 +140,68 @@ export interface ImportantDate {
   reminder_days_before: number;
   created_at: string;
 }
+
+// ================= WEEKLY ENVELOPE BUDGET =================
+export type WeeklyBudgetStatus = 'OPEN' | 'CLOSED';
+
+export interface WeeklyBudget {
+  id: string;
+  user_id: string;
+  week_start: string;
+  week_end: string;
+  total_cap: number;
+  rollover_in: number;
+  status: WeeklyBudgetStatus;
+  surplus_to_next_week: number;
+  surplus_to_savings: number;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BudgetEnvelope {
+  id: string;
+  user_id: string;
+  weekly_budget_id: string;
+  name: string;
+  allocated_amount: number;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BudgetExpense {
+  id: string;
+  user_id: string;
+  weekly_budget_id: string;
+  envelope_id: string;
+  amount: number;
+  note: string | null;
+  spent_at: string;
+  created_at: string;
+}
+
+export interface EnvelopeWithSpent extends BudgetEnvelope {
+  spent_amount: number;
+  remaining_amount: number;
+}
+
+export interface SavingsGoal {
+  id: string;
+  user_id: string;
+  name: string;
+  target_amount: number | null;
+  current_amount: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavingsTransaction {
+  id: string;
+  user_id: string;
+  savings_goal_id: string;
+  weekly_budget_id: string | null;
+  amount: number;
+  note: string | null;
+  created_at: string;
+}
