@@ -243,6 +243,12 @@ export async function deleteBudgetExpense(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+export async function deleteWeeklyBudget(id: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from('weekly_budgets').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
 export interface WeeklyReportItem extends WeeklyBudget {
   total_spent: number;
   leftover: number;
@@ -332,6 +338,41 @@ export async function createSavingsGoal(payload: {
     .single();
   if (error) throw new Error(error.message);
   return data as SavingsGoal;
+}
+
+export async function depositToSavingsGoal(params: {
+  userId: string;
+  goalId: string;
+  amount: number;
+  note?: string | null;
+}): Promise<void> {
+  const supabase = createClient();
+  const { userId, goalId, amount, note } = params;
+
+  const { data: goal, error: fetchErr } = await supabase
+    .from('savings_goals')
+    .select('current_amount')
+    .eq('id', goalId)
+    .single();
+
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  const nextAmount = Number(goal?.current_amount || 0) + amount;
+  const { error: updateErr } = await supabase
+    .from('savings_goals')
+    .update({ current_amount: nextAmount })
+    .eq('id', goalId);
+
+  if (updateErr) throw new Error(updateErr.message);
+
+  const { error: txErr } = await supabase.from('savings_transactions').insert({
+    user_id: userId,
+    savings_goal_id: goalId,
+    amount,
+    note: note?.trim() || 'Nạp thêm vào quỹ tiết kiệm',
+  });
+
+  if (txErr) throw new Error(txErr.message);
 }
 
 export async function closeWeekAndDistribute(params: {

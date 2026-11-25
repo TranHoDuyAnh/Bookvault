@@ -20,8 +20,11 @@ interface WeeklyReportAndSavingsProps {
   savingsGoals: SavingsGoal[];
   savingsTransactions: SavingsTransaction[];
   isClosed: boolean;
+  currentBudgetId: string;
   onDeleteExpense: (id: string) => Promise<void>;
+  onDeleteWeek: (id: string) => Promise<void>;
   onCreateSavingsGoal: (name: string, targetAmount: number | null) => Promise<void>;
+  onDepositSavings: (goalId: string, amount: number, note: string | null) => Promise<void>;
 }
 
 export function WeeklyReportAndSavings({
@@ -31,12 +34,18 @@ export function WeeklyReportAndSavings({
   savingsGoals,
   savingsTransactions,
   isClosed,
+  currentBudgetId,
   onDeleteExpense,
+  onDeleteWeek,
   onCreateSavingsGoal,
+  onDepositSavings,
 }: WeeklyReportAndSavingsProps) {
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState('');
   const [showAddGoal, setShowAddGoal] = useState(false);
+  const [depositGoalId, setDepositGoalId] = useState<string | null>(null);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositNote, setDepositNote] = useState('');
 
   const envelopeMap = new Map(envelopes.map((e) => [e.id, e.name]));
 
@@ -157,12 +166,57 @@ export function WeeklyReportAndSavings({
                     key={goal.id}
                     className="rounded-md border border-border bg-background/60 p-3 space-y-1.5"
                   >
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-foreground">{goal.name}</span>
-                      <span className="font-semibold text-success tabular-nums">
-                        {formatVND(goal.current_amount)}
-                      </span>
+                    <div className="flex items-center justify-between text-xs gap-2">
+                      <span className="font-semibold text-foreground truncate">{goal.name}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="font-semibold text-success tabular-nums">
+                          {formatVND(goal.current_amount)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDepositGoalId(depositGoalId === goal.id ? null : goal.id);
+                            setDepositAmount('');
+                            setDepositNote('');
+                          }}
+                          className="rounded border border-border bg-secondary/70 hover:bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground cursor-pointer"
+                        >
+                          + Nạp
+                        </button>
+                      </div>
                     </div>
+                    {depositGoalId === goal.id && (
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const amt = parseInt(depositAmount.replace(/\D/g, ''), 10);
+                          if (!amt || amt <= 0) return;
+                          await onDepositSavings(goal.id, amt, depositNote.trim() || null);
+                          setDepositGoalId(null);
+                          setDepositAmount('');
+                          setDepositNote('');
+                        }}
+                        className="flex flex-wrap gap-1.5 pt-1"
+                      >
+                        <Input
+                          type="number"
+                          value={depositAmount}
+                          onChange={(e) => setDepositAmount(e.target.value)}
+                          placeholder="Số tiền (VNĐ)"
+                          className="w-32 h-7 text-xs"
+                          autoFocus
+                        />
+                        <Input
+                          value={depositNote}
+                          onChange={(e) => setDepositNote(e.target.value)}
+                          placeholder="Ghi chú (tuỳ chọn)"
+                          className="flex-1 min-w-[110px] h-7 text-xs"
+                        />
+                        <Button type="submit" size="sm" className="h-7 px-2.5 text-xs">
+                          Nạp
+                        </Button>
+                      </form>
+                    )}
                     {pct !== null && (
                       <div className="space-y-1">
                         <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
@@ -213,7 +267,8 @@ export function WeeklyReportAndSavings({
                 <th className="py-2 px-3 font-medium text-right">Ngân sách</th>
                 <th className="py-2 px-3 font-medium text-right">Thực chi</th>
                 <th className="py-2 px-3 font-medium text-right">Dư / Vượt</th>
-                <th className="py-2 pl-3 font-medium text-right">Trạng thái</th>
+                <th className="py-2 px-3 font-medium text-right">Trạng thái</th>
+                <th className="py-2 pl-2 font-medium text-right w-10" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border tabular-nums">
@@ -236,11 +291,23 @@ export function WeeklyReportAndSavings({
                   >
                     {formatVND(r.leftover)}
                   </td>
-                  <td className="py-2.5 pl-3 text-right">
+                  <td className="py-2.5 px-3 text-right">
                     {r.status === 'CLOSED' ? (
                       <span className="text-[11px] text-success">Đã chốt</span>
                     ) : (
                       <span className="text-[11px] text-text-muted">Đang mở</span>
+                    )}
+                  </td>
+                  <td className="py-2.5 pl-2 text-right">
+                    {r.id !== currentBudgetId && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteWeek(r.id)}
+                        className="p-1 rounded text-text-muted hover:bg-destructive-subtle hover:text-destructive cursor-pointer"
+                        title="Xoá báo cáo tuần này"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     )}
                   </td>
                 </tr>

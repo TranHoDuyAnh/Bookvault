@@ -9,6 +9,8 @@ import {
   createSavingsGoal,
   deleteBudgetExpense,
   deleteEnvelope,
+  deleteWeeklyBudget,
+  depositToSavingsGoal,
   getSavingsData,
   getWeekBudgetDetails,
   getWeeklyReports,
@@ -110,10 +112,23 @@ export function useBudgetMutations() {
     onSuccess: invalidateAll,
   });
 
+  const removeWeek = useMutation({
+    mutationFn: (id: string) => deleteWeeklyBudget(id),
+    onSuccess: invalidateAll,
+  });
+
   const addSavingsGoal = useMutation({
     mutationFn: (payload: { name: string; target_amount?: number | null }) => {
       if (!user) throw new Error('Bạn cần đăng nhập.');
       return createSavingsGoal({ ...payload, user_id: user.id });
+    },
+    onSuccess: invalidateAll,
+  });
+
+  const depositSavings = useMutation({
+    mutationFn: (payload: { goalId: string; amount: number; note?: string | null }) => {
+      if (!user) throw new Error('Bạn cần đăng nhập.');
+      return depositToSavingsGoal({ ...payload, userId: user.id });
     },
     onSuccess: invalidateAll,
   });
@@ -138,7 +153,9 @@ export function useBudgetMutations() {
     removeEnvelope,
     addExpense,
     removeExpense,
+    removeWeek,
     addSavingsGoal,
+    depositSavings,
     closeWeek,
   };
 }

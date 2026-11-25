@@ -142,9 +142,14 @@ export default function BudgetPage() {
             savingsGoals={savingsData?.goals || []}
             savingsTransactions={savingsData?.transactions || []}
             isClosed={isClosed}
+            currentBudgetId={budget.id}
             onDeleteExpense={async (id) => {
               await mutations.removeExpense.mutateAsync(id);
               toast.success('Đã xoá khoản chi.');
+            }}
+            onDeleteWeek={async (id) => {
+              await mutations.removeWeek.mutateAsync(id);
+              toast.success('Đã xoá báo cáo tuần.');
             }}
             onCreateSavingsGoal={async (name, targetAmount) => {
               await mutations.addSavingsGoal.mutateAsync({
@@ -152,6 +157,10 @@ export default function BudgetPage() {
                 target_amount: targetAmount,
               });
               toast.success(`Đã tạo quỹ "${name}".`);
+            }}
+            onDepositSavings={async (goalId, amount, note) => {
+              await mutations.depositSavings.mutateAsync({ goalId, amount, note });
+              toast.success('Đã nạp tiền vào quỹ tiết kiệm.');
             }}
           />
 
