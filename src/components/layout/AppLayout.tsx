@@ -30,7 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-x-hidden min-w-0 pb-20 lg:pb-8">
+      <div className="flex flex-1 flex-col overflow-x-clip min-w-0 pb-24 lg:pb-8">
         <Header
           onOpenSearchModal={() => setIsSearchOpen(true)}
           onOpenAddModal={() => {
