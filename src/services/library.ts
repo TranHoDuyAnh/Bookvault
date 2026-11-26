@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { MyLibraryItem, BookStatus, UserBook, BookImage } from '@/types/database';
-import { getSignedUrlsForImages } from './storage';
+import type { MyLibraryItem, BookStatus, UserBook } from '@/types/database';
 
 export interface LibraryFilters {
   status?: BookStatus | 'ALL';
@@ -63,29 +62,22 @@ export async function getUserLibrary(
     return [];
   }
 
-  // Fetch images & tags in batch for these books
+  // Fetch cover_url from books table in batch
   const bookIds = Array.from(new Set(libraryItems.map((item) => item.book_id)));
-  const userBookIds = libraryItems.map((item) => item.id);
 
-  // 1. Fetch images
-  const { data: imagesData } = await supabase
-    .from('book_images')
-    .select('*')
-    .in('book_id', bookIds)
-    .order('is_primary', { ascending: false })
-    .order('sort_order', { ascending: true });
+  const { data: booksCoverData } = await supabase
+    .from('books')
+    .select('id, cover_url')
+    .in('id', bookIds);
 
-  const refreshedImages = imagesData ? await getSignedUrlsForImages(imagesData as BookImage[]) : [];
-
-  const imagesByBookId: Record<string, BookImage[]> = {};
-  for (const img of refreshedImages) {
-    if (!imagesByBookId[img.book_id]) imagesByBookId[img.book_id] = [];
-    imagesByBookId[img.book_id].push(img);
+  const coverByBookId: Record<string, string | null> = {};
+  for (const row of (booksCoverData || []) as Array<{ id: string; cover_url?: string | null }>) {
+    coverByBookId[row.id] = row.cover_url ?? null;
   }
 
   const result: MyLibraryItem[] = libraryItems.map((item) => ({
     ...item,
-    images: imagesByBookId[item.book_id] || [],
+    cover_url: item.cover_url ?? coverByBookId[item.book_id] ?? null,
   }));
 
   return result;
@@ -107,19 +99,15 @@ export async function getUserBookById(userBookId: string): Promise<MyLibraryItem
 
   const item = data as MyLibraryItem;
 
-  // Fetch images & tags
-  const { data: imagesData } = await supabase
-    .from('book_images')
-    .select('*')
-    .eq('book_id', item.book_id)
-    .order('is_primary', { ascending: false })
-    .order('sort_order', { ascending: true });
-
-  const refreshedImages = imagesData ? await getSignedUrlsForImages(imagesData as BookImage[]) : [];
+  const { data: bookRow } = await supabase
+    .from('books')
+    .select('cover_url')
+    .eq('id', item.book_id)
+    .maybeSingle();
 
   return {
     ...item,
-    images: refreshedImages,
+    cover_url: item.cover_url ?? (bookRow as { cover_url?: string | null } | null)?.cover_url ?? null,
   };
 }
 

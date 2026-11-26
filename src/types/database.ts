@@ -22,6 +22,7 @@ export interface Book {
   release_year: number | null;
   description: string | null;
   page_count: number | null;
+  cover_url?: string | null;
   google_books_id: string | null;
   open_library_id: string | null;
   created_at: string;
@@ -83,7 +84,7 @@ export interface MyLibraryItem {
   notes: string | null;
   created_at: string;
   updated_at: string;
-  images?: BookImage[];
+  cover_url?: string | null;
 }
 
 // ================= NOTIFICATION REMINDER TYPES =================

@@ -20,10 +20,14 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { BookCover } from './BookCover';
-import { BookUploader } from './BookUploader';
 import { STATUS_CONFIG } from '@/lib/utils';
 import { useUser } from '@/hooks/useUser';
-import { searchGlobalBooks, findBookByISBN, createOrFindBook } from '@/services/books';
+import {
+  searchGlobalBooks,
+  findBookByISBN,
+  createOrFindBook,
+  updateBookCoverUrl,
+} from '@/services/books';
 import { addBookToLibrary, checkBookInUserLibrary } from '@/services/library';
 import type { Book, BookStatus, UserBook } from '@/types/database';
 import { toast } from 'sonner';
@@ -40,6 +44,8 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coverUrl, setCoverUrl] = useState('');
+  const [isSavingCover, setIsSavingCover] = useState(false);
 
   // Step 1 State: Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -248,7 +254,20 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    if (activeBookId && coverUrl.trim()) {
+      setIsSavingCover(true);
+      try {
+        await updateBookCoverUrl(activeBookId, coverUrl.trim());
+        toast.success('Đã lưu link ảnh bìa!');
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Không thể lưu link ảnh bìa.';
+        toast.error(message);
+      } finally {
+        setIsSavingCover(false);
+      }
+    }
+    setCoverUrl('');
     handleClose();
     router.refresh();
   };
@@ -577,7 +596,7 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
         </div>
       )}
 
-      {/* ================= STEP 4: PHOTO UPLOAD (OPTIONAL) ================= */}
+      {/* ================= STEP 4: COVER URL (OPTIONAL) ================= */}
       {step === 4 && activeBookId && (
         <div className="space-y-4">
           <div className="rounded-lg bg-success-subtle/60 border border-success/30 p-4 text-foreground flex items-start gap-3">
@@ -585,21 +604,43 @@ export function AddBookModal({ isOpen, onClose, initialData }: AddBookModalProps
             <div>
               <p className="font-semibold text-sm">Đã thêm &quot;{bookMeta.title}&quot; vào tủ sách thành công!</p>
               <p className="text-xs text-text-secondary mt-0.5">
-                Bạn có muốn tải ảnh chụp bìa sách thật lên để lưu lại kỷ niệm không?
+                Dán link ảnh bìa sách (Copy image address) để hiển thị đẹp như mục Phim.
               </p>
             </div>
           </div>
 
-          <BookUploader
-            bookId={activeBookId}
-            onUploaded={() => {
-              toast.success('Đã lưu ảnh sách!');
-            }}
-          />
+          <div className="flex flex-col sm:flex-row gap-4 items-start rounded-lg border border-border bg-card p-4">
+            <BookCover
+              src={coverUrl.trim() || null}
+              title={bookMeta.title}
+              author={bookMeta.author}
+              size="md"
+              className="w-24 h-36 shrink-0 mx-auto sm:mx-0"
+            />
+            <div className="flex-1 w-full space-y-2">
+              <Input
+                label="Link ảnh bìa"
+                placeholder="https://..."
+                value={coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+              />
+              <p className="text-[11px] text-text-muted">
+                Mẹo: Tìm ảnh bìa trên Tiki, Fahasa hoặc Goodreads → chuột phải chọn &quot;Copy image address&quot; rồi dán vào đây.
+              </p>
+            </div>
+          </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button onClick={handleFinish} className="gap-1.5 text-xs font-semibold">
-              Hoàn tất & Xem tủ sách &rarr;
+            <Button
+              onClick={handleFinish}
+              disabled={isSavingCover}
+              className="gap-1.5 text-xs font-semibold"
+            >
+              {isSavingCover ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <>Hoàn tất &amp; Xem tủ sách &rarr;</>
+              )}
             </Button>
           </div>
         </div>

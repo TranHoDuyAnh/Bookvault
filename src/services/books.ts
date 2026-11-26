@@ -66,6 +66,7 @@ export interface CreateBookInput {
   release_year?: number | null;
   description?: string | null;
   page_count?: number | null;
+  cover_url?: string | null;
   google_books_id?: string | null;
   open_library_id?: string | null;
 }
@@ -101,6 +102,7 @@ export async function createOrFindBook(input: CreateBookInput): Promise<Book> {
     release_year: input.release_year || null,
     description: input.description?.trim() || null,
     page_count: input.page_count && input.page_count > 0 ? input.page_count : null,
+    cover_url: input.cover_url?.trim() || null,
     google_books_id: input.google_books_id || null,
     open_library_id: input.open_library_id || null,
   };
@@ -117,4 +119,19 @@ export async function createOrFindBook(input: CreateBookInput): Promise<Book> {
   }
 
   return data as Book;
+}
+
+export async function updateBookCoverUrl(
+  bookId: string,
+  coverUrl: string | null
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('books')
+    .update({ cover_url: coverUrl?.trim() || null })
+    .eq('id', bookId);
+
+  if (error) {
+    throw new Error(`Cập nhật ảnh bìa thất bại: ${error.message}`);
+  }
 }

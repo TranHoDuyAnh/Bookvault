@@ -53,9 +53,7 @@ export function BookList({
   return (
     <div className="space-y-2.5">
       {books.map((book) => {
-        const primaryImage =
-          book.images?.find((img) => img.is_primary)?.image_url ||
-          book.images?.[0]?.image_url;
+        const primaryImage = book.cover_url;
 
         return (
           <Link

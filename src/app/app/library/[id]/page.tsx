@@ -8,20 +8,21 @@ import {
   BookOpen,
   DollarSign,
   Star,
-  Camera,
+  Image as ImageIcon,
   Trash2,
   Edit3,
+  Loader2,
 } from 'lucide-react';
 import { useBookDetail, useDeleteUserBook, useUpdateUserBook } from '@/hooks/useLibrary';
 import { BookCover } from '@/components/books/BookCover';
 import { BookStatusBadge } from '@/components/books/BookStatusBadge';
-import { BookImageGallery } from '@/components/books/BookImageGallery';
-import { BookUploader } from '@/components/books/BookUploader';
 import { EditPersonalInfoModal } from '@/components/books/EditPersonalInfoModal';
 import { ReadingProgressCard } from '@/components/reading/ReadingProgressCard';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { updateBookCoverUrl } from '@/services/books';
 import { formatVND, formatDateVN, STATUS_CONFIG } from '@/lib/utils';
 import type { BookStatus } from '@/types/database';
 import { toast } from 'sonner';
@@ -39,6 +40,8 @@ export default function BookDetailPage() {
   const [isEditPersonalModalOpen, setIsEditPersonalModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
+  const [coverInput, setCoverInput] = useState<string | null>(null);
+  const [isSavingCover, setIsSavingCover] = useState(false);
 
   if (isLoading) {
     return (
@@ -73,9 +76,23 @@ export default function BookDetailPage() {
     );
   }
 
-  const primaryImage =
-    book.images?.find((img) => img.is_primary)?.image_url ||
-    book.images?.[0]?.image_url;
+  const primaryImage = book.cover_url;
+  const activeCoverValue = coverInput !== null ? coverInput : (book.cover_url || '');
+
+  const handleSaveCoverUrl = async (nextUrl: string | null) => {
+    setIsSavingCover(true);
+    try {
+      await updateBookCoverUrl(book.book_id, nextUrl);
+      toast.success(nextUrl ? 'Đã cập nhật link ảnh bìa!' : 'Đã xoá ảnh bìa.');
+      setCoverInput(null);
+      refetch();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi cập nhật ảnh bìa.';
+      toast.error(message);
+    } finally {
+      setIsSavingCover(false);
+    }
+  };
 
   const handleDeleteBook = async () => {
     try {
@@ -187,22 +204,42 @@ export default function BookDetailPage() {
             />
           </div>
 
-          <div className="space-y-3">
+          <div className="rounded-lg border border-border bg-card p-4 space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-              <Camera className="h-4 w-4 text-text-secondary" />
-              Ảnh chụp sách vật lý ({book.images?.length || 0})
+              <ImageIcon className="h-4 w-4 text-text-secondary" />
+              Link ảnh bìa sách
             </h3>
 
-            <BookImageGallery
-              bookId={book.book_id}
-              images={book.images || []}
-              onImageChanged={() => refetch()}
+            <Input
+              placeholder="https://..."
+              value={activeCoverValue}
+              onChange={(e) => setCoverInput(e.target.value)}
             />
 
-            <BookUploader
-              bookId={book.book_id}
-              onUploaded={() => refetch()}
-            />
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleSaveCoverUrl(activeCoverValue.trim() || null)}
+                disabled={isSavingCover || activeCoverValue.trim() === (book.cover_url || '')}
+                className="flex-1"
+              >
+                {isSavingCover ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  'Lưu link ảnh'
+                )}
+              </Button>
+              {book.cover_url && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSaveCoverUrl(null)}
+                  disabled={isSavingCover}
+                >
+                  Xoá
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

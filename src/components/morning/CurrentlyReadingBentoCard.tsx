@@ -111,7 +111,7 @@ export function CurrentlyReadingBentoCard({
           <div className="flex items-start gap-3.5">
             <Link href={`/app/library/${book.id}`} className="shrink-0">
               <BookCover
-                src={book.images?.[0]?.image_url || null}
+                src={book.cover_url || null}
                 title={book.title}
                 author={book.author}
                 size="sm"

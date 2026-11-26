@@ -112,9 +112,7 @@ export function BookSearchModal({
 
                 <div className="space-y-3">
                   {userBooksResults.map((item) => {
-                    const primaryImage =
-                      item.images?.find((img) => img.is_primary)?.image_url ||
-                      item.images?.[0]?.image_url;
+                    const primaryImage = item.cover_url;
 
                     return (
                       <div

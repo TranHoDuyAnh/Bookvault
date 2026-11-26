@@ -8,9 +8,7 @@ import { BookCover } from './BookCover';
 import { BookStatusBadge } from './BookStatusBadge';
 
 export function BookCard({ book }: { book: MyLibraryItem }) {
-  const primaryImage =
-    book.images?.find((img) => img.is_primary)?.image_url ||
-    book.images?.[0]?.image_url;
+  const primaryImage = book.cover_url;
 
   const showProgress =
     book.status === 'READING' || (book.current_page > 0 && book.total_pages && book.total_pages > 0);
