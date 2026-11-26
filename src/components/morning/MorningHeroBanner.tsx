@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Sun,
   Sunrise,
@@ -33,6 +33,160 @@ function PeriodIcon({ period, className }: { period: string; className?: string 
   if (period === 'afternoon') return <Sun className={className} />;
   if (period === 'evening') return <Sunset className={className} />;
   return <Moon className={className} />;
+}
+
+function getHcmcTimeNumbers(): { h: number; m: number; s: number } {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const h = parseInt(parts.find((p) => p.type === 'hour')?.value || '8', 10);
+  const m = parseInt(parts.find((p) => p.type === 'minute')?.value || '0', 10);
+  const s = parseInt(parts.find((p) => p.type === 'second')?.value || '0', 10);
+  return { h: isNaN(h) ? 8 : h, m: isNaN(m) ? 0 : m, s: isNaN(s) ? 0 : s };
+}
+
+function HeroLiveClock({ fallbackTimeStr }: { fallbackTimeStr: string }) {
+  const [clock, setClock] = useState<{ h: number; m: number; s: number } | null>(null);
+  const [mode, setMode] = useState<'hybrid' | 'split'>('hybrid');
+
+  useEffect(() => {
+    const tick = () => setClock(getHcmcTimeNumbers());
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const hh = clock ? pad(clock.h) : fallbackTimeStr.slice(0, 2) || '08';
+  const mm = clock ? pad(clock.m) : fallbackTimeStr.slice(3, 5) || '00';
+  const ss = clock ? pad(clock.s) : '00';
+
+  const secDeg = clock ? clock.s * 6 : 0;
+  const minDeg = clock ? clock.m * 6 + clock.s * 0.1 : 0;
+  const hourDeg = clock ? (clock.h % 12) * 30 + clock.m * 0.5 : 240;
+
+  return (
+    <button
+      type="button"
+      onClick={() => setMode((prev) => (prev === 'hybrid' ? 'split' : 'hybrid'))}
+      title="Chạm để đổi kiểu đồng hồ"
+      className="group shrink-0 text-left cursor-pointer focus:outline-none"
+    >
+      {mode === 'hybrid' ? (
+        <div className="flex items-center gap-3.5 rounded-2xl border border-white/20 bg-black/30 backdrop-blur-xl px-4 py-3 shadow-lg transition-all group-hover:bg-black/40 group-hover:border-white/30">
+          {/* Minimalist Analog Watch Dial */}
+          <div className="relative h-12 w-12 shrink-0">
+            <svg viewBox="0 0 64 64" className="h-full w-full">
+              <circle
+                cx="32"
+                cy="32"
+                r="29"
+                fill="rgba(255,255,255,0.06)"
+                stroke="rgba(255,255,255,0.28)"
+                strokeWidth="1.5"
+              />
+              {Array.from({ length: 12 }).map((_, i) => {
+                const angle = (i * 30 * Math.PI) / 180;
+                const isQuarter = i % 3 === 0;
+                const r1 = isQuarter ? 22 : 24;
+                const r2 = 26.5;
+                return (
+                  <line
+                    key={i}
+                    x1={32 + r1 * Math.sin(angle)}
+                    y1={32 - r1 * Math.cos(angle)}
+                    x2={32 + r2 * Math.sin(angle)}
+                    y2={32 - r2 * Math.cos(angle)}
+                    stroke={isQuarter ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)'}
+                    strokeWidth={isQuarter ? '1.8' : '1'}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+              {/* Hour hand */}
+              <line
+                x1="32"
+                y1="32"
+                x2="32"
+                y2="17"
+                stroke="#ffffff"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                transform={`rotate(${hourDeg} 32 32)`}
+              />
+              {/* Minute hand */}
+              <line
+                x1="32"
+                y1="32"
+                x2="32"
+                y2="12"
+                stroke="rgba(255,255,255,0.9)"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                transform={`rotate(${minDeg} 32 32)`}
+              />
+              {/* Second hand */}
+              <line
+                x1="32"
+                y1="36"
+                x2="32"
+                y2="10"
+                stroke="#fbbf24"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                transform={`rotate(${secDeg} 32 32)`}
+              />
+              <circle cx="32" cy="32" r="2.2" fill="#fbbf24" />
+            </svg>
+          </div>
+
+          {/* Digital Readout */}
+          <div className="space-y-0.5">
+            <div className="flex items-baseline gap-1.5 tabular-nums leading-none">
+              <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+                {hh}
+                <span className="animate-pulse text-amber-300 mx-0.5">:</span>
+                {mm}
+              </span>
+              <span className="rounded-md bg-white/15 px-1.5 py-0.5 text-xs font-medium text-amber-200">
+                {ss}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3 text-[10px] uppercase tracking-widest text-white/65">
+              <span>GMT+7 • SÀI GÒN</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity">Đổi kiểu</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 rounded-2xl border border-white/20 bg-black/30 backdrop-blur-xl p-2 shadow-lg transition-all group-hover:bg-black/40 group-hover:border-white/30">
+          {[hh, mm, ss].map((unit, idx) => (
+            <React.Fragment key={idx}>
+              <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl border border-white/15 bg-white/10 shadow-inner">
+                <span
+                  className={cn(
+                    'text-2xl sm:text-3xl font-semibold tabular-nums tracking-tight',
+                    idx === 2 ? 'text-amber-300' : 'text-white'
+                  )}
+                >
+                  {unit}
+                </span>
+                <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/25" />
+              </div>
+              {idx < 2 && (
+                <span className="text-xl font-bold text-white/50 animate-pulse">:</span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </button>
+  );
 }
 
 export function MorningHeroBanner({
@@ -121,11 +275,7 @@ export function MorningHeroBanner({
           </p>
         </div>
 
-        <div className="sm:text-right shrink-0">
-          <div className="text-4xl sm:text-5xl font-semibold tracking-tight tabular-nums text-white leading-none">
-            {timeStr}
-          </div>
-        </div>
+        <HeroLiveClock fallbackTimeStr={timeStr} />
       </div>
     </section>
   );
