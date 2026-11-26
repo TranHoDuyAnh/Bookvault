@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getHcmcPeriodMeta, type DayPeriod } from '@/lib/lunar';
+import { getHcmcPeriodMeta, getHcmcQuoteDayInfo, type DayPeriod } from '@/lib/lunar';
 
 export interface MorningWeatherHourly {
   time: string;
@@ -379,40 +379,40 @@ async function translateEnToVi(text: string): Promise<string> {
 }
 
 async function fetchDailyQuote(): Promise<MorningQuoteData | null> {
+  const { dayIndex } = getHcmcQuoteDayInfo();
   let textEn = '';
   let author = '';
 
+  // Primary: deterministic quote ID anchored to 08:00 AM Asia/Ho_Chi_Minh
   try {
-    const res = await fetch('https://zenquotes.io/api/today', {
-      next: { revalidate: 21600 },
+    const quoteId = (((dayIndex % 100) + 100) % 100) + 1;
+    const res = await fetch(`https://dummyjson.com/quotes/${quoteId}`, {
+      next: { revalidate: 86400 },
     });
     if (res.ok) {
-      const json = (await res.json()) as Array<{ q?: string; a?: string }>;
-      if (Array.isArray(json) && json[0]?.q) {
-        textEn = json[0].q.trim();
-        author = (json[0].a || 'Unknown').trim();
+      const json = (await res.json()) as { quote?: string; author?: string };
+      if (json?.quote) {
+        textEn = json.quote.trim();
+        author = (json.author || 'Unknown').trim();
       }
     }
   } catch {
-    // Fallback to DummyJSON below
+    // Fallback to ZenQuotes below
   }
 
   if (!textEn) {
     try {
-      const now = new Date();
-      const start = new Date(now.getFullYear(), 0, 0);
-      const dayOfYear = Math.floor(
-        (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      const quoteId = (dayOfYear % 100) + 1;
-      const res = await fetch(`https://dummyjson.com/quotes/${quoteId}`, {
-        next: { revalidate: 21600 },
+      const res = await fetch('https://zenquotes.io/api/quotes', {
+        next: { revalidate: 86400 },
       });
       if (res.ok) {
-        const json = (await res.json()) as { quote?: string; author?: string };
-        if (json?.quote) {
-          textEn = json.quote.trim();
-          author = (json.author || 'Unknown').trim();
+        const json = (await res.json()) as Array<{ q?: string; a?: string }>;
+        if (Array.isArray(json) && json.length > 0) {
+          const picked = json[((dayIndex % json.length) + json.length) % json.length];
+          if (picked?.q) {
+            textEn = picked.q.trim();
+            author = (picked.a || 'Unknown').trim();
+          }
         }
       }
     } catch {

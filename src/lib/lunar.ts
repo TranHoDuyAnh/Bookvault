@@ -58,6 +58,17 @@ export function getLunarDateInfo(date: Date = new Date()): LunarDateInfo {
   }
 }
 
+export function getHcmcQuoteDayInfo(now: Date = new Date()): {
+  dayIndex: number;
+  dayKey: string;
+} {
+  // Anchor rollover to 08:00 AM Asia/Ho_Chi_Minh (UTC+7): +7h - 8h = -1h from UTC
+  const shifted = new Date(now.getTime() - 60 * 60 * 1000);
+  const dayIndex = Math.floor(shifted.getTime() / 86_400_000);
+  const dayKey = shifted.toISOString().slice(0, 10);
+  return { dayIndex, dayKey };
+}
+
 export type DayPeriod = 'morning' | 'afternoon' | 'evening' | 'night';
 
 export interface PeriodMeta {

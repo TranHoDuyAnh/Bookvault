@@ -35,11 +35,85 @@ function getAqiBadgeStyle(aqi: number | null): string {
 interface HcmcWeatherCardProps {
   weather: MorningWeatherData | null | undefined;
   isLoading: boolean;
+  className?: string;
 }
 
-export function HcmcWeatherCard({ weather, isLoading }: HcmcWeatherCardProps) {
+function TemperatureSparkline({ hourly }: { hourly: MorningWeatherData['hourly'] }) {
+  if (hourly.length < 2) return null;
+
+  const temps = hourly.map((h) => h.temperature);
+  const min = Math.min(...temps);
+  const max = Math.max(...temps);
+  const range = Math.max(max - min, 1);
+
+  const width = 320;
+  const height = 44;
+  const padX = 10;
+  const padY = 8;
+
+  const points = hourly.map((h, idx) => {
+    const x = padX + (idx / (hourly.length - 1)) * (width - padX * 2);
+    const y = padY + (1 - (h.temperature - min) / range) * (height - padY * 2);
+    return { x, y, temp: h.temperature, label: h.hourLabel };
+  });
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(' ');
+  const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${height} L ${points[0].x.toFixed(1)} ${height} Z`;
+
   return (
-    <section className="lg:col-span-2 rounded-lg border border-border bg-card p-5 shadow-2xs flex flex-col justify-between gap-4">
+    <div className="mb-2.5 rounded-lg border border-border/70 bg-background/40 px-3 py-2">
+      <div className="flex items-center justify-between text-[11px] text-text-muted mb-1">
+        <span>Biến thiên nhiệt độ 8 giờ tới</span>
+        <span className="tabular-nums font-medium text-foreground">
+          {min}° – {max}°C
+        </span>
+      </div>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-11 overflow-visible"
+        aria-label="Biểu đồ nhiệt độ 8 giờ tới"
+      >
+        <defs>
+          <linearGradient id="tempSparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.24" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <path d={areaPath} fill="url(#tempSparkGrad)" className="text-warning" />
+        <path
+          d={linePath}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-warning"
+        />
+        {points.map((p) => (
+          <circle
+            key={p.label}
+            cx={p.x}
+            cy={p.y}
+            r="2.75"
+            className="fill-background stroke-warning"
+            strokeWidth="1.75"
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+export function HcmcWeatherCard({ weather, isLoading, className }: HcmcWeatherCardProps) {
+  return (
+    <section
+      className={cn(
+        'rounded-2xl border border-border bg-card p-5 shadow-2xs flex flex-col justify-between gap-4 h-full',
+        className
+      )}
+    >
       {isLoading ? (
         <div className="space-y-4">
           <Skeleton className="h-6 w-48" />
@@ -128,6 +202,7 @@ export function HcmcWeatherCard({ weather, isLoading }: HcmcWeatherCardProps) {
           {/* 8-Hour Forecast Strip */}
           {weather.hourly.length > 0 && (
             <div className="pt-1">
+              <TemperatureSparkline hourly={weather.hourly} />
               <p className="text-[11px] font-medium text-text-muted mb-2 uppercase tracking-wider">
                 Dự báo theo giờ tại TP.HCM
               </p>

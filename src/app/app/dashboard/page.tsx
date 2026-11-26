@@ -11,7 +11,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import type { MorningBriefResponse } from '@/app/api/morning/route';
-import { getHcmcPeriodMeta, getLunarDateInfo } from '@/lib/lunar';
+import { getHcmcPeriodMeta, getHcmcQuoteDayInfo, getLunarDateInfo } from '@/lib/lunar';
 import { evaluateMaintenanceItem, formatDueCountdown } from '@/lib/maintenance';
 import { useUser } from '@/hooks/useUser';
 import { useLibrary, useLibraryStats } from '@/hooks/useLibrary';
@@ -22,6 +22,9 @@ import { MorningHeroBanner } from '@/components/morning/MorningHeroBanner';
 import { DailyQuoteCard } from '@/components/morning/DailyQuoteCard';
 import { HcmcWeatherCard } from '@/components/morning/HcmcWeatherCard';
 import { MarketSnapshotCards } from '@/components/morning/MarketSnapshotCards';
+import { HabitCheckinBentoCard } from '@/components/morning/HabitCheckinBentoCard';
+import { UpcomingDatesBentoCard } from '@/components/morning/UpcomingDatesBentoCard';
+import { CurrentlyReadingBentoCard } from '@/components/morning/CurrentlyReadingBentoCard';
 
 const PERIOD_INDEX_MAP: Record<string, number> = {
   morning: 0,
@@ -87,6 +90,7 @@ export default function DashboardPage() {
   const { timeStr, dateStr, hourNum, dayOfYear } = useMemo(() => getHcmcClockParts(now), [now]);
   const periodMeta = useMemo(() => getHcmcPeriodMeta(hourNum), [hourNum]);
   const lunar = useMemo(() => getLunarDateInfo(now), [now]);
+  const { dayKey: quoteDayKey } = useMemo(() => getHcmcQuoteDayInfo(now), [now]);
 
   const {
     data: morningData,
@@ -94,9 +98,11 @@ export default function DashboardPage() {
     isFetching: morningFetching,
     refetch: refetchMorning,
   } = useQuery<MorningBriefResponse>({
-    queryKey: ['morning-brief', periodMeta.period],
+    queryKey: ['morning-brief', periodMeta.period, quoteDayKey],
     queryFn: async () => {
-      const res = await fetch(`/api/morning?period=${periodMeta.period}`);
+      const res = await fetch(
+        `/api/morning?period=${periodMeta.period}&quoteDay=${quoteDayKey}`
+      );
       if (!res.ok) throw new Error('Không thể tải bản tin.');
       return res.json();
     },
@@ -116,7 +122,7 @@ export default function DashboardPage() {
   const readCount = allBooks.filter((b) => b.status === 'READ').length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Daily + Time-of-Day Hero Banner */}
       <MorningHeroBanner
         periodMeta={periodMeta}
@@ -131,17 +137,32 @@ export default function DashboardPage() {
         displayName={displayName}
       />
 
-      {/* Quote of the Day (Bilingual EN - VI) */}
-      <DailyQuoteCard quote={morningData?.quote} isLoading={morningLoading} />
+      {/* Bento Row 1: Weather + Sparkline (Left 7 cols) | Quote + Habit Check-in (Right 5 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="lg:col-span-7">
+          <HcmcWeatherCard weather={morningData?.weather} isLoading={morningLoading} />
+        </div>
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          <DailyQuoteCard quote={morningData?.quote} isLoading={morningLoading} />
+          <HabitCheckinBentoCard className="flex-1" />
+        </div>
+      </div>
 
-      {/* HCMC Weather, Gold 9999 & Fuel Snapshot */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <HcmcWeatherCard weather={morningData?.weather} isLoading={morningLoading} />
-        <MarketSnapshotCards
-          gold={morningData?.gold}
-          fuel={morningData?.fuel || []}
-          isLoading={morningLoading}
-        />
+      {/* Bento Row 2: Currently Reading (5 cols) | Upcoming Dates (4 cols) | Compact Market Tab Card (3 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="lg:col-span-5">
+          <CurrentlyReadingBentoCard books={currentlyReading} isLoading={booksLoading} />
+        </div>
+        <div className="lg:col-span-4">
+          <UpcomingDatesBentoCard />
+        </div>
+        <div className="md:col-span-2 lg:col-span-3">
+          <MarketSnapshotCards
+            gold={morningData?.gold}
+            fuel={morningData?.fuel || []}
+            isLoading={morningLoading}
+          />
+        </div>
       </div>
 
       {/* Book Statistics Row */}
